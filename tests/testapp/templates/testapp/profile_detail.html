@@ -1,0 +1,10 @@
+{% extends "testapp/base.html" %}
+{% load pictures %}
+
+{% block content %}
+<h1>{{ profile.name }}</h1>
+<p>{{ profile.description }}</p>
+{% if profile.picture %}
+{% picture profile.picture profile.name m=6 l=4 %}
+{% endif %}
+{% endblock %}

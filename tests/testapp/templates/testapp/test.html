@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+{% load pictures %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Testapp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <style>
+    img {
+      max-width: calc(100% + 1px);
+      height: auto;
+    }
+
+    @media (max-width: 576px) and (min-width: 0px) {
+      html > body {
+        background: green;
+      }
+    }
+
+    @media (max-width: 768px) and (min-width: 576px) {
+      html > body {
+        background: red;
+      }
+    }
+
+    @media (max-width: 929px) and (min-width: 768px) {
+      body {
+        background: blue;
+      }
+    }
+
+    @media (max-width: 1200px) and (min-width: 929px) {
+      body {
+        background: yellow;
+      }
+    }
+
+    .w3-content {
+      max-width: 1200px;
+    }
+  </style>
+  <meta name="description" content="A car is a wheeled, self-powered motor vehicle used for transportation.">
+</head>
+<body>
+<div class="w3-content">
+  <div class="w3-container w3-dark-grey">
+    <h1>My Header</h1>
+  </div>
+
+  {% picture 'testapp/header.jpg' 1600 1600 alt='header' ratio=1.5 loading="eager" %}
+
+  <div class="w3-container">
+    <p>A car is a wheeled, self-powered motor vehicle used for transportation.</p>
+  </div>
+  <div class="w3-row">
+    <div class="w3-col m4 l3">
+      {% picture 'testapp/left_top.jpg' 1600 1600 ratio=1 alt='left top column' s=4 m=4 l=3 xl=3 %}
+      {% picture 'testapp/left_bottom.jpg' 1600 1600 ratio=1 alt='left bottom column' s=4 m=4 l=3 xl=3 %}
+    </div>
+    <div class="w3-col m8 l9">
+      {% picture 'testapp/right.jpg' 1600 1600 alt='right column' ratio=1.715 s=8 m=8 l=9 xl=9 %}
+    </div>
+  </div>
+
+  <div class="w3-container w3-dark-grey">
+    <p>My Footer</p>
+  </div>
+</div>
+</body>
+</html>

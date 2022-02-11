@@ -1,0 +1,6 @@
+<picture>{% for type, srcset in sources.items %}
+  <source type="image/{{ type|lower }}"
+          srcset="{% for width, pic in srcset.items %}{% if use_placeholders %}{% url 'pictures:placeholder' alt ratio width type %}{% else %}{{ pic.url }}{% endif %} {{ width }}w{% if not forloop.last %}, {% endif %}{% endfor %}"
+          sizes="{{ media }}">{% endfor %}
+  <img src="{{ field_file.url }}" alt="{{ alt }}" width="{{ field_file.width }}" height="{{ field_file.height }}"{% include 'pictures/attrs.html' %}>
+</picture>

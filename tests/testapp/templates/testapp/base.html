@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+{% load pictures %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Testapp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <style>
+    img {
+      max-width: calc(100% + 1px);
+      height: auto;
+    }
+
+    @media (max-width: 576px) and (min-width: 0px) {
+      html > body {
+        background: green;
+      }
+    }
+
+    @media (max-width: 768px) and (min-width: 576px) {
+      html > body {
+        background: red;
+      }
+    }
+
+    @media (max-width: 929px) and (min-width: 768px) {
+      body {
+        background: blue;
+      }
+    }
+
+    @media (max-width: 1200px) and (min-width: 929px) {
+      body {
+        background: yellow;
+      }
+    }
+
+    .w3-content {
+      max-width: 1200px;
+    }
+  </style>
+  <meta name="description" content="A car is a wheeled, self-powered motor vehicle used for transportation.">
+</head>
+<body>
+{% block content %}{% endblock %}
+</body>
+</html>

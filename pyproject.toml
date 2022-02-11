@@ -1,0 +1,72 @@
+[build-system]
+requires = ["flit_core>=3.2", "flit_scm", "wheel"]
+build-backend = "flit_scm:buildapi"
+
+[project]
+name = "django-pictures"
+authors = [
+  { name = "Johannes Maron", email = "johannes@maron.family" },
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = ["pillow", "Django", "image", "pictures", "WebP", "AVIF"]
+dynamic = ["version", "description"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python",
+  "Environment :: Web Environment",
+  "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Topic :: Software Development",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Framework :: Django",
+  "Framework :: Django :: 3.2",
+  "Framework :: Django :: 4.0",
+]
+requires-python = ">=3.10"
+dependencies = ["django", "pillow"]
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+  "pytest-cov",
+  "pytest-django",
+]
+
+[project.urls]
+Project-URL = "https://github.com/codingjoe/django-pictures"
+Changelog = "https://github.com/codingjoe/django-pictures/releases"
+
+[tool.flit.module]
+name = "pictures"
+
+[tool.setuptools_scm]
+write_to = "pictures/_version.py"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov --tb=short -rxs"
+testpaths = ["tests"]
+DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
+
+[tool.coverage.run]
+source = ["pictures"]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.isort]
+atomic = true
+line_length = 88
+known_first_party = "pictures, tests"
+include_trailing_comma = true
+default_section = "THIRDPARTY"
+combine_as_imports = true
+
+[tool.pydocstyle]
+add_ignore = "D1"
