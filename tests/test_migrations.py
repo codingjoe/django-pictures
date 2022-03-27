@@ -1,0 +1,160 @@
+from unittest.mock import Mock
+
+import pytest
+from django.core.management import call_command
+from django.db import models
+
+from pictures import migrations
+from pictures.models import PictureField
+from tests.testapp.models import Profile
+
+
+class TestAlterPictureField:
+    def test_alter_picture_field__image_to_image(self, monkeypatch):
+        class FromModel(models.Model):
+            picture = models.ImageField()
+
+            class Meta:
+                app_label = "tests"
+
+        class ToModel(models.Model):
+            picture = models.ImageField()
+
+            class Meta:
+                app_label = "tests"
+
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        monkeypatch.setattr(migration, "update_pictures", Mock())
+        monkeypatch.setattr(migration, "from_picture_field", Mock())
+        monkeypatch.setattr(migration, "to_picture_field", Mock())
+        migration.alter_picture_field(FromModel, ToModel)
+
+        assert not migration.update_pictures.called
+        assert not migration.from_picture_field.called
+        assert not migration.to_picture_field.called
+
+    def test_alter_picture_field__image_to_picture(self, monkeypatch):
+        class FromModel(models.Model):
+            picture = models.ImageField()
+
+            class Meta:
+                app_label = "tests"
+
+        class ToModel(models.Model):
+            picture = PictureField()
+
+            class Meta:
+                app_label = "tests"
+
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        monkeypatch.setattr(migration, "to_picture_field", Mock())
+        migration.alter_picture_field(FromModel, ToModel)
+
+        assert migration.to_picture_field.called_once_with(ToModel)
+
+    def test_alter_picture_field__picture_to_image(self, monkeypatch):
+        class FromModel(models.Model):
+            picture = PictureField()
+
+            class Meta:
+                app_label = "tests"
+
+        class ToModel(models.Model):
+            picture = models.ImageField()
+
+            class Meta:
+                app_label = "tests"
+
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        monkeypatch.setattr(migration, "from_picture_field", Mock())
+        migration.alter_picture_field(FromModel, ToModel)
+
+        assert migration.from_picture_field.called_once_with(FromModel)
+
+    def test_alter_picture_field__picture_to_picture(self, monkeypatch):
+        class FromModel(models.Model):
+            picture = PictureField()
+
+            class Meta:
+                app_label = "tests"
+
+        class ToModel(models.Model):
+            picture = PictureField()
+
+            class Meta:
+                app_label = "tests"
+
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        monkeypatch.setattr(migration, "update_pictures", Mock())
+        monkeypatch.setattr(migration, "from_picture_field", Mock())
+        monkeypatch.setattr(migration, "to_picture_field", Mock())
+        migration.alter_picture_field(FromModel, ToModel)
+        from_field = FromModel._meta.get_field("picture")
+        assert migration.update_pictures.called_once_with(from_field, ToModel)
+        assert not migration.from_picture_field.called
+        assert not migration.to_picture_field.called
+
+    @pytest.mark.django_db
+    def test_update_pictures(self, image_upload_file):
+        class ToModel(models.Model):
+            name = models.CharField(max_length=100)
+            picture = PictureField(
+                upload_to="testapp/profile/", aspect_ratios=[None, "21/9"]
+            )
+
+            class Meta:
+                app_label = "tests"
+                db_table = "testapp_profile"
+
+        luke = Profile.objects.create(name="Luke", picture=image_upload_file)
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        from_field = Profile._meta.get_field("picture")
+
+        path = luke.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        assert path.exists()
+
+        migration.update_pictures(from_field, ToModel)
+
+        assert not path.exists()
+        luke.refresh_from_db()
+        path = (
+            ToModel.objects.get(pk=luke.pk)
+            .picture.aspect_ratios["21/9"]["WEBP"][100]
+            .path
+        )
+        assert path.exists()
+
+    @pytest.mark.django_db
+    def test_from_picture_field(self, image_upload_file):
+        luke = Profile.objects.create(name="Luke", picture=image_upload_file)
+        path = luke.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        assert path.exists()
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        migration.from_picture_field(Profile)
+        assert not path.exists()
+
+    @pytest.mark.django_db
+    def test_to_picture_field(self, image_upload_file):
+        class ToModel(models.Model):
+            name = models.CharField(max_length=100)
+            picture = models.ImageField(upload_to="testapp/profile/")
+
+            class Meta:
+                app_label = "tests"
+                db_table = "testapp_profile"
+
+        luke = ToModel.objects.create(name="Luke", picture=image_upload_file)
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        migration.to_picture_field(Profile)
+        luke.refresh_from_db()
+        path = (
+            Profile.objects.get(pk=luke.pk)
+            .picture.aspect_ratios["16/9"]["WEBP"][100]
+            .path
+        )
+        assert path.exists()
+
+    @pytest.mark.django_db(transaction=True)
+    def test_database_backwards_forwards(self):
+        call_command("migrate", "testapp", "0001")
+        call_command("migrate", "testapp", "0002")

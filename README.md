@@ -124,3 +124,14 @@ Unless you still services IE11 clients, you should be fine serving just
 Unless you really care that your images hold of if you hold your UHD phone very
 close to your eyeballs, you should be fine, serving at the default `1x` and `2x`
 densities.
+
+
+### Migrations
+
+Django doesn't support file field migrations, but we do.
+You can simply auto create the migration and replace Django's
+`AlterField` operation with `AlterPictureField`. That's it.
+
+You can follow [the example][migration] in our test app, to see how it works.
+
+[migration]: tests/testapp/migrations/0002_alter_profile_picture.py
