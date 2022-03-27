@@ -63,6 +63,7 @@ class SimplePicture:
         with io.BytesIO() as file_buffer:
             img = self.process(image)
             img.save(file_buffer, format=self.file_type)
+            self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))
 
     def delete(self):
@@ -72,15 +73,30 @@ class SimplePicture:
 class PictureFieldFile(ImageFieldFile):
     def save(self, name, content, save=True):
         super().save(name, content, save)
-        self.process_all()
+        self.save_all()
+
+    def save_all(self):
+        self.open()  # the file needs to be open
+        with Image.open(self.file) as img:
+            for ratio, sources in self.aspect_ratios.items():
+                for file_type, srcset in sources.items():
+                    for width, picture in srcset.items():
+                        picture.save(img)
 
     def delete(self, save=True):
-        for sources in self.aspect_ratios.values():
+        self.delete_all()
+        super().delete(save=save)
+
+    def delete_all(self, aspect_ratios=None):
+        aspect_ratios = aspect_ratios or self.aspect_ratios
+        for sources in aspect_ratios.values():
             for srcset in sources.values():
                 for picture in srcset.values():
                     picture.delete()
 
-        super().delete(save=save)
+    def update_all(self, from_aspect_ratios):
+        self.delete_all(from_aspect_ratios)
+        self.save_all()
 
     @property
     def width(self):
@@ -101,31 +117,27 @@ class PictureFieldFile(ImageFieldFile):
     @property
     def aspect_ratios(self):
         self._require_file()
-        settings = conf.get_settings()
+        return self.get_picture_files(self, self.field)
+
+    @staticmethod
+    def get_picture_files(field_file, field):
         return {
             ratio: {
                 file_type: {
                     width: SimplePicture(
-                        self.name, file_type, ratio, self.storage, width
+                        field_file.name, file_type, ratio, field_file.storage, width
                     )
                     for width in utils.source_set(
-                        (self.width, self.height),
+                        (field_file.width, field_file.height),
                         ratio=ratio,
-                        max_width=settings.CONTAINER_WIDTH,
-                        cols=settings.GRID_COLUMNS,
+                        max_width=field.container_width,
+                        cols=field.grid_columns,
                     )
                 }
-                for file_type in settings.FILE_TYPES
+                for file_type in field.file_types
             }
-            for ratio in self.field.aspect_ratios
+            for ratio in field.aspect_ratios
         }
-
-    def process_all(self):
-        with Image.open(self.file) as img:
-            for ratio, sources in self.aspect_ratios.items():
-                for file_type, srcset in sources.items():
-                    for width, picture in srcset.items():
-                        picture.save(img)
 
 
 class PictureField(ImageField):
@@ -136,9 +148,20 @@ class PictureField(ImageField):
         verbose_name=None,
         name=None,
         aspect_ratios: [str] = None,
+        container_width: int = None,
+        file_types: [str] = None,
+        pixel_densities: [int] = None,
+        grid_columns: int = None,
+        breakpoints: {str: int} = None,
         **kwargs,
     ):
+        settings = conf.get_settings()
         self.aspect_ratios = aspect_ratios or [None]
+        self.container_width = container_width or settings.CONTAINER_WIDTH
+        self.file_types = file_types or settings.FILE_TYPES
+        self.pixel_densities = pixel_densities or settings.PIXEL_DENSITIES
+        self.grid_columns = grid_columns or settings.GRID_COLUMNS
+        self.breakpoints = breakpoints or settings.BREAKPOINTS
         super().__init__(
             verbose_name=verbose_name,
             name=name,
@@ -184,5 +207,12 @@ class PictureField(ImageField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs["aspect_ratios"] = self.aspect_ratios
+        kwargs |= {
+            "aspect_ratios": self.aspect_ratios,
+            "container_width": self.container_width,
+            "file_types": self.file_types,
+            "pixel_densities": self.pixel_densities,
+            "grid_columns": self.grid_columns,
+            "breakpoints": self.breakpoints,
+        }
         return name, path, args, kwargs

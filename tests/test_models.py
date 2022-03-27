@@ -1,3 +1,4 @@
+import contextlib
 from fractions import Fraction
 from pathlib import Path
 
@@ -7,6 +8,14 @@ from PIL import Image
 
 from pictures.models import PictureField, SimplePicture
 from tests.testapp.models import Profile, SimpleModel
+
+
+@contextlib.contextmanager
+def override_field_aspect_ratios(field, aspect_ratios):
+    old_ratios = field.aspect_ratios
+    field.aspect_ratios = aspect_ratios
+    yield
+    field.aspect_ratios = old_ratios
 
 
 class TestSimplePicture:
@@ -82,6 +91,23 @@ class TestPictureFieldFile:
         obj.picture.delete()
         assert not default_storage.exists(name)
         assert not path.exists()
+
+    @pytest.mark.django_db
+    def test_update_all(self, image_upload_file):
+        obj = SimpleModel(picture=image_upload_file)
+        obj.save()
+
+        name = obj.picture.name
+        path = obj.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        assert default_storage.exists(name)
+        assert path.exists()
+
+        aspect_ratios = {**obj.picture.aspect_ratios}
+        with override_field_aspect_ratios(obj.picture.field, ["1/1"]):
+            obj.picture.update_all(from_aspect_ratios=aspect_ratios)
+            assert default_storage.exists(name)
+            assert obj.picture.aspect_ratios["1/1"]["WEBP"][100].path.exists()
+            assert not path.exists()
 
 
 class TestPictureField:
