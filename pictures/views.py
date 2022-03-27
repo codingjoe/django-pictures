@@ -18,7 +18,7 @@ def placeholder(request, width, ratio, file_type, alt):
     img = utils.placeholder(width, height, alt=alt)
     response = HttpResponse(
         content_type=f"image/{file_type.lower()}",
-        headers={"Cache-Control": f"max-age={60*60*24*365}"},
+        headers={"Cache-Control": f"public, max-age={60*60*24*365}"},
     )
     img.save(response, file_type.upper())
     return response
