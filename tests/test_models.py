@@ -1,4 +1,5 @@
 from fractions import Fraction
+from pathlib import Path
 
 import pytest
 from django.core.files.storage import default_storage
@@ -37,8 +38,12 @@ class TestSimplePicture:
         assert not self.picture_without_ratio.height
 
     def test_name(self):
-        assert self.picture_without_ratio.name == "testapp/simplemodel/image/800w.webp"
-        assert self.picture_with_ratio.name == "testapp/simplemodel/image/4_3/800w.webp"
+        assert Path(self.picture_without_ratio.name) == Path(
+            "testapp/simplemodel/image/800w.webp"
+        )
+        assert Path(self.picture_with_ratio.name) == Path(
+            "testapp/simplemodel/image/4_3/800w.webp"
+        )
 
     def test_path(self):
         assert self.picture_with_ratio.path.is_absolute()
