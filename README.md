@@ -2,6 +2,13 @@
 
 Responsive cross-browser image library using modern codes like AVIF &amp; WebP.
 
+* responsive web images using the [picture](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture) tag
+* native grid system support
+* serve files with our without a CDN
+* placeholders for local development
+* migration support
+* async image processing for Celery or Dramatiq
+
 [![PyPi Version](https://img.shields.io/pypi/v/django-pictures.svg)](https://pypi.python.org/pypi/django-pictures/)
 [![Test Coverage](https://codecov.io/gh/codingjoe/django-pictures/branch/main/graph/badge.svg)](https://codecov.io/gh/codingjoe/django-pictures)
 [![GitHub License](https://img.shields.io/github/license/codingjoe/django-pictures)](https://raw.githubusercontent.com/codingjoe/django-pictures/master/LICENSE)
