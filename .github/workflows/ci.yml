@@ -40,14 +40,24 @@ jobs:
     needs:
       - lint
       - dist
-    runs-on: ubuntu-latest
     strategy:
       matrix:
+        os:
+          - "ubuntu-latest"
         python-version:
           - "3.10"
         django-version:
           - "3.2"
           - "4.0"
+        include:
+          - os: "macos-latest"
+            python-version: "3.10"
+            django-version: "4.0"
+          - os: "windows-latest"
+            python-version: "3.10"
+            django-version: "4.0"
+
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
