@@ -75,7 +75,7 @@ def placeholder(width: int, height: int, alt):
 
     fontsize = 32
     if sys.platform == "win32":
-        font_name = "Arial"
+        font_name = r"C:\WINDOWS\Fonts\CALIBRI.TTF"
     elif sys.platform in ["linux", "linux2"]:
         font_name = "DejaVuSans-Bold"
     elif sys.platform == "darwin":
