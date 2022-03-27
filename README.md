@@ -63,6 +63,27 @@ PICTURES = {
 }
 ```
 
+#### Placeholders
+
+This library comes with dynamically created placeholders to simplify local
+development. To enable them, add the following to enable the
+`PICTURES["USE_PLACEHOLDERS"]` setting and add the following URL configuration:
+
+```python
+# urls.py
+from django.conf.urls import include, path
+from pictures.conf import get_settings
+
+urlpatterns = [
+    # ...
+]
+
+if get_settings().USE_PLACEHOLDERS:
+    urlpatterns += [
+        path("_pictures/", include("pictures.urls")),
+    ]
+```
+
 ### Config
 
 #### Breakpoints
