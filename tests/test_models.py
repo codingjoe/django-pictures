@@ -5,13 +5,13 @@ import pytest
 from django.core.files.storage import default_storage
 from PIL import Image
 
-from pictures.models import PictureField, SimpelPicture
+from pictures.models import PictureField, SimplePicture
 from tests.testapp.models import Profile, SimpleModel
 
 
 class TestSimplePicture:
 
-    picture_with_ratio = SimpelPicture(
+    picture_with_ratio = SimplePicture(
         parent_name="testapp/simplemodel/image.jpg",
         file_type="WEBP",
         aspect_ratio=Fraction("4/3"),
@@ -19,7 +19,7 @@ class TestSimplePicture:
         width=800,
     )
 
-    picture_without_ratio = SimpelPicture(
+    picture_without_ratio = SimplePicture(
         parent_name="testapp/simplemodel/image.jpg",
         file_type="WEBP",
         aspect_ratio=None,
@@ -91,56 +91,56 @@ class TestPictureField:
         assert obj.picture.aspect_ratios == {
             None: {
                 "WEBP": {
-                    800: SimpelPicture(
+                    800: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=800,
                     ),
-                    100: SimpelPicture(
+                    100: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=100,
                     ),
-                    200: SimpelPicture(
+                    200: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=200,
                     ),
-                    300: SimpelPicture(
+                    300: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=300,
                     ),
-                    400: SimpelPicture(
+                    400: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=400,
                     ),
-                    500: SimpelPicture(
+                    500: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=500,
                     ),
-                    600: SimpelPicture(
+                    600: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=600,
                     ),
-                    700: SimpelPicture(
+                    700: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=None,
@@ -151,56 +151,56 @@ class TestPictureField:
             },
             "3/2": {
                 "WEBP": {
-                    800: SimpelPicture(
+                    800: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=800,
                     ),
-                    100: SimpelPicture(
+                    100: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=100,
                     ),
-                    200: SimpelPicture(
+                    200: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=200,
                     ),
-                    300: SimpelPicture(
+                    300: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=300,
                     ),
-                    400: SimpelPicture(
+                    400: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=400,
                     ),
-                    500: SimpelPicture(
+                    500: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=500,
                     ),
-                    600: SimpelPicture(
+                    600: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=600,
                     ),
-                    700: SimpelPicture(
+                    700: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
@@ -211,56 +211,56 @@ class TestPictureField:
             },
             "16/9": {
                 "WEBP": {
-                    800: SimpelPicture(
+                    800: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=800,
                     ),
-                    100: SimpelPicture(
+                    100: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=100,
                     ),
-                    200: SimpelPicture(
+                    200: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=200,
                     ),
-                    300: SimpelPicture(
+                    300: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=300,
                     ),
-                    400: SimpelPicture(
+                    400: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=400,
                     ),
-                    500: SimpelPicture(
+                    500: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=500,
                     ),
-                    600: SimpelPicture(
+                    600: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=600,
                     ),
-                    700: SimpelPicture(
+                    700: SimplePicture(
                         parent_name="testapp/simplemodel/image.jpg",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
