@@ -17,7 +17,7 @@ from pictures import conf, utils
 
 
 @dataclasses.dataclass
-class SimpelPicture:
+class SimplePicture:
     """A simple picture class similar to Django's image class."""
 
     parent_name: str
@@ -105,7 +105,7 @@ class PictureFieldFile(ImageFieldFile):
         return {
             ratio: {
                 file_type: {
-                    width: SimpelPicture(
+                    width: SimplePicture(
                         self.name, file_type, ratio, self.storage, width
                     )
                     for width in utils.source_set(
