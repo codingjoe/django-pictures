@@ -39,7 +39,6 @@ jobs:
   pytest:
     needs:
       - lint
-      - dist
     strategy:
       matrix:
         os:
@@ -49,13 +48,25 @@ jobs:
         django-version:
           - "3.2"
           - "4.0"
+        extras:
+          - "test"
         include:
           - os: "macos-latest"
             python-version: "3.10"
             django-version: "4.0"
+            extras: "test"
           - os: "windows-latest"
             python-version: "3.10"
             django-version: "4.0"
+            extras: "test"
+          - os: "ubuntu-latest"
+            python-version: "3.10"
+            django-version: "4.0"
+            extras: "test,dramatiq"
+          - os: "ubuntu-latest"
+            python-version: "3.10"
+            django-version: "4.0"
+            extras: "test,celery"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -64,7 +75,10 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - run: python -m pip install .[test] codecov
+    - name: Install redis
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install -y redis-server
+    - run: python -m pip install .[${{ matrix.extras }}] codecov
     - run: python -m pip install django~=${{ matrix.django-version }}a
     - run: python -m pytest
     - run: codecov

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import io
 import math
@@ -76,12 +78,9 @@ class PictureFieldFile(ImageFieldFile):
         self.save_all()
 
     def save_all(self):
-        self.open()  # the file needs to be open
-        with Image.open(self.file) as img:
-            for ratio, sources in self.aspect_ratios.items():
-                for file_type, srcset in sources.items():
-                    for width, picture in srcset.items():
-                        picture.save(img)
+        from . import tasks
+
+        tasks.process_picture(self)
 
     def delete(self, save=True):
         self.delete_all()
@@ -117,18 +116,29 @@ class PictureFieldFile(ImageFieldFile):
     @property
     def aspect_ratios(self):
         self._require_file()
-        return self.get_picture_files(self, self.field)
+        return self.get_picture_files(
+            file_name=self.name,
+            img_width=self.width,
+            img_height=self.height,
+            storage=self.storage,
+            field=self.field,
+        )
 
     @staticmethod
-    def get_picture_files(field_file, field):
+    def get_picture_files(
+        *,
+        file_name: str,
+        img_width: int,
+        img_height: int,
+        storage: Storage,
+        field: PictureField,
+    ):
         return {
             ratio: {
                 file_type: {
-                    width: SimplePicture(
-                        field_file.name, file_type, ratio, field_file.storage, width
-                    )
+                    width: SimplePicture(file_name, file_type, ratio, storage, width)
                     for width in utils.source_set(
-                        (field_file.width, field_file.height),
+                        (img_width, img_height),
                         ratio=ratio,
                         max_width=field.container_width,
                         cols=field.grid_columns,

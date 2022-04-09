@@ -36,6 +36,13 @@ test = [
   "pytest",
   "pytest-cov",
   "pytest-django",
+  "redis",
+]
+dramatiq = [
+  "django-dramatiq",
+]
+celery = [
+  "celery",
 ]
 
 [project.urls]

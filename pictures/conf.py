@@ -18,6 +18,7 @@ def get_settings():
             "FILE_TYPES": ["WEBP"],
             "PIXEL_DENSITIES": [1, 2],
             "USE_PLACEHOLDERS": settings.DEBUG,
+            "QUEUE_NAME": "pictures",
         }
         | getattr(settings, "PICTURES", {}),
     )

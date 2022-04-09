@@ -71,17 +71,19 @@ class TestSimplePicture:
 
 class TestPictureFieldFile:
     @pytest.mark.django_db
-    def test_save(self, image_upload_file):
+    def test_save(self, stub_worker, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
+        stub_worker.join()
 
         assert default_storage.exists(obj.picture.name)
         assert obj.picture.aspect_ratios["16/9"]["WEBP"][100].path.exists()
 
     @pytest.mark.django_db
-    def test_delete(self, image_upload_file):
+    def test_delete(self, stub_worker, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
+        stub_worker.join()
 
         name = obj.picture.name
         path = obj.picture.aspect_ratios["16/9"]["WEBP"][100].path
@@ -89,13 +91,15 @@ class TestPictureFieldFile:
         assert path.exists()
 
         obj.picture.delete()
+        stub_worker.join()
         assert not default_storage.exists(name)
         assert not path.exists()
 
     @pytest.mark.django_db
-    def test_update_all(self, image_upload_file):
+    def test_update_all(self, stub_worker, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
+        stub_worker.join()
 
         name = obj.picture.name
         path = obj.picture.aspect_ratios["16/9"]["WEBP"][100].path
@@ -105,6 +109,7 @@ class TestPictureFieldFile:
         aspect_ratios = {**obj.picture.aspect_ratios}
         with override_field_aspect_ratios(obj.picture.field, ["1/1"]):
             obj.picture.update_all(from_aspect_ratios=aspect_ratios)
+            stub_worker.join()
             assert default_storage.exists(name)
             assert obj.picture.aspect_ratios["1/1"]["WEBP"][100].path.exists()
             assert not path.exists()
