@@ -45,14 +45,16 @@ class AlterPictureField(AlterField):
         ):
             self.update_pictures(from_field, to_model)
 
-    def update_pictures(
-        self, from_field: Type[PictureField], to_model: Type[models.Model]
-    ):
+    def update_pictures(self, from_field: PictureField, to_model: Type[models.Model]):
         for obj in to_model._default_manager.all().iterator():
             field_file = getattr(obj, self.name)
             field_file.update_all(
                 from_aspect_ratios=PictureFieldFile.get_picture_files(
-                    field_file, from_field
+                    file_name=field_file.name,
+                    img_width=field_file.width,
+                    img_height=field_file.height,
+                    storage=field_file.storage,
+                    field=from_field,
                 )
             )
 

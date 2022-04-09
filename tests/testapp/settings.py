@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -129,3 +130,28 @@ MEDIA_URL = "/media/"
 PICTURES = {
     "CONTAINER_WIDTH": 1200,
 }
+
+
+# Dramatiq
+try:
+    import dramatiq  # NoQA
+except ImportError:
+    pass
+else:
+    INSTALLED_APPS += ["django_dramatiq"]
+
+DRAMATIQ_BROKER = {
+    "BROKER": os.getenv("DRAMATIQ_BROKER", "dramatiq.brokers.redis.RedisBroker"),
+    "MIDDLEWARE": [
+        "dramatiq.middleware.Prometheus",
+        "dramatiq.middleware.AgeLimit",
+        "dramatiq.middleware.TimeLimit",
+        "dramatiq.middleware.Callbacks",
+        "dramatiq.middleware.Retries",
+    ],
+}
+
+# Celery
+
+CELERY_BROKER_URL = "redis:///2"
+CELERY_TASK_ALWAYS_EAGER = True
