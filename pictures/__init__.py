@@ -1,4 +1,4 @@
-"""Responsive cross-browser image library using modern codes like AVIF &amp; WebP."""
+"""Responsive cross-browser image library using modern codes like AVIF & WebP."""
 
 from . import _version
 

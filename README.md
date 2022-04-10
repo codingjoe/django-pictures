@@ -1,6 +1,6 @@
 # django-pictures
 
-Responsive cross-browser image library using modern codes like AVIF &amp; WebP.
+Responsive cross-browser image library using modern codes like AVIF & WebP.
 
 * responsive web images using the [picture](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture) tag
 * native grid system support
