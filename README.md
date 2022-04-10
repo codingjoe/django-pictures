@@ -70,6 +70,9 @@ PICTURES = {
 }
 ```
 
+If you have either Dramatiq or Celery installed, we will default to async
+image processing. You will need workers to listen to the `pictures` queue.
+
 #### Placeholders
 
 This library comes with dynamically created placeholders to simplify local
@@ -125,6 +128,12 @@ Unless you really care that your images hold of if you hold your UHD phone very
 close to your eyeballs, you should be fine, serving at the default `1x` and `2x`
 densities.
 
+
+#### Async image processing
+
+If you have either Dramatiq or Celery installed, we will default to async
+image processing. You will need workers to listen to the `pictures` queue.
+You can override the queue name, via the `PICTURES["QUEUE_NAME"]` setting.
 
 ### Migrations
 
