@@ -25,7 +25,7 @@ class Profile(models.Model):
     picture = PictureField(upload_to="avatars")
 ```
 
-```
+```html
 <!-- template.html -->
 {% load pictures %}
 {% picture profile.picture alt="Spiderman" loading="lazy" m=6 l=4 %}
