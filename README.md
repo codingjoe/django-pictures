@@ -22,13 +22,13 @@ from pictures.models import PictureField
 
 class Profile(models.Model):
     title = models.CharField(max_length=255)
-    picture = PictureField(upload_to='avatars')
+    picture = PictureField(upload_to="avatars")
 ```
 
 ```
 <!-- template.html -->
 {% load pictures %}
-{% picture profile.picture alt="Spiderman" m=6 l=4 %}
+{% picture profile.picture alt="Spiderman" loading="lazy" m=6 l=4 %}
 ```
 
 The template above will render into:
@@ -37,7 +37,7 @@ The template above will render into:
   <source type="image/webp"
           srcset="/media/testapp/profile/image/800w.webp 800w, /media/testapp/profile/image/100w.webp 100w, /media/testapp/profile/image/200w.webp 200w, /media/testapp/profile/image/300w.webp 300w, /media/testapp/profile/image/400w.webp 400w, /media/testapp/profile/image/500w.webp 500w, /media/testapp/profile/image/600w.webp 600w, /media/testapp/profile/image/700w.webp 700w"
           sizes="(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 600px">
-  <img src="/media/testapp/profile/image.jpg" alt="Spiderman" width="800" height="800">
+  <img src="/media/testapp/profile/image.jpg" alt="Spiderman" width="800" height="800" loading="lazy">
 </picture>
 ```
 
