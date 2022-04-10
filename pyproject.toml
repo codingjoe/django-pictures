@@ -44,6 +44,9 @@ dramatiq = [
 celery = [
   "celery",
 ]
+drf = [
+  "djangorestframework",
+]
 
 [project.urls]
 Project-URL = "https://github.com/codingjoe/django-pictures"
