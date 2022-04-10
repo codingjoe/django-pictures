@@ -144,3 +144,19 @@ You can simply auto create the migration and replace Django's
 You can follow [the example][migration] in our test app, to see how it works.
 
 [migration]: tests/testapp/migrations/0002_alter_profile_picture.py
+
+
+## Contrib
+
+### Django Rest Framework (DRF)
+
+We do ship with a read-only `PictureField` that can be used to include all
+available picture sizes in a DRF serializer.
+
+```python
+from rest_framework import serializers
+from pictures.contrib.rest_framework import PictureField
+
+class PictureSerializer(serializers.Serializer):
+    picture = PictureField()
+```

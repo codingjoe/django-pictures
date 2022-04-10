@@ -67,6 +67,10 @@ jobs:
             python-version: "3.10"
             django-version: "4.0"
             extras: "test,celery"
+          - os: "ubuntu-latest"
+            python-version: "3.10"
+            django-version: "4.0"
+            extras: "test,drf"
 
     runs-on: ${{ matrix.os }}
     steps:
