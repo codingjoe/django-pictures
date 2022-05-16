@@ -75,7 +75,8 @@ class SimplePicture:
 class PictureFieldFile(ImageFieldFile):
     def save(self, name, content, save=True):
         super().save(name, content, save)
-        self.save_all()
+        if self:
+            self.save_all()
 
     def save_all(self):
         from . import tasks

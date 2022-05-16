@@ -1,6 +1,7 @@
 import contextlib
 from fractions import Fraction
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 from django.core.files.storage import default_storage
@@ -78,6 +79,14 @@ class TestPictureFieldFile:
 
         assert default_storage.exists(obj.picture.name)
         assert obj.picture.aspect_ratios["16/9"]["WEBP"][100].path.exists()
+
+    @pytest.mark.django_db
+    def test_save__is_blank(self, monkeypatch):
+        obj = SimpleModel()
+        save_all = Mock()
+        monkeypatch.setattr("pictures.models.PictureFieldFile.save_all", save_all)
+        obj.save()
+        assert not save_all.called
 
     @pytest.mark.django_db
     def test_delete(self, stub_worker, image_upload_file):
