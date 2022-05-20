@@ -12,6 +12,7 @@ jobs:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v3
     - run: python -m pip install --upgrade pip build wheel twine
+    - run: python -m pip install pip~=21.0  # https://github.com/pypa/pip/issues/11133
     - run: python -m build --sdist --wheel
     - run: python -m twine upload dist/*
       env:
