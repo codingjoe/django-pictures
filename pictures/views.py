@@ -12,7 +12,7 @@ def placeholder(request, width, ratio, file_type, alt):
     except ValueError:
         raise Http404()
     settings = conf.get_settings()
-    height = math.floor(width * ratio)
+    height = math.floor(width / ratio)
     if file_type.upper() not in settings.FILE_TYPES:
         raise Http404("File type not allowed")
     img = utils.placeholder(width, height, alt=alt)
