@@ -35,7 +35,7 @@ class AlterPictureField(AlterField):
         if not isinstance(from_field, PictureField) and isinstance(
             to_field, PictureField
         ):
-            self.to_picture_field(to_model)
+            self.to_picture_field(from_model, to_model)
         elif isinstance(from_field, PictureField) and not isinstance(
             to_field, PictureField
         ):
@@ -63,7 +63,15 @@ class AlterPictureField(AlterField):
             field_file = getattr(obj, self.name)
             field_file.delete_all()
 
-    def to_picture_field(self, to_model: Type[models.Model]):
+    def to_picture_field(
+        self, from_model: Type[models.Model], to_model: Type[models.Model]
+    ):
+        from_field = from_model._meta.get_field(self.name)
+        if hasattr(from_field.attr_class, "delete_variations"):
+            # remove obsolete django-stdimage variations
+            for obj in from_model._default_manager.all().iterator():
+                field_file = getattr(obj, self.name)
+                field_file.delete_variations()
         for obj in to_model._default_manager.all().iterator():
             field_file = getattr(obj, self.name)
             field_file.save_all()

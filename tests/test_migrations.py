@@ -3,6 +3,7 @@ from unittest.mock import Mock
 import pytest
 from django.core.management import call_command
 from django.db import models
+from django.db.models.fields.files import ImageFieldFile
 
 from pictures import migrations
 from pictures.models import PictureField
@@ -156,6 +157,13 @@ class TestAlterPictureField:
 
     @pytest.mark.django_db
     def test_to_picture_field(self, request, stub_worker, image_upload_file):
+        class FromModel(models.Model):
+            picture = models.ImageField()
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
         class ToModel(models.Model):
             name = models.CharField(max_length=100)
             picture = models.ImageField(upload_to="testapp/profile/")
@@ -167,7 +175,7 @@ class TestAlterPictureField:
         luke = ToModel.objects.create(name="Luke", picture=image_upload_file)
         stub_worker.join()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
-        migration.to_picture_field(Profile)
+        migration.to_picture_field(FromModel, Profile)
         stub_worker.join()
         luke.refresh_from_db()
         path = (
@@ -176,6 +184,45 @@ class TestAlterPictureField:
             .path
         )
         assert path.exists()
+
+    @pytest.mark.django_db
+    def test_to_picture_field__from_stdimage(
+        self, request, stub_worker, image_upload_file
+    ):
+        class StdImageFieldFile(ImageFieldFile):
+            delete_variations = Mock()
+
+        class StdImageField(models.ImageField):
+            attr_class = StdImageFieldFile
+
+        class FromModel(models.Model):
+            picture = StdImageField()
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
+        class ToModel(models.Model):
+            name = models.CharField(max_length=100)
+            picture = models.ImageField(upload_to="testapp/profile/")
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
+        luke = ToModel.objects.create(name="Luke", picture=image_upload_file)
+        stub_worker.join()
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        migration.to_picture_field(FromModel, Profile)
+        stub_worker.join()
+        luke.refresh_from_db()
+        path = (
+            Profile.objects.get(pk=luke.pk)
+            .picture.aspect_ratios["16/9"]["WEBP"][100]
+            .path
+        )
+        assert path.exists()
+        assert StdImageFieldFile.delete_variations.called
 
     @pytest.mark.django_db(transaction=True)
     def test_database_backwards_forwards(self):
