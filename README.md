@@ -4,7 +4,7 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 
 * responsive web images using the [picture](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture) tag
 * native grid system support
-* serve files with our without a CDN
+* serve files with or without a CDN
 * placeholders for local development
 * migration support
 * async image processing for Celery or Dramatiq
