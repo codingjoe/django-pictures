@@ -69,6 +69,29 @@ class TestSimplePicture:
         self.picture_with_ratio.delete()
         assert not self.picture_with_ratio.path.exists()
 
+    def test_process__copy(self):
+        """Do not mutate input image."""
+        image = Image.new("RGB", (800, 800), (255, 55, 255))
+        assert SimplePicture(
+            parent_name="testapp/simplemodel/image.jpg",
+            file_type="WEBP",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=100,
+        ).process(image).size == (100, 100)
+
+        assert image.size == (800, 800), "Image was mutated."
+
+        assert SimplePicture(
+            parent_name="testapp/simplemodel/image.jpg",
+            file_type="WEBP",
+            aspect_ratio="4/3",
+            storage=default_storage,
+            width=400,
+        ).process(image).size == (400, 300)
+
+        assert image.size == (800, 800), "Image was mutated."
+
 
 class TestPictureFieldFile:
     @pytest.mark.django_db

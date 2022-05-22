@@ -58,6 +58,7 @@ class SimplePicture:
         if self.aspect_ratio:
             image = ImageOps.fit(image, size)
         else:
+            image = image.copy()
             image.thumbnail(size)
         return image
 
