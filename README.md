@@ -51,7 +51,7 @@ python3 -m pip install django-pictures
 # settings.py
 INSTALLED_APPS = [
     # ...
-    'django_pictures',
+    'pictures',
 ]
 
 # the following are defaults, but you can override them
