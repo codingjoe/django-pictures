@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 ]
 
 try:
-    __import__('django_cleanup')
+    __import__("django_cleanup")
 except ImportError:
     pass
 else:
