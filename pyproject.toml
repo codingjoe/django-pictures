@@ -47,6 +47,9 @@ celery = [
 drf = [
   "djangorestframework",
 ]
+cleanup = [
+  "django-cleanup",
+]
 
 [project.urls]
 Project-URL = "https://github.com/codingjoe/django-pictures"

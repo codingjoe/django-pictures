@@ -41,6 +41,13 @@ INSTALLED_APPS = [
     "pictures",
 ]
 
+try:
+    __import__("django_cleanup")
+except ImportError:
+    pass
+else:
+    INSTALLED_APPS.append("django_cleanup.apps.CleanupConfig")
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
