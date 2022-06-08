@@ -160,3 +160,8 @@ from pictures.contrib.rest_framework import PictureField
 class PictureSerializer(serializers.Serializer):
     picture = PictureField()
 ```
+
+### Django Cleanup
+
+`PictureField` is compatible with [Djang Cleanup](https://github.com/un1t/django-cleanup),
+which automatically deletes its file and corresponding `SimplePicture` files.
