@@ -15,8 +15,8 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 
 ### Usage
 
-Before you start, it can be a good idea to understand the fundamentals of responsive images:
-https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
+Before you start, it can be a good idea to understand the fundamentals of
+[responsive images](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images).
 
 Once you get a feeling how complicated things can get with all device types, you'll probably find
 a new appreciation for this package and are ready to adopt in you project :)
