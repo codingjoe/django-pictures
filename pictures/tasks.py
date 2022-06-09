@@ -12,12 +12,12 @@ from pictures.models import PictureFieldFile
 
 
 def _process_picture(field_file: PictureFieldFile) -> None:
-    field_file.open()  # the file needs to be open
-    with Image.open(field_file.file) as img:
-        for ratio, sources in field_file.aspect_ratios.items():
-            for file_type, srcset in sources.items():
-                for width, picture in srcset.items():
-                    picture.save(img)
+    with field_file.open() as file:
+        with Image.open(file) as img:
+            for ratio, sources in field_file.aspect_ratios.items():
+                for file_type, srcset in sources.items():
+                    for width, picture in srcset.items():
+                        picture.save(img)
 
 
 process_picture = _process_picture
