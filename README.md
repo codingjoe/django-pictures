@@ -172,3 +172,23 @@ class PictureSerializer(serializers.Serializer):
 
 `PictureField` is compatible with [Djang Cleanup](https://github.com/un1t/django-cleanup),
 which automatically deletes its file and corresponding `SimplePicture` files.
+
+### Django Storages
+
+When using [Djang Storages](https://github.com/jschneier/django-storages) with S3 Backend and sync image processing, it is necessary to adapt the storage class.
+This is due to `boto3` closing the temporary file after upload, making it unavailable for image processing.
+The modified `_save` method is taken from `S3ManifestStaticStorage`:
+
+```python
+from storages.backends.s3boto3 import S3Boto3Storage
+import tempfile
+
+class MediaStorage(S3Boto3Storage):
+    def _save(self, name, content):
+        content.seek(0)
+        with tempfile.SpooledTemporaryFile() as tmp:
+            tmp.write(content.read())
+            return super()._save(name, tmp)
+```
+
+More details on overriding the default storage class: https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#overriding-the-default-storage-class
