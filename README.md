@@ -170,5 +170,5 @@ class PictureSerializer(serializers.Serializer):
 
 ### Django Cleanup
 
-`PictureField` is compatible with [Djang Cleanup](https://github.com/un1t/django-cleanup),
+`PictureField` is compatible with [Django Cleanup](https://github.com/un1t/django-cleanup),
 which automatically deletes its file and corresponding `SimplePicture` files.
