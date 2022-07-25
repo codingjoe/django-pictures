@@ -129,6 +129,9 @@ Unless you still services IE11 clients, you should be fine serving just
 (WebP's successor) is
 [not yet supported by Pillow](https://github.com/python-pillow/Pillow/pull/5201).
 
+If you are serving IE11 use add `JPEG` to the list. Beware though, that this may
+drastically increase you storage needs.
+
 #### Pixel densities
 
 Unless you really care that your images hold of if you hold your UHD phone very
