@@ -186,6 +186,28 @@ class TestAlterPictureField:
         assert path.exists()
 
     @pytest.mark.django_db
+    def test_to_picture_field_blank(self, request, stub_worker):
+        class FromModel(models.Model):
+            picture = models.ImageField(blank=True)
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
+        class ToModel(models.Model):
+            name = models.CharField(max_length=100)
+            picture = models.ImageField(upload_to="testapp/profile/", blank=True)
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
+        ToModel.objects.create(name="Luke")
+        stub_worker.join()
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        migration.to_picture_field(FromModel, Profile)
+
+    @pytest.mark.django_db
     def test_to_picture_field__from_stdimage(
         self, request, stub_worker, image_upload_file
     ):

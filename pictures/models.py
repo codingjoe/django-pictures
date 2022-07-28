@@ -76,13 +76,13 @@ class SimplePicture:
 class PictureFieldFile(ImageFieldFile):
     def save(self, name, content, save=True):
         super().save(name, content, save)
-        if self:
-            self.save_all()
+        self.save_all()
 
     def save_all(self):
-        from . import tasks
+        if self:
+            from . import tasks
 
-        tasks.process_picture(self)
+            tasks.process_picture(self)
 
     def delete(self, save=True):
         self.delete_all()
