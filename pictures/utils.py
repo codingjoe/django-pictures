@@ -3,6 +3,7 @@ import random
 import sys
 from fractions import Fraction
 from functools import lru_cache
+from urllib.parse import unquote
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -81,7 +82,7 @@ def placeholder(width: int, height: int, alt):
     elif sys.platform == "darwin":
         font_name = "Helvetica"
     font = ImageFont.truetype(font_name, fontsize)
-    text = f"{alt}\n<{width}x{height}>"
+    text = unquote(f"{alt}\n<{width}x{height}>")
     while font.getsize(text)[0] < width / 2:
         # iterate until the text size is just larger than the criteria
         fontsize += 1
