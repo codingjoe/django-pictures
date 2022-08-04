@@ -41,6 +41,14 @@ def test_picture__placeholder(client, image_upload_file, settings):
 
 
 @pytest.mark.django_db
+def test_picture__placeholder_with_alt(client, image_upload_file, settings):
+    settings.PICTURES["USE_PLACEHOLDERS"] = True
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    html = picture(profile.picture, alt="Event 2022/2023", ratio="3/2", loading="lazy")
+    assert "/_pictures/Event%25202022%252F2023/3x2/800w.WEBP" in html
+
+
+@pytest.mark.django_db
 def test_picture__invalid_ratio(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     with pytest.raises(ValueError) as e:
