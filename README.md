@@ -103,6 +103,38 @@ if get_settings().USE_PLACEHOLDERS:
 
 ### Config
 
+#### Aspect ratios
+
+You can specify the aspect ratios of your images. Images will be cropped to the
+specified aspect ratio. Aspect ratios are specified as a string with a slash
+between the width and height. For example, `16/9` will crop the image to 16:9.
+
+```python
+# models.py
+from django.db import models
+from pictures.models import PictureField
+
+
+class Profile(models.Model):
+    title = models.CharField(max_length=255)
+    picture = PictureField(
+      upload_to="avatars",
+      aspect_ratios=[None, "1/1", "3/2", "16/9"],
+    )
+```
+
+```html
+# template.html
+{% load pictures %}
+{% picture profile.picture alt="Spiderman" ratio="16/9" m=6 l=4 %}
+```
+
+If you don't specify an aspect ratio or None in your template, the image will be
+served with the original aspect ratio of the file.
+
+You may only use aspect ratios in templates, that have been defined on the model.
+The model `aspect_ratios` will default to `[None]`, if other value is provided.
+
 #### Breakpoints
 
 You may define your own breakpoints, they should be identical to the ones used
