@@ -55,6 +55,14 @@ jobs:
         extras:
           - "test"
         include:
+          - os: "ubuntu-latest"
+            python-version: "3.8"
+            django-version: "3.2"
+            extras: "test"
+          - os: "ubuntu-latest"
+            python-version: "3.9"
+            django-version: "3.2"
+            extras: "test"
           - os: "macos-latest"
             python-version: "3.10"
             django-version: "3.2"
