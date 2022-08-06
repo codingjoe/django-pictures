@@ -12,7 +12,7 @@ license = { file = "LICENSE" }
 keywords = ["pillow", "Django", "image", "pictures", "WebP", "AVIF"]
 dynamic = ["version", "description"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "Programming Language :: Python",
   "Environment :: Web Environment",
   "Topic :: Multimedia :: Graphics :: Graphics Conversion",
