@@ -49,34 +49,35 @@ jobs:
         python-version:
           - "3.10"
         django-version:
-          - "3.2"
+          - "3.2"  # LTS
           - "4.0"
+          - "4.1"
         extras:
           - "test"
         include:
           - os: "macos-latest"
             python-version: "3.10"
-            django-version: "4.0"
+            django-version: "3.2"
             extras: "test"
           - os: "windows-latest"
             python-version: "3.10"
-            django-version: "4.0"
+            django-version: "3.2"
             extras: "test"
           - os: "ubuntu-latest"
             python-version: "3.10"
-            django-version: "4.0"
+            django-version: "3.2"
             extras: "test,dramatiq"
           - os: "ubuntu-latest"
             python-version: "3.10"
-            django-version: "4.0"
+            django-version: "3.2"
             extras: "test,celery"
           - os: "ubuntu-latest"
             python-version: "3.10"
-            django-version: "4.0"
+            django-version: "3.2"
             extras: "test,drf"
           - os: "ubuntu-latest"
             python-version: "3.10"
-            django-version: "4.0"
+            django-version: "3.2"
             extras: "test,cleanup"
 
     runs-on: ${{ matrix.os }}
@@ -91,6 +92,6 @@ jobs:
       run: sudo apt-get install -y redis-server
     - run: python -m pip install pip~=21.0  # https://github.com/pypa/pip/issues/11133
     - run: python -m pip install .[${{ matrix.extras }}] codecov
-    - run: python -m pip install django~=${{ matrix.django-version }}a
+    - run: python -m pip install django~=${{ matrix.django-version }}.0
     - run: python -m pytest
     - run: codecov
