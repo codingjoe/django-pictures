@@ -1,0 +1,37 @@
+# Django-Pictures
+# Copyright (C) 2022 Johannes Maron
+# This file is distributed under the same license as the PACKAGE package.
+# Johannes Maron <johannes@maron.family>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-08-06 13:58+0200\n"
+"PO-Revision-Date: 2022-08-06 14:14+0200\n"
+"Last-Translator: Johannes Maron <johannes@maron.family>\n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.1.1\n"
+
+#: validators.py:47
+#, python-format
+msgid ""
+"The image you uploaded is too large. The required maximum resolution is: "
+"%(width)sx%(height)s px."
+msgstr ""
+"Das von Ihnen hochgeladene Bild ist zu groß. Die erforderliche maximale "
+"Auflösung beträgt: %(width)sx%(height)s px."
+
+#: validators.py:65
+#, python-format
+msgid ""
+"The image you uploaded is too small. The required minimum resolution is: "
+"%(width)sx%(height)s px."
+msgstr ""
+"Das von Ihnen hochgeladene Bild ist zu klein. Die erforderliche "
+"Mindestauflösung beträgt: %(width)sx%(height)s px."

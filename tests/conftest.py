@@ -9,18 +9,12 @@ from pictures import conf
 
 
 @pytest.fixture
-def imagedata():
+def image_upload_file():
     img = Image.new("RGB", (800, 800), (255, 55, 255))
 
-    output = io.BytesIO()
-    img.save(output, format="JPEG")
-
-    return output
-
-
-@pytest.fixture
-def image_upload_file(imagedata):
-    return SimpleUploadedFile("image.jpg", imagedata.getvalue())
+    with io.BytesIO() as output:
+        img.save(output, format="JPEG")
+        return SimpleUploadedFile("image.jpg", output.getvalue())
 
 
 @pytest.fixture(autouse=True, scope="function")
