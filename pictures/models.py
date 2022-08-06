@@ -227,12 +227,17 @@ class PictureField(ImageField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs |= {
-            "aspect_ratios": self.aspect_ratios,
-            "container_width": self.container_width,
-            "file_types": self.file_types,
-            "pixel_densities": self.pixel_densities,
-            "grid_columns": self.grid_columns,
-            "breakpoints": self.breakpoints,
-        }
-        return name, path, args, kwargs
+        return (
+            name,
+            path,
+            args,
+            {
+                **kwargs,
+                "aspect_ratios": self.aspect_ratios,
+                "container_width": self.container_width,
+                "file_types": self.file_types,
+                "pixel_densities": self.pixel_densities,
+                "grid_columns": self.grid_columns,
+                "breakpoints": self.breakpoints,
+            },
+        )

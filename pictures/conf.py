@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.conf import settings
 
 
@@ -19,6 +21,6 @@ def get_settings():
             "PIXEL_DENSITIES": [1, 2],
             "USE_PLACEHOLDERS": settings.DEBUG,
             "QUEUE_NAME": "pictures",
-        }
-        | getattr(settings, "PICTURES", {}),
+            **getattr(settings, "PICTURES", {}),
+        },
     )
