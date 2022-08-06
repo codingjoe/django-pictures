@@ -88,7 +88,7 @@ development. To enable them, add the following to enable the
 
 ```python
 # urls.py
-from django.conf.urls import include, path
+from django.urls import include, path
 from pictures.conf import get_settings
 
 urlpatterns = [
