@@ -18,7 +18,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["picture"]
 
 
-def test_default():
+def test_default(settings):
+    settings.PICTURES["USE_PLACEHOLDERS"] = False
     assert (
         rest_framework.default(
             obj=SimplePicture(
@@ -41,7 +42,8 @@ def test_default__type_error():
 
 class TestPictureField:
     @pytest.mark.django_db
-    def test_to_representation(self, image_upload_file):
+    def test_to_representation(self, image_upload_file, settings):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         serializer = ProfileSerializer(profile)
