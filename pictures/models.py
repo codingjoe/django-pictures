@@ -11,9 +11,11 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
 from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
+from django.urls import reverse
 from PIL import Image, ImageOps
 
 __all__ = ["PictureField", "PictureFieldFile"]
+
 
 from pictures import conf, utils
 
@@ -33,6 +35,18 @@ class SimplePicture:
 
     @property
     def url(self) -> str:
+        if conf.get_settings().USE_PLACEHOLDERS:
+            return reverse(
+                "pictures:placeholder",
+                kwargs={
+                    "alt": Path(self.parent_name).stem,
+                    "width": self.width,
+                    "ratio": f"{self.aspect_ratio.numerator}x{self.aspect_ratio.denominator}"
+                    if self.aspect_ratio
+                    else None,
+                    "file_type": self.file_type,
+                },
+            )
         return self.storage.url(self.name)
 
     @property

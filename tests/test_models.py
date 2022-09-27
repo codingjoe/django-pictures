@@ -37,11 +37,16 @@ class TestSimplePicture:
         width=800,
     )
 
-    def test_url(self):
+    def test_url(self, settings):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
         assert (
             self.picture_with_ratio.url
             == "/media/testapp/simplemodel/image/4_3/800w.webp"
         )
+
+    def test_url__placeholder(self, settings):
+        settings.PICTURES["USE_PLACEHOLDERS"] = True
+        assert self.picture_with_ratio.url == "/_pictures/image/4x3/800w.WEBP"
 
     def test_height(self):
         assert self.picture_with_ratio.height == 600
