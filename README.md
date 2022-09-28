@@ -13,7 +13,7 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 [![Test Coverage](https://codecov.io/gh/codingjoe/django-pictures/branch/main/graph/badge.svg)](https://codecov.io/gh/codingjoe/django-pictures)
 [![GitHub License](https://img.shields.io/github/license/codingjoe/django-pictures)](https://raw.githubusercontent.com/codingjoe/django-pictures/master/LICENSE)
 
-### Usage
+## Usage
 
 Before you start, it can be a good idea to understand the fundamentals of
 [responsive images](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images).
@@ -48,11 +48,15 @@ The template above will render into:
 </picture>
 ```
 
-### Setup
+## Setup
+
+### Installation
 
 ```shell
 python3 -m pip install django-pictures
 ```
+
+### Settings
 
 ```python
 # settings.py
@@ -80,7 +84,7 @@ PICTURES = {
 If you have either Dramatiq or Celery installed, we will default to async
 image processing. You will need workers to listen to the `pictures` queue.
 
-#### Placeholders
+### Placeholders
 
 This library comes with dynamically created placeholders to simplify local
 development. To enable them, add the following to enable the
@@ -101,9 +105,9 @@ if get_settings().USE_PLACEHOLDERS:
     ]
 ```
 
-### Config
+## Config
 
-#### Aspect ratios
+### Aspect ratios
 
 You can specify the aspect ratios of your images. Images will be cropped to the
 specified aspect ratio. Aspect ratios are specified as a string with a slash
@@ -135,18 +139,18 @@ served with the original aspect ratio of the file.
 You may only use aspect ratios in templates, that have been defined on the model.
 The model `aspect_ratios` will default to `[None]`, if other value is provided.
 
-#### Breakpoints
+### Breakpoints
 
 You may define your own breakpoints, they should be identical to the ones used
 in your css library. Simply override the `PICTURES["BREAKPOINTS"]` setting.
 
-#### Grid columns
+### Grid columns
 
 Grids are so common in web design, that they even made it into CSS.
 We default to 12 columns, but you can override this setting, via the
 `PICTURES["GRID_COLUMNS"]` setting.
 
-#### Container width
+### Container width
 
 Containers are commonly used to limit the maximum width of layouts,
 to promote better readability on larger screens. We default to `1200px`,
@@ -154,7 +158,7 @@ but you can override this setting, via the `PICTURES["CONTAINER_WIDTH"]` setting
 
 You may also set it to `None`, should you not use a container.
 
-#### File types
+### File types
 
 Unless you still services IE11 clients, you should be fine serving just
 [WebP](https://caniuse.com/webp). Sadly, [AVIF](https://caniuse.com/avif)
@@ -164,20 +168,20 @@ Unless you still services IE11 clients, you should be fine serving just
 If you are serving IE11 use add `JPEG` to the list. Beware though, that this may
 drastically increase you storage needs.
 
-#### Pixel densities
+### Pixel densities
 
 Unless you really care that your images hold of if you hold your UHD phone very
 close to your eyeballs, you should be fine, serving at the default `1x` and `2x`
 densities.
 
 
-#### Async image processing
+### Async image processing
 
 If you have either Dramatiq or Celery installed, we will default to async
 image processing. You will need workers to listen to the `pictures` queue.
 You can override the queue name, via the `PICTURES["QUEUE_NAME"]` setting.
 
-### Migrations
+## Migrations
 
 Django doesn't support file field migrations, but we do.
 You can simply auto create the migration and replace Django's
