@@ -36,3 +36,29 @@ def picture(field_file, alt=None, ratio=None, container=None, **kwargs):
             "use_placeholders": settings.USE_PLACEHOLDERS,
         }
     )
+
+
+@register.simple_tag()
+def img_url(field_file, file_type, width, ratio=None) -> str:
+    """
+    Return the URL for a specific image file.
+
+    This may be useful for use-cases like emails, where you can't use a picture tag.
+    """
+    try:
+        file_types = field_file.aspect_ratios[ratio]
+    except KeyError as e:
+        raise ValueError(
+            f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, field_file.aspect_ratios.keys()))}"
+        ) from e
+    try:
+        sizes = file_types[file_type.upper()]
+    except KeyError as e:
+        raise ValueError(
+            f"Invalid file type: {file_type}. Choices are: {', '.join(file_types.keys())}"
+        ) from e
+    for w, img in sorted(sizes.items()):
+        url = img.url
+        if w >= width:
+            break
+    return url
