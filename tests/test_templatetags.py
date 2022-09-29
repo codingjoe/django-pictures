@@ -1,6 +1,6 @@
 import pytest
 
-from pictures.templatetags.pictures import picture
+from pictures.templatetags.pictures import img_url, picture
 from tests.testapp.models import Profile
 
 picture_html = b"""
@@ -61,3 +61,28 @@ def test_picture__additional_attrs(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     html = picture(profile.picture, ratio="3/2", loading="lazy")
     assert ' loading="lazy"' in html
+
+
+@pytest.mark.django_db
+def test_img_url(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    assert (
+        img_url(profile.picture, ratio="3/2", file_type="webp", width=800)
+        == "/_pictures/image/3x2/800w.WEBP"
+    )
+
+
+@pytest.mark.django_db
+def test_img_url__raise_wrong_ratio(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    with pytest.raises(ValueError) as e:
+        img_url(profile.picture, ratio="2/3", file_type="webp", width=800)
+    assert "Invalid ratio: 2/3. Choices are: 1/1, 3/2, 16/9" in str(e.value)
+
+
+@pytest.mark.django_db
+def test_img_url__raise_wrong_file_type(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    with pytest.raises(ValueError) as e:
+        img_url(profile.picture, ratio="3/2", file_type="gif", width=800)
+    assert "Invalid file type: gif. Choices are: WEBP" in str(e.value)
