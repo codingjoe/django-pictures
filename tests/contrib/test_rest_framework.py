@@ -97,3 +97,38 @@ class TestPictureField:
                 }
             },
         }
+
+    @pytest.mark.django_db
+    def test_to_representation__with_aspect_ratios(self, image_upload_file, settings):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
+
+        profile = models.Profile.objects.create(picture=image_upload_file)
+        serializer = ProfileSerializer(profile)
+        serializer.fields["picture"].aspect_ratios = ["1/1", "16/9"]
+
+        assert serializer.data["picture"] == {
+            "1/1": {
+                "WEBP": {
+                    "800": "/media/testapp/profile/image/1/800w.webp",
+                    "100": "/media/testapp/profile/image/1/100w.webp",
+                    "200": "/media/testapp/profile/image/1/200w.webp",
+                    "300": "/media/testapp/profile/image/1/300w.webp",
+                    "400": "/media/testapp/profile/image/1/400w.webp",
+                    "500": "/media/testapp/profile/image/1/500w.webp",
+                    "600": "/media/testapp/profile/image/1/600w.webp",
+                    "700": "/media/testapp/profile/image/1/700w.webp",
+                }
+            },
+            "16/9": {
+                "WEBP": {
+                    "800": "/media/testapp/profile/image/16_9/800w.webp",
+                    "100": "/media/testapp/profile/image/16_9/100w.webp",
+                    "200": "/media/testapp/profile/image/16_9/200w.webp",
+                    "300": "/media/testapp/profile/image/16_9/300w.webp",
+                    "400": "/media/testapp/profile/image/16_9/400w.webp",
+                    "500": "/media/testapp/profile/image/16_9/500w.webp",
+                    "600": "/media/testapp/profile/image/16_9/600w.webp",
+                    "700": "/media/testapp/profile/image/16_9/700w.webp",
+                }
+            },
+        }
