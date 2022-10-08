@@ -104,22 +104,11 @@ class TestPictureField:
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         serializer = ProfileSerializer(profile)
-        serializer.fields["picture"].aspect_ratios = ["1/1", "16/9"]
+        serializer.fields["picture"].ratio = "16/9"
+        serializer.fields["picture"].breakpoints = {"m": 4, "l": 3}
 
         assert serializer.data["picture"] == {
-            "1/1": {
-                "WEBP": {
-                    "800": "/media/testapp/profile/image/1/800w.webp",
-                    "100": "/media/testapp/profile/image/1/100w.webp",
-                    "200": "/media/testapp/profile/image/1/200w.webp",
-                    "300": "/media/testapp/profile/image/1/300w.webp",
-                    "400": "/media/testapp/profile/image/1/400w.webp",
-                    "500": "/media/testapp/profile/image/1/500w.webp",
-                    "600": "/media/testapp/profile/image/1/600w.webp",
-                    "700": "/media/testapp/profile/image/1/700w.webp",
-                }
-            },
-            "16/9": {
+            "sources": {
                 "WEBP": {
                     "800": "/media/testapp/profile/image/16_9/800w.webp",
                     "100": "/media/testapp/profile/image/16_9/100w.webp",
@@ -131,4 +120,5 @@ class TestPictureField:
                     "700": "/media/testapp/profile/image/16_9/700w.webp",
                 }
             },
+            "media": "(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 25vw",
         }
