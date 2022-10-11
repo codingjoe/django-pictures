@@ -207,6 +207,18 @@ class PictureSerializer(serializers.Serializer):
     picture = PictureField()
 ```
 
+A good utility to handle the picture source extraction from the api:
+
+```javascript
+export function getPictureSource (picture, ratio) {
+  let source = ''
+  for (const [px, url] of Object.entries(picture[ratio].WEBP)) {
+    source += `${url} ${px}w, `
+  }
+  return source
+}
+```
+
 ### Django Cleanup
 
 `PictureField` is compatible with [Django Cleanup](https://github.com/un1t/django-cleanup),
