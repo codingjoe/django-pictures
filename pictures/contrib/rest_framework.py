@@ -18,33 +18,43 @@ def default(obj):
 class PictureField(serializers.ReadOnlyField):
     """Read-only field for all aspect ratios and sizes of the image."""
 
-    def __init__(self, ratio=None, container=None, **kwargs):
-        self.ratio = ratio
-        self.container = container
-        self.breakpoints = {
-            bp: kwargs.pop(bp) for bp in get_settings().BREAKPOINTS if bp in kwargs
-        }
-        super().__init__(**kwargs)
-
     def to_representation(self, obj: PictureFieldFile):
-        if self.ratio is None:
-            return json.loads(json.dumps(obj.aspect_ratios, default=default))
-
+        payload = {
+            "url": obj.url,
+            "width": obj.width,
+            "height": obj.height,
+            "ratios": {
+                ratio: {
+                    "sources": {
+                        f"image/{file_type.lower()}": sizes
+                        for file_type, sizes in sources.items()
+                    },
+                }
+                for ratio, sources in obj.aspect_ratios.items()
+            },
+        }
         try:
-            sources = obj.aspect_ratios[self.ratio]
-        except KeyError as e:
-            raise ValueError(
-                f"Invalid ratio: {self.ratio}. Choices are: {', '.join(filter(None, obj.aspect_ratios.keys()))}"
-            ) from e
+            query_params = self.context["request"].GET
+        except KeyError:
+            pass
+        else:
+            ratio = query_params.get("ratio")
+            container = query_params.get("container")
+            breakpoints = {
+                bp: int(query_params.get(bp))
+                for bp in get_settings().BREAKPOINTS
+                if bp in query_params
+            }
+            if ratio is not None:
+                try:
+                    payload["ratios"] = {ratio: payload["ratios"][ratio]}
+                except KeyError as e:
+                    raise ValueError(
+                        f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, obj.aspect_ratios.keys()))}"
+                    ) from e
+                else:
+                    payload["ratios"][ratio]["media"] = utils.sizes(
+                        container_width=container, **breakpoints
+                    )
 
-        return json.loads(
-            json.dumps(
-                {
-                    "sources": sources,
-                    "media": utils.sizes(
-                        container_width=self.container, **self.breakpoints
-                    ),
-                },
-                default=default,
-            )
-        )
+        return json.loads(json.dumps(payload, default=default))

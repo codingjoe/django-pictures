@@ -47,78 +47,104 @@ class TestPictureField:
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         serializer = ProfileSerializer(profile)
+
         assert serializer.data["picture"] == {
-            "null": {
-                "WEBP": {
-                    "800": "/media/testapp/profile/image/800w.webp",
-                    "100": "/media/testapp/profile/image/100w.webp",
-                    "200": "/media/testapp/profile/image/200w.webp",
-                    "300": "/media/testapp/profile/image/300w.webp",
-                    "400": "/media/testapp/profile/image/400w.webp",
-                    "500": "/media/testapp/profile/image/500w.webp",
-                    "600": "/media/testapp/profile/image/600w.webp",
-                    "700": "/media/testapp/profile/image/700w.webp",
-                }
-            },
-            "1/1": {
-                "WEBP": {
-                    "800": "/media/testapp/profile/image/1/800w.webp",
-                    "100": "/media/testapp/profile/image/1/100w.webp",
-                    "200": "/media/testapp/profile/image/1/200w.webp",
-                    "300": "/media/testapp/profile/image/1/300w.webp",
-                    "400": "/media/testapp/profile/image/1/400w.webp",
-                    "500": "/media/testapp/profile/image/1/500w.webp",
-                    "600": "/media/testapp/profile/image/1/600w.webp",
-                    "700": "/media/testapp/profile/image/1/700w.webp",
-                }
-            },
-            "3/2": {
-                "WEBP": {
-                    "800": "/media/testapp/profile/image/3_2/800w.webp",
-                    "100": "/media/testapp/profile/image/3_2/100w.webp",
-                    "200": "/media/testapp/profile/image/3_2/200w.webp",
-                    "300": "/media/testapp/profile/image/3_2/300w.webp",
-                    "400": "/media/testapp/profile/image/3_2/400w.webp",
-                    "500": "/media/testapp/profile/image/3_2/500w.webp",
-                    "600": "/media/testapp/profile/image/3_2/600w.webp",
-                    "700": "/media/testapp/profile/image/3_2/700w.webp",
-                }
-            },
-            "16/9": {
-                "WEBP": {
-                    "800": "/media/testapp/profile/image/16_9/800w.webp",
-                    "100": "/media/testapp/profile/image/16_9/100w.webp",
-                    "200": "/media/testapp/profile/image/16_9/200w.webp",
-                    "300": "/media/testapp/profile/image/16_9/300w.webp",
-                    "400": "/media/testapp/profile/image/16_9/400w.webp",
-                    "500": "/media/testapp/profile/image/16_9/500w.webp",
-                    "600": "/media/testapp/profile/image/16_9/600w.webp",
-                    "700": "/media/testapp/profile/image/16_9/700w.webp",
-                }
+            "url": "/media/testapp/profile/image.jpg",
+            "width": 800,
+            "height": 800,
+            "ratios": {
+                "null": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/800w.webp",
+                            "100": "/media/testapp/profile/image/100w.webp",
+                            "200": "/media/testapp/profile/image/200w.webp",
+                            "300": "/media/testapp/profile/image/300w.webp",
+                            "400": "/media/testapp/profile/image/400w.webp",
+                            "500": "/media/testapp/profile/image/500w.webp",
+                            "600": "/media/testapp/profile/image/600w.webp",
+                            "700": "/media/testapp/profile/image/700w.webp",
+                        }
+                    }
+                },
+                "1/1": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/1/800w.webp",
+                            "100": "/media/testapp/profile/image/1/100w.webp",
+                            "200": "/media/testapp/profile/image/1/200w.webp",
+                            "300": "/media/testapp/profile/image/1/300w.webp",
+                            "400": "/media/testapp/profile/image/1/400w.webp",
+                            "500": "/media/testapp/profile/image/1/500w.webp",
+                            "600": "/media/testapp/profile/image/1/600w.webp",
+                            "700": "/media/testapp/profile/image/1/700w.webp",
+                        }
+                    }
+                },
+                "3/2": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/3_2/800w.webp",
+                            "100": "/media/testapp/profile/image/3_2/100w.webp",
+                            "200": "/media/testapp/profile/image/3_2/200w.webp",
+                            "300": "/media/testapp/profile/image/3_2/300w.webp",
+                            "400": "/media/testapp/profile/image/3_2/400w.webp",
+                            "500": "/media/testapp/profile/image/3_2/500w.webp",
+                            "600": "/media/testapp/profile/image/3_2/600w.webp",
+                            "700": "/media/testapp/profile/image/3_2/700w.webp",
+                        }
+                    }
+                },
+                "16/9": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/16_9/800w.webp",
+                            "100": "/media/testapp/profile/image/16_9/100w.webp",
+                            "200": "/media/testapp/profile/image/16_9/200w.webp",
+                            "300": "/media/testapp/profile/image/16_9/300w.webp",
+                            "400": "/media/testapp/profile/image/16_9/400w.webp",
+                            "500": "/media/testapp/profile/image/16_9/500w.webp",
+                            "600": "/media/testapp/profile/image/16_9/600w.webp",
+                            "700": "/media/testapp/profile/image/16_9/700w.webp",
+                        }
+                    }
+                },
             },
         }
 
     @pytest.mark.django_db
-    def test_to_representation__with_aspect_ratios(self, image_upload_file, settings):
+    def test_to_representation__with_aspect_ratios(
+        self, rf, image_upload_file, settings
+    ):
         settings.PICTURES["USE_PLACEHOLDERS"] = False
 
         profile = models.Profile.objects.create(picture=image_upload_file)
-        serializer = ProfileSerializer(profile)
-        serializer.fields["picture"].ratio = "16/9"
-        serializer.fields["picture"].breakpoints = {"m": 4, "l": 3}
+        request = rf.get("/")
+        request.GET._mutable = True
+        request.GET["ratio"] = "1/1"
+        request.GET["l"] = "3"
+        request.GET["m"] = "4"
+        serializer = ProfileSerializer(profile, context={"request": request})
 
         assert serializer.data["picture"] == {
-            "sources": {
-                "WEBP": {
-                    "800": "/media/testapp/profile/image/16_9/800w.webp",
-                    "100": "/media/testapp/profile/image/16_9/100w.webp",
-                    "200": "/media/testapp/profile/image/16_9/200w.webp",
-                    "300": "/media/testapp/profile/image/16_9/300w.webp",
-                    "400": "/media/testapp/profile/image/16_9/400w.webp",
-                    "500": "/media/testapp/profile/image/16_9/500w.webp",
-                    "600": "/media/testapp/profile/image/16_9/600w.webp",
-                    "700": "/media/testapp/profile/image/16_9/700w.webp",
+            "url": "/media/testapp/profile/image.jpg",
+            "width": 800,
+            "height": 800,
+            "ratios": {
+                "1/1": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/1/800w.webp",
+                            "100": "/media/testapp/profile/image/1/100w.webp",
+                            "200": "/media/testapp/profile/image/1/200w.webp",
+                            "300": "/media/testapp/profile/image/1/300w.webp",
+                            "400": "/media/testapp/profile/image/1/400w.webp",
+                            "500": "/media/testapp/profile/image/1/500w.webp",
+                            "600": "/media/testapp/profile/image/1/600w.webp",
+                            "700": "/media/testapp/profile/image/1/700w.webp",
+                        }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 25vw",
                 }
             },
-            "media": "(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 25vw",
         }
