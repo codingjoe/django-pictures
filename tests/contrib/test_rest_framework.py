@@ -121,9 +121,9 @@ class TestPictureField:
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
         request.GET._mutable = True
-        request.GET["ratio"] = "1/1"
-        request.GET["l"] = "3"
-        request.GET["m"] = "4"
+        request.GET["picture_ratio"] = "1/1"
+        request.GET["picture_l"] = "3"
+        request.GET["picture_m"] = "4"
         serializer = ProfileSerializer(profile, context={"request": request})
 
         assert serializer.data["picture"] == {

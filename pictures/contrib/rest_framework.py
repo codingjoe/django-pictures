@@ -38,12 +38,12 @@ class PictureField(serializers.ReadOnlyField):
         except KeyError:
             pass
         else:
-            ratio = query_params.get("ratio")
-            container = query_params.get("container")
+            ratio = query_params.get(f"{self.source}_ratio")
+            container = query_params.get(f"{self.source}_container")
             breakpoints = {
-                bp: int(query_params.get(bp))
+                bp: int(query_params.get(f"{self.source}_{bp}"))
                 for bp in get_settings().BREAKPOINTS
-                if bp in query_params
+                if f"{self.source}_{bp}" in query_params
             }
             if ratio is not None:
                 try:
