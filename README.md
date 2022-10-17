@@ -220,21 +220,15 @@ curl http://localhost:8000/api/path/?picture_ratio=16%2F9&picture_m=6&picture_l=
 {
   "other_fields": "…",
   "picture": {
-    "url": "/media/testapp/profile/image.jpg",
+    "url": "/path/to/image.jpg",
     "width": 800,
     "height": 800,
     "ratios": {
       "1/1": {
         "sources": {
           "image/webp": {
-            "800": "/media/testapp/profile/image/1/800w.webp",
-            "100": "/media/testapp/profile/image/1/100w.webp",
-            "200": "/media/testapp/profile/image/1/200w.webp",
-            "300": "/media/testapp/profile/image/1/300w.webp",
-            "400": "/media/testapp/profile/image/1/400w.webp",
-            "500": "/media/testapp/profile/image/1/500w.webp",
-            "600": "/media/testapp/profile/image/1/600w.webp",
-            "700": "/media/testapp/profile/image/1/700w.webp"
+            "100": "/path/to/image/1/100w.webp",
+            "200": "…"
           }
         },
         "media": "(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 25vw"
