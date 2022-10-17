@@ -148,3 +148,22 @@ class TestPictureField:
                 }
             },
         }
+
+    @pytest.mark.django_db
+    def test_to_representation__raise_value_error(
+        self, rf, image_upload_file, settings
+    ):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
+
+        profile = models.Profile.objects.create(picture=image_upload_file)
+        request = rf.get("/")
+        request.GET._mutable = True
+        request.GET["picture_ratio"] = "21/11"
+        request.GET["picture_l"] = "3"
+        request.GET["picture_m"] = "4"
+        serializer = ProfileSerializer(profile, context={"request": request})
+
+        with pytest.raises(ValueError) as e:
+            serializer.data["picture"]
+
+        assert str(e.value) == "Invalid ratio: 21/11. Choices are: 1/1, 3/2, 16/9"
