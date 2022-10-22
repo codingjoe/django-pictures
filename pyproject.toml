@@ -57,6 +57,9 @@ cleanup = [
 [project.urls]
 Project-URL = "https://github.com/codingjoe/django-pictures"
 Changelog = "https://github.com/codingjoe/django-pictures/releases"
+Source = "https://github.com/codingjoe/django-pictures"
+Documentation = "https://github.com/codingjoe/django-pictures#django-pictures"
+Issue-Tracker = "https://github.com/codingjoe/django-pictures/issues"
 
 [tool.flit.module]
 name = "pictures"
