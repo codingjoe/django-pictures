@@ -1,4 +1,6 @@
-# django-pictures
+![Django Pictures Logo](https://repository-images.githubusercontent.com/455480246/daaa7870-d28c-4fce-8296-d3e3af487a64)
+
+# Django Pictures
 
 Responsive cross-browser image library using modern codes like AVIF & WebP.
 
