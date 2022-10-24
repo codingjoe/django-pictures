@@ -59,6 +59,6 @@ def img_url(field_file, file_type, width, ratio=None) -> str:
         ) from e
     for w, img in sorted(sizes.items()):
         url = img.url
-        if w >= width:
+        if w >= int(width):
             break
     return url
