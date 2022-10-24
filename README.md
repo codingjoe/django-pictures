@@ -107,6 +107,16 @@ if get_settings().USE_PLACEHOLDERS:
     ]
 ```
 
+### Legacy use-cases
+
+The template tag `img_url` can be used when a single image with a certain width
+is required (for example in emails) instead of a set of images.
+
+```html
+{% load pictures %}
+{% img_url profile.picture ratio="3/2" file_type="webp" width=800 %}
+```
+
 ## Config
 
 ### Aspect ratios
