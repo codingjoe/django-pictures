@@ -108,6 +108,25 @@ if get_settings().USE_PLACEHOLDERS:
     ]
 ```
 
+### Legacy use-cases (email)
+
+Although the `picture`-tag is [adequate for most use-cases][caniuse-picture],
+some remain, where a single `img` tag is necessary. Notably in email, where
+[most clients do support WebP][caniemail-webp] but not [srcset][caniemail-srcset].
+The template tag `img_url` returns a single size image URL.
+In addition to the ratio you will need to define the `file_type`
+as well as the `width` (absolute width in pixels).
+
+
+```html
+{% load pictures %}
+<img src="{% img_url profile.picture ratio="3/2" file_type="webp" width=800 %}" alt="profile picture">
+```
+
+[caniuse-picture]: https://caniuse.com/picture
+[caniemail-webp]: https://www.caniemail.com/features/image-webp/
+[caniemail-srcset]: https://www.caniemail.com/features/html-srcset/
+
 ## Config
 
 ### Aspect ratios

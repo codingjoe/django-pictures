@@ -67,7 +67,7 @@ def test_picture__additional_attrs(image_upload_file):
 def test_img_url(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     assert (
-        img_url(profile.picture, ratio="3/2", file_type="webp", width=800)
+        img_url(profile.picture, ratio="3/2", file_type="webp", width="800")
         == "/_pictures/image/3x2/800w.WEBP"
     )
 
