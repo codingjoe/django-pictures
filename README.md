@@ -9,7 +9,8 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 * serve files with or without a CDN
 * placeholders for local development
 * migration support
-* async image processing for Celery or Dramatiq
+* async image processing for [Celery] or [Dramatiq]
+* [DRF] support
 
 [![PyPi Version](https://img.shields.io/pypi/v/django-pictures.svg)](https://pypi.python.org/pypi/django-pictures/)
 [![Test Coverage](https://codecov.io/gh/codingjoe/django-pictures/branch/main/graph/badge.svg)](https://codecov.io/gh/codingjoe/django-pictures)
@@ -196,7 +197,7 @@ You can follow [the example][migration] in our test app, to see how it works.
 
 ## Contrib
 
-### Django Rest Framework (DRF)
+### Django Rest Framework ([DRF])
 
 We do ship with a read-only `PictureField` that can be used to include all
 available picture sizes in a DRF serializer.
@@ -209,7 +210,44 @@ class PictureSerializer(serializers.Serializer):
     picture = PictureField()
 ```
 
+You may provide optional GET parameters to the serializer, to specify the aspect
+ratio and breakpoints you want to include in the response. The parameters are
+prefixed with the `fieldname_` to avoid conflicts with other fields.
+
+```bash
+curl http://localhost:8000/api/path/?picture_ratio=16%2F9&picture_m=6&picture_l=4
+# %2F is the url encoded slash
+```
+
+```json
+{
+  "other_fields": "…",
+  "picture": {
+    "url": "/path/to/image.jpg",
+    "width": 800,
+    "height": 800,
+    "ratios": {
+      "1/1": {
+        "sources": {
+          "image/webp": {
+            "100": "/path/to/image/1/100w.webp",
+            "200": "…"
+          }
+        },
+        "media": "(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 25vw"
+      }
+    }
+  }
+}
+```
+
+Note that the `media` keys are only included, if you have specified breakpoints.
+
 ### Django Cleanup
 
 `PictureField` is compatible with [Django Cleanup](https://github.com/un1t/django-cleanup),
 which automatically deletes its file and corresponding `SimplePicture` files.
+
+[drf]: https://www.django-rest-framework.org/
+[celery]: https://docs.celeryproject.org/en/stable/
+[dramatiq]: https://dramatiq.io/
