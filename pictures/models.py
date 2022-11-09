@@ -234,7 +234,7 @@ class PictureField(ImageField):
                     "width_field and height_field attributes are missing",
                     obj=self,
                     id="fields.E101",
-                    hint="Set both the width_field and height_field attribute to avoid storage IO",
+                    hint="Please add two positive integer fields to '{self.model._meta.app_label}.{self.model.__name__}' and add their field names as the 'width_field' and 'height_field' attribute for your picture field. Otherwise Django will not be able to cache the image aspect size causing disk IO and potential response time increases.",
                 )
             ]
         return []
