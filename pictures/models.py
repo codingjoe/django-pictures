@@ -68,6 +68,8 @@ class SimplePicture:
     def process(self, image) -> Image:
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
+        
+        image = ImageOps.exif_transpose(image)
 
         if self.aspect_ratio:
             image = ImageOps.fit(image, size)
