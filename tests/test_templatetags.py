@@ -44,7 +44,9 @@ def test_picture__placeholder(client, image_upload_file, settings):
 def test_picture__placeholder_with_alt(client, image_upload_file, settings):
     settings.PICTURES["USE_PLACEHOLDERS"] = True
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
-    html = picture(profile.picture, alt="Event 2022/2023", ratio="3/2", loading="lazy")
+    html = picture(
+        profile.picture, img_alt="Event 2022/2023", ratio="3/2", img_loading="lazy"
+    )
     assert "/_pictures/Event%25202022%252F2023/3x2/800w.WEBP" in html
 
 
@@ -57,10 +59,25 @@ def test_picture__invalid_ratio(image_upload_file):
 
 
 @pytest.mark.django_db
-def test_picture__additional_attrs(image_upload_file):
+def test_picture__additional_attrs_img(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
-    html = picture(profile.picture, ratio="3/2", loading="lazy")
+    html = picture(profile.picture, ratio="3/2", img_loading="lazy")
     assert ' loading="lazy"' in html
+
+
+@pytest.mark.django_db
+def test_picture__additional_attrs_picture(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    html = picture(profile.picture, ratio="3/2", picture_class="picture-class")
+    assert '<picture class="picture-class"' in html
+
+
+@pytest.mark.django_db
+def test_picture__additional_attrs__type_error(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    with pytest.raises(TypeError) as e:
+        picture(profile.picture, ratio="3/2", does_not_exist="error")
+    assert "Invalid keyword argument: does_not_exist" in str(e.value)
 
 
 @pytest.mark.django_db
