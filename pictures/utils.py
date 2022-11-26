@@ -83,6 +83,8 @@ def placeholder(width: int, height: int, alt):
         font_name = "DejaVuSans-Bold"
     elif sys.platform == "darwin":
         font_name = "Helvetica"
+    else:  # pragma: no cover
+        raise RuntimeError(f"Unsupported platform: {sys.platform}")
     font = ImageFont.truetype(font_name, fontsize)
     text = unquote(f"{alt}\n<{width}x{height}>")
     while font.getsize(text)[0] < width / 2:
