@@ -50,7 +50,7 @@ class SimplePicture:
         return self.storage.url(self.name)
 
     @property
-    def height(self) -> int or None:
+    def height(self) -> int | None:
         if self.aspect_ratio:
             return math.floor(self.width / self.aspect_ratio)
 
