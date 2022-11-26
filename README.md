@@ -38,7 +38,7 @@ class Profile(models.Model):
 ```html
 <!-- template.html -->
 {% load pictures %}
-{% picture profile.picture alt="Spiderman" loading="lazy" m=6 l=4 %}
+{% picture profile.picture img_alt="Spiderman" img_loading="lazy" m=6 l=4 %}
 ```
 
 The template above will render into:
@@ -152,7 +152,7 @@ class Profile(models.Model):
 ```html
 # template.html
 {% load pictures %}
-{% picture profile.picture alt="Spiderman" ratio="16/9" m=6 l=4 %}
+{% picture profile.picture img_alt="Spiderman" ratio="16/9" m=6 l=4 %}
 ```
 
 If you don't specify an aspect ratio or None in your template, the image will be
