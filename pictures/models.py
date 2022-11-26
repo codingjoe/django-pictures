@@ -66,15 +66,13 @@ class SimplePicture:
         return Path(self.storage.path(self.name))
 
     def process(self, image) -> Image:
+        image = ImageOps.exif_transpose(image)  # crates a copy
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
-
-        image = ImageOps.exif_transpose(image)
 
         if self.aspect_ratio:
             image = ImageOps.fit(image, size)
         else:
-            image = image.copy()
             image.thumbnail(size)
         return image
 

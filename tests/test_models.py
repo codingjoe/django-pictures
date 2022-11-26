@@ -1,11 +1,13 @@
 import contextlib
+import io
 from fractions import Fraction
 from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 from django.core.files.storage import default_storage
-from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
+from PIL import Image, ImageDraw
 
 from pictures.models import PictureField, SimplePicture
 from tests.testapp.models import Profile, SimpleModel
@@ -107,6 +109,31 @@ class TestPictureFieldFile:
 
         assert default_storage.exists(obj.picture.name)
         assert obj.picture.aspect_ratios["16/9"]["WEBP"][100].path.exists()
+
+    @pytest.mark.django_db
+    def test_exif_transpose(self, stub_worker):
+        img = Image.new("RGB", (600, 800), (255, 0, 0))
+        draw = ImageDraw.Draw(img)
+        draw.rectangle((300, 0, 600, 800), fill=(0, 0, 255))  # blue is on the right
+        exif = img.getexif()
+        exif[0x0112] = 8  # pretend to be rotated by 90 degrees
+
+        with io.BytesIO() as output:
+            img.save(output, format="JPEG", exif=exif)
+            image_file = SimpleUploadedFile("image.jpg", output.getvalue())
+
+        obj = SimpleModel(picture=image_file)
+        obj.save()
+        stub_worker.join()
+
+        assert default_storage.exists(obj.picture.name)
+        assert obj.picture.aspect_ratios["16/9"]["WEBP"][100].path.exists()
+        with Image.open(
+            obj.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        ) as img_small:
+            assert img_small.size == (100, 56)
+            pixels = img_small.load()
+            assert pixels[0, 0] == (2, 0, 255)  # blue is on the top, always blue!
 
     @pytest.mark.django_db
     def test_save__is_blank(self, monkeypatch):
