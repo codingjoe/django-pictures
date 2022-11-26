@@ -24,7 +24,6 @@ Before you start, it can be a good idea to understand the fundamentals of
 Once you get a feeling how complicated things can get with all device types, you'll probably find
 a new appreciation for this package and are ready to adopt in you project :)
 
-
 ```python
 # models.py
 from django.db import models
@@ -196,7 +195,6 @@ Unless you really care that your images hold of if you hold your UHD phone very
 close to your eyeballs, you should be fine, serving at the default `1x` and `2x`
 densities.
 
-
 ### Async image processing
 
 If you have either Dramatiq or Celery installed, we will default to async
@@ -212,7 +210,6 @@ You can simply auto create the migration and replace Django's
 You can follow [the example][migration] in our test app, to see how it works.
 
 [migration]: tests/testapp/migrations/0002_alter_profile_picture.py
-
 
 ## Contrib
 
