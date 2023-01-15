@@ -14,7 +14,7 @@ from . import conf
 __all__ = ["sizes", "source_set", "placeholder"]
 
 
-def _grid(*, _columns=12, **breakpoint_sizes):
+def _grid(*, _columns=12, **breakpoint_sizes: int):
     settings = conf.get_settings()
     for key in breakpoint_sizes.keys() - settings.BREAKPOINTS.keys():
         raise KeyError(
@@ -26,7 +26,7 @@ def _grid(*, _columns=12, **breakpoint_sizes):
         yield key, prev_size / _columns
 
 
-def _media_query(*, container_width: int = None, **breakpoints: {str: int}):
+def _media_query(*, container_width: int = None, **breakpoints: float):
     settings = conf.get_settings()
     prev_ratio = None
     prev_width = 0
@@ -39,10 +39,11 @@ def _media_query(*, container_width: int = None, **breakpoints: {str: int}):
             yield f"(min-width: {prev_width}px) and (max-width: {width - 1}px) {math.floor(prev_ratio * 100)}vw"
             prev_width = width
         prev_ratio = ratio
-    yield f"{math.floor(prev_ratio * container_width)}px" if container_width else f"{math.floor(prev_ratio * 100)}vw"
+    else:
+        yield f"{math.floor(prev_ratio * container_width)}px" if container_width else f"{math.floor(prev_ratio * 100)}vw"
 
 
-def sizes(*, cols=12, container_width: int = None, **breakpoints: {str: int}) -> str:
+def sizes(*, cols=12, container_width: int = None, **breakpoints: int) -> str:
     breakpoints = dict(_grid(_columns=cols, **breakpoints))
     return ", ".join(_media_query(container_width=container_width, **breakpoints))
 
