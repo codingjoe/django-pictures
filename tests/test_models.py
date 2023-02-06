@@ -22,7 +22,6 @@ def override_field_aspect_ratios(field, aspect_ratios):
 
 
 class TestSimplePicture:
-
     picture_with_ratio = SimplePicture(
         parent_name="testapp/simplemodel/image.jpg",
         file_type="WEBP",
