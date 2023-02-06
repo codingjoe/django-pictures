@@ -373,9 +373,14 @@ class TestPictureField:
 
     def test_check_width_height_field(self):
         assert not PictureField(aspect_ratios=["3/2"])._check_width_height_field()
-        errors = PictureField(aspect_ratios=[None])._check_width_height_field()
+        field = PictureField(aspect_ratios=[None])
+        field.contribute_to_class(Profile, "picture")
+        errors = field._check_width_height_field()
         assert errors
         assert errors[0].id == "fields.E101"
+        assert errors[0].hint.startswith(
+            "Please add two positive integer fields to 'testapp.Profile'"
+        )
 
     def test_check(self):
         assert not SimpleModel._meta.get_field("picture").check()
