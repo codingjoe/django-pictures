@@ -167,3 +167,39 @@ class TestPictureField:
             serializer.data["picture"]
 
         assert str(e.value) == "Invalid ratio: 21/11. Choices are: 1/1, 3/2, 16/9"
+        
+        
+    @pytest.mark.django_db
+    def test_to_representation__with_container(
+        self, rf, image_upload_file, settings
+    ):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
+
+        profile = models.Profile.objects.create(picture=image_upload_file)
+        request = rf.get("/")
+        request.GET._mutable = True
+        request.GET["picture_ratio"] = "16/9"
+        request.GET["picture_container"] = "1200"
+        serializer = ProfileSerializer(profile, context={"request": request})
+        assert serializer.data["picture"] == {
+            "url": "/media/testapp/profile/image.jpg",
+            "width": 800,
+            "height": 800,
+            "ratios": {
+                "16/9": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/16_9/800w.webp",
+                            "100": "/media/testapp/profile/image/16_9/100w.webp",
+                            "200": "/media/testapp/profile/image/16_9/200w.webp",
+                            "300": "/media/testapp/profile/image/16_9/300w.webp",
+                            "400": "/media/testapp/profile/image/16_9/400w.webp",
+                            "500": "/media/testapp/profile/image/16_9/500w.webp",
+                            "600": "/media/testapp/profile/image/16_9/600w.webp",
+                            "700": "/media/testapp/profile/image/16_9/700w.webp",
+                        }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
+                }
+            },
+        }
