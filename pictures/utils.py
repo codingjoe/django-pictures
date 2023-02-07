@@ -5,6 +5,7 @@ import random
 import sys
 from fractions import Fraction
 from functools import lru_cache
+from typing import Tuple
 from urllib.parse import unquote
 
 from PIL import Image, ImageDraw, ImageFont
@@ -14,7 +15,7 @@ from . import conf
 __all__ = ["sizes", "source_set", "placeholder"]
 
 
-def _grid(*, _columns=12, **breakpoint_sizes: int):
+def _grid(*, _columns=12, **breakpoint_sizes):
     settings = conf.get_settings()
     for key in breakpoint_sizes.keys() - settings.BREAKPOINTS.keys():
         raise KeyError(
@@ -39,7 +40,7 @@ def _media_query(*, container_width: int = None, **breakpoints: float):
             yield f"(min-width: {prev_width}px) and (max-width: {width - 1}px) {math.floor(prev_ratio * 100)}vw"
             prev_width = width
         prev_ratio = ratio
-    else:
+    if prev_ratio:
         yield f"{math.floor(prev_ratio * container_width)}px" if container_width else f"{math.floor(prev_ratio * 100)}vw"
 
 
@@ -49,7 +50,7 @@ def sizes(*, cols=12, container_width: int = None, **breakpoints: int) -> str:
 
 
 def source_set(
-    size: (int, int), *, ratio: str | Fraction | None, max_width: int, cols: int
+    size: Tuple[int, int], *, ratio: str | Fraction | None, max_width: int, cols: int
 ) -> set:
     ratio = Fraction(ratio) if ratio else None
     img_width, img_height = size
