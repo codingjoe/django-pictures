@@ -1,5 +1,6 @@
 import json
 
+from django.http import QueryDict
 from rest_framework import serializers
 
 __all__ = ["PictureField"]
@@ -34,12 +35,18 @@ class PictureField(serializers.ReadOnlyField):
             },
         }
         try:
-            query_params = self.context["request"].GET
+            query_params: QueryDict = self.context["request"].GET
         except KeyError:
             pass
         else:
             ratio = query_params.get(f"{self.source}_ratio")
             container = query_params.get(f"{self.source}_container")
+            try:
+                container = int(container)
+            except TypeError:
+                container = None
+            except ValueError as e:
+                raise ValueError(f"Container width is not a number: {container}") from e
             breakpoints = {
                 bp: int(query_params.get(f"{self.source}_{bp}"))
                 for bp in get_settings().BREAKPOINTS
