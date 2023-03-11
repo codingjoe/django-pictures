@@ -37,18 +37,23 @@ class Profile(models.Model):
 ```html
 <!-- template.html -->
 {% load pictures %}
-{% picture profile.picture img_alt="Spiderman" img_loading="lazy" m=6 l=4 %}
+{% picture profile.picture img_alt="Spiderman" img_loading="lazy" picture_class="my-picture" m=6 l=4 %}
 ```
 
 The template above will render into:
 ```html
-<picture>
+<picture class="my-picture">
   <source type="image/webp"
           srcset="/media/testapp/profile/image/800w.webp 800w, /media/testapp/profile/image/100w.webp 100w, /media/testapp/profile/image/200w.webp 200w, /media/testapp/profile/image/300w.webp 300w, /media/testapp/profile/image/400w.webp 400w, /media/testapp/profile/image/500w.webp 500w, /media/testapp/profile/image/600w.webp 600w, /media/testapp/profile/image/700w.webp 700w"
           sizes="(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 600px">
   <img src="/media/testapp/profile/image.jpg" alt="Spiderman" width="800" height="800" loading="lazy">
 </picture>
 ```
+
+Note that arbitrary attributes can be passed
+to either the `<picture>` or `<img>` element
+by prefixing parameters to the `{% picture %}` tag
+with `picture_` or `img_` respectively.
 
 ## Setup
 
