@@ -74,6 +74,14 @@ class SimplePicture:
             image = ImageOps.fit(image, size)
         else:
             image.thumbnail(size)
+
+        self.discard_alpha(image)
+
+        return image
+
+    def discard_alpha(self, image):
+        if image.mode == "RGBA":
+            image = image.convert("RGB")
         return image
 
     def save(self, image):
