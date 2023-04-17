@@ -18,6 +18,20 @@ class SimpleModel(models.Model):
     )
 
 
+class JPEGModel(models.Model):
+    picture_width = models.PositiveIntegerField(null=True)
+    picture_height = models.PositiveIntegerField(null=True)
+    picture = PictureField(
+        upload_to="testapp/simplemodel/",
+        aspect_ratios=[None, "3/2", "16/9"],
+        file_types=["WEBP", "JPEG"],
+        width_field="picture_width",
+        height_field="picture_height",
+        blank=True,
+        null=True,
+    )
+
+
 class Profile(models.Model):
     name = models.CharField(max_length=100)
     picture = PictureField(

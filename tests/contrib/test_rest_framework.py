@@ -49,7 +49,7 @@ class TestPictureField:
         serializer = ProfileSerializer(profile)
 
         assert serializer.data["picture"] == {
-            "url": "/media/testapp/profile/image.jpg",
+            "url": "/media/testapp/profile/image.png",
             "width": 800,
             "height": 800,
             "ratios": {
@@ -127,7 +127,7 @@ class TestPictureField:
         serializer = ProfileSerializer(profile, context={"request": request})
 
         assert serializer.data["picture"] == {
-            "url": "/media/testapp/profile/image.jpg",
+            "url": "/media/testapp/profile/image.png",
             "width": 800,
             "height": 800,
             "ratios": {
@@ -179,7 +179,7 @@ class TestPictureField:
         request.GET["picture_container"] = "1200"
         serializer = ProfileSerializer(profile, context={"request": request})
         assert serializer.data["picture"] == {
-            "url": "/media/testapp/profile/image.jpg",
+            "url": "/media/testapp/profile/image.png",
             "width": 800,
             "height": 800,
             "ratios": {
@@ -213,7 +213,7 @@ class TestPictureField:
         request.GET["picture_ratio"] = "16/9"
         serializer = ProfileSerializer(profile, context={"request": request})
         assert serializer.data["picture"] == {
-            "url": "/media/testapp/profile/image.jpg",
+            "url": "/media/testapp/profile/image.png",
             "width": 800,
             "height": 800,
             "ratios": {
