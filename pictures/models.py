@@ -19,6 +19,8 @@ __all__ = ["PictureField", "PictureFieldFile"]
 
 from pictures import conf, utils
 
+RGB_FORMATS = ["JPEG"]
+
 
 @dataclasses.dataclass
 class SimplePicture:
@@ -79,6 +81,8 @@ class SimplePicture:
     def save(self, image):
         with io.BytesIO() as file_buffer:
             img = self.process(image)
+            if (self.file_type in RGB_FORMATS) and (img.mode != "RGB"):
+                img = img.convert("RGB")
             img.save(file_buffer, format=self.file_type)
             self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))

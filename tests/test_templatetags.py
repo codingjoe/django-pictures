@@ -8,7 +8,7 @@ picture_html = b"""
   <source type="image/webp"
           srcset="/media/testapp/profile/image/800w.webp 800w, /media/testapp/profile/image/100w.webp 100w, /media/testapp/profile/image/200w.webp 200w, /media/testapp/profile/image/300w.webp 300w, /media/testapp/profile/image/400w.webp 400w, /media/testapp/profile/image/500w.webp 500w, /media/testapp/profile/image/600w.webp 600w, /media/testapp/profile/image/700w.webp 700w"
           sizes="(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 600px">
-  <img src="/media/testapp/profile/image.jpg" alt="Spiderman" width="800" height="800">
+  <img src="/media/testapp/profile/image.png" alt="Spiderman" width="800" height="800">
 </picture>
 """
 
@@ -17,7 +17,7 @@ picture_with_placeholders_html = b"""
   <source type="image/webp"
           srcset="/_pictures/Spiderman/3x2/800w.WEBP 800w, /_pictures/Spiderman/3x2/100w.WEBP 100w, /_pictures/Spiderman/3x2/200w.WEBP 200w, /_pictures/Spiderman/3x2/300w.WEBP 300w, /_pictures/Spiderman/3x2/400w.WEBP 400w, /_pictures/Spiderman/3x2/500w.WEBP 500w, /_pictures/Spiderman/3x2/600w.WEBP 600w, /_pictures/Spiderman/3x2/700w.WEBP 700w"
           sizes="(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 600px">
-  <img src="/media/testapp/profile/image.jpg" alt="Spiderman" width="800" height="800">
+  <img src="/media/testapp/profile/image.png" alt="Spiderman" width="800" height="800">
 </picture>
 """
 
