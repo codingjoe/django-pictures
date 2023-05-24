@@ -79,9 +79,6 @@ jobs:
           - "3.10"
         django-version:
           - "3.2"  # LTS
-        include:
-          - python-version: "3.11"  # only Django 4.1+ supports Python 3.11
-            django-version: "4.1"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -103,11 +100,11 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.10" # only Django 4.1+ supports Python 3.11
+          - "3.11"
         django-version:
           # LTS gets tested on all OS
-          - "4.0"
           - "4.1"
+          - "4.2"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
