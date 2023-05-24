@@ -21,6 +21,7 @@ def get_settings():
             "PIXEL_DENSITIES": [1, 2],
             "USE_PLACEHOLDERS": settings.DEBUG,
             "QUEUE_NAME": "pictures",
+            "PROCESSOR": "pictures.tasks.process_picture",
             **getattr(settings, "PICTURES", {}),
         },
     )

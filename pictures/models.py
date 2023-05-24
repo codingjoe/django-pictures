@@ -16,6 +16,7 @@ from PIL import Image, ImageOps
 
 __all__ = ["PictureField", "PictureFieldFile"]
 
+from django.utils.module_loading import import_string
 
 from pictures import conf, utils
 
@@ -98,9 +99,7 @@ class PictureFieldFile(ImageFieldFile):
 
     def save_all(self):
         if self:
-            from . import tasks
-
-            tasks.process_picture(self)
+            import_string(conf.get_settings().PROCESSOR)(self)
 
     def delete(self, save=True):
         self.delete_all()
