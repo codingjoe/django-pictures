@@ -85,7 +85,10 @@ PICTURES = {
     "CONTAINER_WIDTH": 1200,
     "FILE_TYPES": ["WEBP"],
     "PIXEL_DENSITIES": [1, 2],
-    "USE_PLACEHOLDERS": True
+    "USE_PLACEHOLDERS": True,
+    "QUEUE_NAME": "pictures",
+    "PROCESSOR": "pictures.tasks.process_picture",
+
 }
 ```
 
@@ -206,6 +209,11 @@ densities.
 If you have either Dramatiq or Celery installed, we will default to async
 image processing. You will need workers to listen to the `pictures` queue.
 You can override the queue name, via the `PICTURES["QUEUE_NAME"]` setting.
+
+You can also override the processor, via the `PICTURES["PROCESSOR"]` setting.
+The default processor is `pictures.tasks.process_picture`. It takes a single
+argument, the `PictureFileFile` instance. You can use this to override the
+processor, should you need to do some custom processing.
 
 ## Migrations
 
