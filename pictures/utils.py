@@ -94,7 +94,7 @@ def placeholder(width: int, height: int, alt):
         raise RuntimeError(f"Unsupported platform: {sys.platform}")
     font = ImageFont.truetype(font_name, fontsize)
     text = unquote(f"{alt}\n<{width}x{height}>")
-    while font.getsize(text)[0] < width / 2:
+    while font.getlength(text) < width / 2:
         # iterate until the text size is just larger than the criteria
         fontsize += 1
         font = ImageFont.truetype(font_name, fontsize)
