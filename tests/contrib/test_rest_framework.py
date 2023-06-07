@@ -169,6 +169,20 @@ class TestPictureField:
         assert str(e.value) == "Invalid ratio: 21/11. Choices are: 1/1, 3/2, 16/9"
 
     @pytest.mark.django_db
+    def test_to_representation__blank(self, rf, image_upload_file, settings):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
+
+        profile = models.Profile.objects.create()
+        request = rf.get("/")
+        request.GET._mutable = True
+        request.GET["picture_ratio"] = "21/11"
+        request.GET["picture_l"] = "3"
+        request.GET["picture_m"] = "4"
+        serializer = ProfileSerializer(profile, context={"request": request})
+
+        assert serializer.data["picture"] is None
+
+    @pytest.mark.django_db
     def test_to_representation__with_container(self, rf, image_upload_file, settings):
         settings.PICTURES["USE_PLACEHOLDERS"] = False
 

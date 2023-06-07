@@ -35,7 +35,9 @@ class JPEGModel(models.Model):
 class Profile(models.Model):
     name = models.CharField(max_length=100)
     picture = PictureField(
-        upload_to="testapp/profile/", aspect_ratios=[None, "1/1", "3/2", "16/9"]
+        upload_to="testapp/profile/",
+        aspect_ratios=[None, "1/1", "3/2", "16/9"],
+        blank=True,
     )
 
     def get_absolute_url(self):
