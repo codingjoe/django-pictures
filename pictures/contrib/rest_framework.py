@@ -20,6 +20,8 @@ class PictureField(serializers.ReadOnlyField):
     """Read-only field for all aspect ratios and sizes of the image."""
 
     def to_representation(self, obj: PictureFieldFile):
+        if not obj:
+            return None
         payload = {
             "url": obj.url,
             "width": obj.width,
