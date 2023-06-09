@@ -41,8 +41,8 @@ class PictureField(serializers.ReadOnlyField):
         except KeyError:
             pass
         else:
-            ratio = query_params.get(f"{self.source}_ratio")
-            container = query_params.get(f"{self.source}_container")
+            ratio = query_params.get(f"{self.field_name}_ratio")
+            container = query_params.get(f"{self.field_name}_container")
             try:
                 container = int(container)
             except TypeError:
@@ -50,9 +50,9 @@ class PictureField(serializers.ReadOnlyField):
             except ValueError as e:
                 raise ValueError(f"Container width is not a number: {container}") from e
             breakpoints = {
-                bp: int(query_params.get(f"{self.source}_{bp}"))
+                bp: int(query_params.get(f"{self.field_name}_{bp}"))
                 for bp in get_settings().BREAKPOINTS
-                if f"{self.source}_{bp}" in query_params
+                if f"{self.field_name}_{bp}" in query_params
             }
             if ratio is not None:
                 try:

@@ -11,11 +11,11 @@ rest_framework = pytest.importorskip("pictures.contrib.rest_framework")
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    picture = rest_framework.PictureField()
+    image = rest_framework.PictureField(source="picture")
 
     class Meta:
         model = models.Profile
-        fields = ["picture"]
+        fields = ["image"]
 
 
 def test_default(settings):
@@ -48,7 +48,7 @@ class TestPictureField:
         profile = models.Profile.objects.create(picture=image_upload_file)
         serializer = ProfileSerializer(profile)
 
-        assert serializer.data["picture"] == {
+        assert serializer.data["image"] == {
             "url": "/media/testapp/profile/image.png",
             "width": 800,
             "height": 800,
@@ -121,12 +121,12 @@ class TestPictureField:
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
         request.GET._mutable = True
-        request.GET["picture_ratio"] = "1/1"
-        request.GET["picture_l"] = "3"
-        request.GET["picture_m"] = "4"
+        request.GET["image_ratio"] = "1/1"
+        request.GET["image_l"] = "3"
+        request.GET["image_m"] = "4"
         serializer = ProfileSerializer(profile, context={"request": request})
 
-        assert serializer.data["picture"] == {
+        assert serializer.data["image"] == {
             "url": "/media/testapp/profile/image.png",
             "width": 800,
             "height": 800,
@@ -158,13 +158,13 @@ class TestPictureField:
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
         request.GET._mutable = True
-        request.GET["picture_ratio"] = "21/11"
-        request.GET["picture_l"] = "3"
-        request.GET["picture_m"] = "4"
+        request.GET["image_ratio"] = "21/11"
+        request.GET["image_l"] = "3"
+        request.GET["image_m"] = "4"
         serializer = ProfileSerializer(profile, context={"request": request})
 
         with pytest.raises(ValueError) as e:
-            serializer.data["picture"]
+            serializer.data["image"]
 
         assert str(e.value) == "Invalid ratio: 21/11. Choices are: 1/1, 3/2, 16/9"
 
@@ -175,12 +175,12 @@ class TestPictureField:
         profile = models.Profile.objects.create()
         request = rf.get("/")
         request.GET._mutable = True
-        request.GET["picture_ratio"] = "21/11"
-        request.GET["picture_l"] = "3"
-        request.GET["picture_m"] = "4"
+        request.GET["image_ratio"] = "21/11"
+        request.GET["image_l"] = "3"
+        request.GET["image_m"] = "4"
         serializer = ProfileSerializer(profile, context={"request": request})
 
-        assert serializer.data["picture"] is None
+        assert serializer.data["image"] is None
 
     @pytest.mark.django_db
     def test_to_representation__with_container(self, rf, image_upload_file, settings):
@@ -189,10 +189,10 @@ class TestPictureField:
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
         request.GET._mutable = True
-        request.GET["picture_ratio"] = "16/9"
-        request.GET["picture_container"] = "1200"
+        request.GET["image_ratio"] = "16/9"
+        request.GET["image_container"] = "1200"
         serializer = ProfileSerializer(profile, context={"request": request})
-        assert serializer.data["picture"] == {
+        assert serializer.data["image"] == {
             "url": "/media/testapp/profile/image.png",
             "width": 800,
             "height": 800,
@@ -224,9 +224,9 @@ class TestPictureField:
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
         request.GET._mutable = True
-        request.GET["picture_ratio"] = "16/9"
+        request.GET["image_ratio"] = "16/9"
         serializer = ProfileSerializer(profile, context={"request": request})
-        assert serializer.data["picture"] == {
+        assert serializer.data["image"] == {
             "url": "/media/testapp/profile/image.png",
             "width": 800,
             "height": 800,
@@ -258,9 +258,9 @@ class TestPictureField:
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
         request.GET._mutable = True
-        request.GET["picture_ratio"] = "16/9"
-        request.GET["picture_container"] = "not_a_number"
+        request.GET["image_ratio"] = "16/9"
+        request.GET["image_container"] = "not_a_number"
         serializer = ProfileSerializer(profile, context={"request": request})
         with pytest.raises(ValueError) as e:
-            serializer.data["picture"]
+            serializer.data["image"]
         assert str(e.value) == "Container width is not a number: not_a_number"
