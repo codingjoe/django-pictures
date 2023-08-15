@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import random
 import sys
+import warnings
 from fractions import Fraction
 from functools import lru_cache
 from urllib.parse import unquote
@@ -39,7 +40,13 @@ def _media_query(*, container_width: int = None, **breakpoints: {str: int}):
             yield f"(min-width: {prev_width}px) and (max-width: {width - 1}px) {math.floor(prev_ratio * 100)}vw"
             prev_width = width
         prev_ratio = ratio
-    yield f"{math.floor(prev_ratio * container_width)}px" if container_width else f"{math.floor(prev_ratio * 100)}vw"
+    if prev_ratio:
+        yield f"{math.floor(prev_ratio * container_width)}px" if container_width else f"{math.floor(prev_ratio * 100)}vw"
+    else:
+        warnings.warn(
+            "Your container is smaller than all your breakpoints.", UserWarning
+        )
+        yield f"{container_width}px" if container_width else "100vw"
 
 
 def sizes(*, cols=12, container_width: int = None, **breakpoints: {str: int}) -> str:
@@ -83,9 +90,11 @@ def placeholder(width: int, height: int, alt):
         font_name = "DejaVuSans-Bold"
     elif sys.platform == "darwin":
         font_name = "Helvetica"
+    else:  # pragma: no cover
+        raise RuntimeError(f"Unsupported platform: {sys.platform}")
     font = ImageFont.truetype(font_name, fontsize)
     text = unquote(f"{alt}\n<{width}x{height}>")
-    while font.getsize(text)[0] < width / 2:
+    while font.getlength(text) < width / 2:
         # iterate until the text size is just larger than the criteria
         fontsize += 1
         font = ImageFont.truetype(font_name, fontsize)

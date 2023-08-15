@@ -82,6 +82,16 @@ class TestSizes:
             " 600px"
         )
 
+    def test_container__smaller_than_breakpoint(self):
+        with pytest.warns() as records:
+            assert (
+                utils.sizes(container_width=500)
+                == "(min-width: 0px) and (max-width: 499px) 100vw, 500px"
+            )
+        assert str(records[0].message) == (
+            "Your container is smaller than all your breakpoints."
+        )
+
 
 class TestSourceSet:
     def test_default(self):

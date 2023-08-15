@@ -10,11 +10,11 @@ from pictures import conf
 
 @pytest.fixture
 def image_upload_file():
-    img = Image.new("RGB", (800, 800), (255, 55, 255))
+    img = Image.new("RGBA", (800, 800), (255, 55, 255, 1))
 
     with io.BytesIO() as output:
-        img.save(output, format="JPEG")
-        return SimpleUploadedFile("image.jpg", output.getvalue())
+        img.save(output, format="PNG")
+        return SimpleUploadedFile("image.png", output.getvalue())
 
 
 @pytest.fixture(autouse=True, scope="function")

@@ -8,12 +8,13 @@ register = template.Library()
 
 
 @register.simple_tag()
-def picture(field_file, alt=None, ratio=None, container=None, **kwargs):
+def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
     settings = get_settings()
     container = container or settings.CONTAINER_WIDTH
     tmpl = loader.get_template("pictures/picture.html")
     breakpoints = {}
-    attrs = {}
+    picture_attrs = {}
+    img_attrs = {}
     try:
         sources = field_file.aspect_ratios[ratio]
     except KeyError as e:
@@ -23,16 +24,21 @@ def picture(field_file, alt=None, ratio=None, container=None, **kwargs):
     for key, value in kwargs.items():
         if key in settings.BREAKPOINTS:
             breakpoints[key] = value
+        elif key.startswith("picture_"):
+            picture_attrs[key[8:]] = value
+        elif key.startswith("img_"):
+            img_attrs[key[4:]] = value
         else:
-            attrs[key] = value
+            raise TypeError(f"Invalid keyword argument: {key}")
     return tmpl.render(
         {
             "field_file": field_file,
-            "alt": alt,
+            "alt": img_alt,
             "ratio": (ratio or "3/2").replace("/", "x"),
             "sources": sources,
             "media": utils.sizes(container_width=container, **breakpoints),
-            "attrs": attrs,
+            "picture_attrs": picture_attrs,
+            "img_attrs": img_attrs,
             "use_placeholders": settings.USE_PLACEHOLDERS,
         }
     )
@@ -59,6 +65,6 @@ def img_url(field_file, file_type, width, ratio=None) -> str:
         ) from e
     for w, img in sorted(sizes.items()):
         url = img.url
-        if w >= width:
+        if w >= int(width):
             break
     return url

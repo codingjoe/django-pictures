@@ -12,7 +12,7 @@ license = { file = "LICENSE" }
 keywords = ["pillow", "Django", "image", "pictures", "WebP", "AVIF"]
 dynamic = ["version", "description"]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
   "Environment :: Web Environment",
   "Topic :: Multimedia :: Graphics :: Graphics Conversion",
@@ -23,16 +23,17 @@ classifiers = [
   "Topic :: Software Development",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Framework :: Django",
   "Framework :: Django :: 3.2",
-  "Framework :: Django :: 4.0",
   "Framework :: Django :: 4.1",
+  "Framework :: Django :: 4.2",
 ]
 requires-python = ">=3.8"
-dependencies = ["django", "pillow"]
+dependencies = ["django>=3.2.0", "pillow>=9.0.0"]
 
 [project.optional-dependencies]
 test = [
@@ -57,6 +58,9 @@ cleanup = [
 [project.urls]
 Project-URL = "https://github.com/codingjoe/django-pictures"
 Changelog = "https://github.com/codingjoe/django-pictures/releases"
+Source = "https://github.com/codingjoe/django-pictures"
+Documentation = "https://github.com/codingjoe/django-pictures#django-pictures"
+Issue-Tracker = "https://github.com/codingjoe/django-pictures/issues"
 
 [tool.flit.module]
 name = "pictures"

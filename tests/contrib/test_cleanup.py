@@ -14,7 +14,6 @@ def get_using(instance):
 class TestCleanCase:
     @pytest.mark.django_db(transaction=True)
     def test_delete(self, stub_worker, image_upload_file):
-
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
         stub_worker.join()

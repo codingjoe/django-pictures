@@ -142,7 +142,7 @@ PICTURES = {
 # Dramatiq
 try:
     import dramatiq  # NoQA
-except ImportError:
+except ImportError:  # dramatiq is not installed
     pass
 else:
     INSTALLED_APPS += ["django_dramatiq"]

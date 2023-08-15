@@ -7,7 +7,6 @@ import pictures.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("testapp", "0002_alter_profile_picture"),
     ]

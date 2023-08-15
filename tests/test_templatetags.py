@@ -8,7 +8,7 @@ picture_html = b"""
   <source type="image/webp"
           srcset="/media/testapp/profile/image/800w.webp 800w, /media/testapp/profile/image/100w.webp 100w, /media/testapp/profile/image/200w.webp 200w, /media/testapp/profile/image/300w.webp 300w, /media/testapp/profile/image/400w.webp 400w, /media/testapp/profile/image/500w.webp 500w, /media/testapp/profile/image/600w.webp 600w, /media/testapp/profile/image/700w.webp 700w"
           sizes="(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 600px">
-  <img src="/media/testapp/profile/image.jpg" alt="Spiderman" width="800" height="800">
+  <img src="/media/testapp/profile/image.png" alt="Spiderman" width="800" height="800">
 </picture>
 """
 
@@ -17,7 +17,7 @@ picture_with_placeholders_html = b"""
   <source type="image/webp"
           srcset="/_pictures/Spiderman/3x2/800w.WEBP 800w, /_pictures/Spiderman/3x2/100w.WEBP 100w, /_pictures/Spiderman/3x2/200w.WEBP 200w, /_pictures/Spiderman/3x2/300w.WEBP 300w, /_pictures/Spiderman/3x2/400w.WEBP 400w, /_pictures/Spiderman/3x2/500w.WEBP 500w, /_pictures/Spiderman/3x2/600w.WEBP 600w, /_pictures/Spiderman/3x2/700w.WEBP 700w"
           sizes="(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 600px">
-  <img src="/media/testapp/profile/image.jpg" alt="Spiderman" width="800" height="800">
+  <img src="/media/testapp/profile/image.png" alt="Spiderman" width="800" height="800">
 </picture>
 """
 
@@ -44,7 +44,9 @@ def test_picture__placeholder(client, image_upload_file, settings):
 def test_picture__placeholder_with_alt(client, image_upload_file, settings):
     settings.PICTURES["USE_PLACEHOLDERS"] = True
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
-    html = picture(profile.picture, alt="Event 2022/2023", ratio="3/2", loading="lazy")
+    html = picture(
+        profile.picture, img_alt="Event 2022/2023", ratio="3/2", img_loading="lazy"
+    )
     assert "/_pictures/Event%25202022%252F2023/3x2/800w.WEBP" in html
 
 
@@ -57,17 +59,32 @@ def test_picture__invalid_ratio(image_upload_file):
 
 
 @pytest.mark.django_db
-def test_picture__additional_attrs(image_upload_file):
+def test_picture__additional_attrs_img(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
-    html = picture(profile.picture, ratio="3/2", loading="lazy")
+    html = picture(profile.picture, ratio="3/2", img_loading="lazy")
     assert ' loading="lazy"' in html
+
+
+@pytest.mark.django_db
+def test_picture__additional_attrs_picture(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    html = picture(profile.picture, ratio="3/2", picture_class="picture-class")
+    assert '<picture class="picture-class"' in html
+
+
+@pytest.mark.django_db
+def test_picture__additional_attrs__type_error(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    with pytest.raises(TypeError) as e:
+        picture(profile.picture, ratio="3/2", does_not_exist="error")
+    assert "Invalid keyword argument: does_not_exist" in str(e.value)
 
 
 @pytest.mark.django_db
 def test_img_url(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     assert (
-        img_url(profile.picture, ratio="3/2", file_type="webp", width=800)
+        img_url(profile.picture, ratio="3/2", file_type="webp", width="800")
         == "/_pictures/image/3x2/800w.WEBP"
     )
 

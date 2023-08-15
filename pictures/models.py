@@ -16,8 +16,11 @@ from PIL import Image, ImageOps
 
 __all__ = ["PictureField", "PictureFieldFile"]
 
+from django.utils.module_loading import import_string
 
 from pictures import conf, utils
+
+RGB_FORMATS = ["JPEG"]
 
 
 @dataclasses.dataclass
@@ -50,7 +53,7 @@ class SimplePicture:
         return self.storage.url(self.name)
 
     @property
-    def height(self) -> int or None:
+    def height(self) -> int | None:
         if self.aspect_ratio:
             return math.floor(self.width / self.aspect_ratio)
 
@@ -66,19 +69,21 @@ class SimplePicture:
         return Path(self.storage.path(self.name))
 
     def process(self, image) -> Image:
+        image = ImageOps.exif_transpose(image)  # crates a copy
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
 
         if self.aspect_ratio:
             image = ImageOps.fit(image, size)
         else:
-            image = image.copy()
             image.thumbnail(size)
         return image
 
     def save(self, image):
         with io.BytesIO() as file_buffer:
             img = self.process(image)
+            if (self.file_type in RGB_FORMATS) and (img.mode != "RGB"):
+                img = img.convert("RGB")
             img.save(file_buffer, format=self.file_type)
             self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))
@@ -94,9 +99,7 @@ class PictureFieldFile(ImageFieldFile):
 
     def save_all(self):
         if self:
-            from . import tasks
-
-            tasks.process_picture(self)
+            import_string(conf.get_settings().PROCESSOR)(self)
 
     def delete(self, save=True):
         self.delete_all()
@@ -234,7 +237,7 @@ class PictureField(ImageField):
                     "width_field and height_field attributes are missing",
                     obj=self,
                     id="fields.E101",
-                    hint="Set both the width_field and height_field attribute to avoid storage IO",
+                    hint=f"Please add two positive integer fields to '{self.model._meta.app_label}.{self.model.__name__}' and add their field names as the 'width_field' and 'height_field' attribute for your picture field. Otherwise Django will not be able to cache the image aspect size causing disk IO and potential response time increases.",
                 )
             ]
         return []
