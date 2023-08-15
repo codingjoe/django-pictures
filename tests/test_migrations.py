@@ -167,7 +167,6 @@ class TestAlterPictureField:
 
         assert not luke.picture
 
-
     @pytest.mark.django_db
     def test_from_picture_field(self, stub_worker, image_upload_file):
         luke = Profile.objects.create(name="Luke", picture=image_upload_file)
