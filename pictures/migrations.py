@@ -2,6 +2,7 @@ from typing import Type
 
 from django.db import models
 from django.db.migrations import AlterField
+from django.db.models import Q
 
 from pictures.models import PictureField, PictureFieldFile
 
@@ -46,7 +47,9 @@ class AlterPictureField(AlterField):
             self.update_pictures(from_field, to_model)
 
     def update_pictures(self, from_field: PictureField, to_model: Type[models.Model]):
-        for obj in to_model._default_manager.all().iterator():
+        for obj in to_model._default_manager.exclude(
+            Q(**{self.name: ""}) | Q(**{self.name: None})
+        ).iterator():
             field_file = getattr(obj, self.name)
             field_file.update_all(
                 from_aspect_ratios=PictureFieldFile.get_picture_files(
