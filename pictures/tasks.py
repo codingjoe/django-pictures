@@ -112,3 +112,30 @@ else:
                 queue=conf.get_settings().QUEUE_NAME,
             )
         )
+
+
+try:
+    from django_rq import job
+except ImportError:
+    pass
+else:
+
+    @job
+    def process_picture_with_django_rq(
+        app_name, model_name, field_name, file_name, storage_construct
+    ) -> None:
+        process_picture_async(
+            app_name, model_name, field_name, file_name, storage_construct
+        )
+
+    def process_picture(field_file: PictureFieldFile) -> None:  # noqa: F811
+        opts = field_file.instance._meta
+        transaction.on_commit(
+            lambda: process_picture_with_django_rq.delay(
+                app_name=opts.app_label,
+                model_name=opts.model_name,
+                field_name=field_file.field.name,
+                file_name=field_file.name,
+                storage_construct=field_file.storage.deconstruct(),
+            )
+        )

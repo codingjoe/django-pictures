@@ -9,7 +9,7 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 * serve files with or without a CDN
 * placeholders for local development
 * migration support
-* async image processing for [Celery] or [Dramatiq]
+* async image processing for [Celery], [Dramatiq] or [Django RQ]
 * [DRF] support
 
 [![PyPi Version](https://img.shields.io/pypi/v/django-pictures.svg)](https://pypi.python.org/pypi/django-pictures/)
@@ -281,3 +281,4 @@ which automatically deletes its file and corresponding `SimplePicture` files.
 [drf]: https://www.django-rest-framework.org/
 [celery]: https://docs.celeryproject.org/en/stable/
 [dramatiq]: https://dramatiq.io/
+[django rq]: https://github.com/rq/django-rq
