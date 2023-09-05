@@ -128,6 +128,7 @@ jobs:
         extras:
           - "celery"
           - "dramatiq"
+          - "django-rq"
           - "drf"
           - "cleanup"
     runs-on: ubuntu-latest

@@ -162,3 +162,20 @@ DRAMATIQ_BROKER = {
 
 CELERY_BROKER_URL = "redis:///2"
 CELERY_TASK_ALWAYS_EAGER = True
+
+# django-rq
+try:
+    import django_rq  # NoQA
+except ImportError:  # django_rq is not installed
+    pass
+else:
+    INSTALLED_APPS += ["django_rq"]
+
+RQ_QUEUES = {
+    "default": {
+        "HOST": os.getenv("REDIS_HOST", "redis"),
+        "PORT": os.getenv("REDIS_PORT", 6379),
+        "DB": os.getenv("REDIS_DB", 0),
+        "ASYNC": os.getenv("REDIS_RQ_ASYNC", True),
+    },
+}

@@ -19,10 +19,14 @@ try:
 except ImportError:
     celery = None
 
+try:
+    import django_rq
+except ImportError:
+    django_rq = None
 
 skip_dramatiq = pytest.mark.skipif(
-    not all(x is None for x in [dramatiq, celery]),
-    reason="dramatiq and celery are installed",
+    not all(x is None for x in [dramatiq, celery, django_rq]),
+    reason="dramatiq, celery and django-rq are installed",
 )
 
 
