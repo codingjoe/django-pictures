@@ -120,7 +120,7 @@ except ImportError:
     pass
 else:
 
-    @job
+    @job(conf.get_settings().QUEUE_NAME)
     def process_picture_with_django_rq(
         app_name, model_name, field_name, file_name, storage_construct
     ) -> None:
