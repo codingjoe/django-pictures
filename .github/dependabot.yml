@@ -1,4 +1,4 @@
-version: 2
+version: 3.1.0
 updates:
 - package-ecosystem: pip
   directory: "/"
@@ -8,3 +8,20 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+    - package-ecosystem: zip
+  directory: "/"
+  schedule:
+    interval: daily
+        - package-ecosystem: json
+  directory: "/"
+  schedule:
+    interval: daily
+    - package-ecosystem: "dev"
+  directory: "/"
+  schedule:
+    interval: daily
+    
+    
+    
+    
+    
