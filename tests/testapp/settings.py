@@ -178,5 +178,5 @@ RQ_QUEUES = {
 }
 
 RQ = {
-  "WORKER_CLASS": "rq.worker.SimpleWorker",
+    "WORKER_CLASS": "rq.worker.SimpleWorker",
 }
