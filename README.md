@@ -40,6 +40,12 @@ class Profile(models.Model):
 {% picture profile.picture img_alt="Spiderman" img_loading="lazy" picture_class="my-picture" m=6 l=4 %}
 ```
 
+The keyword arguments `m=6 l=4` define the columns the image should take up in
+a grid  at a given breakpoint. So in this example, the image will take up
+6 columns on medium screens and 4 columns on large screens. You can define your
+grid and breakpoints as you want, refer to the [grid columns](#grid-columns) and
+[breakpoints](#breakpoints) sections.
+
 The template above will render into:
 ```html
 <picture class="my-picture">
