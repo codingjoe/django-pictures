@@ -176,3 +176,7 @@ RQ_QUEUES = {
         "URL": os.getenv("REDIS_URL", "redis:///3"),
     }
 }
+
+RQ = {
+  "WORKER_CLASS": "rq.worker.SimpleWorker",
+}
