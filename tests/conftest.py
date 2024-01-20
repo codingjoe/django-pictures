@@ -41,7 +41,7 @@ def stub_worker():
             class Meta:
                 @staticmethod
                 def join():
-                    get_worker().work(burst=True)
+                    get_worker("pictures").work(burst=True)
 
             yield Meta
 
