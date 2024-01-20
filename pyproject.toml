@@ -49,6 +49,9 @@ dramatiq = [
 celery = [
   "celery",
 ]
+django-rq = [
+  "django-rq",
+]
 drf = [
   "djangorestframework",
 ]

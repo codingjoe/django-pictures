@@ -32,7 +32,19 @@ def stub_worker():
     try:
         import dramatiq
     except ImportError:
-        yield Mock()
+        try:
+            from django_rq import get_worker
+        except ImportError:
+            yield Mock()
+        else:
+
+            class Meta:
+                @staticmethod
+                def join():
+                    get_worker("pictures").work(burst=True)
+
+            yield Meta
+
     else:
         broker = dramatiq.get_broker()
         broker.emit_after("process_boot")

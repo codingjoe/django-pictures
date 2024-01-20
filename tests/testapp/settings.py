@@ -162,3 +162,21 @@ DRAMATIQ_BROKER = {
 
 CELERY_BROKER_URL = "redis:///2"
 CELERY_TASK_ALWAYS_EAGER = True
+
+# django-rq
+try:
+    import django_rq  # NoQA
+except ImportError:  # django_rq is not installed
+    pass
+else:
+    INSTALLED_APPS += ["django_rq"]
+
+RQ_QUEUES = {
+    "pictures": {
+        "URL": os.getenv("REDIS_URL", "redis:///3"),
+    }
+}
+
+RQ = {
+    "WORKER_CLASS": "rq.worker.SimpleWorker",
+}
