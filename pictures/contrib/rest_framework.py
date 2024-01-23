@@ -19,23 +19,45 @@ def default(obj):
 class PictureField(serializers.ReadOnlyField):
     """Read-only field for all aspect ratios and sizes of the image."""
 
+    def __init__(self, **kwargs):
+        self.aspect_ratio = kwargs.pop("aspect_ratio", None)
+        self.image_source = kwargs.pop("image_source", None)
+        super().__init__(**kwargs)
+
     def to_representation(self, obj: PictureFieldFile):
         if not obj:
             return None
-        payload = {
-            "url": obj.url,
-            "width": obj.width,
-            "height": obj.height,
-            "ratios": {
-                ratio: {
-                    "sources": {
-                        f"image/{file_type.lower()}": sizes
-                        for file_type, sizes in sources.items()
-                    },
-                }
-                for ratio, sources in obj.aspect_ratios.items()
-            },
-        }
+        if self.aspect_ratio and self.image_source:
+            payload = {
+                "url": obj.url,
+                "width": obj.width,
+                "height": obj.height,
+                "ratios": {
+                    self.aspect_ratio: {
+                        "sources": {
+                            f"image/{self.image_source.lower()}": obj.aspect_ratios[
+                                self.aspect_ratio
+                            ][self.image_source]
+                        }
+                    }
+                },
+            }
+        else:
+            payload = {
+                "url": obj.url,
+                "width": obj.width,
+                "height": obj.height,
+                "ratios": {
+                    ratio: {
+                        "sources": {
+                            f"image/{file_type.lower()}": sizes
+                            for file_type, sizes in sources.items()
+                        },
+                    }
+                    for ratio, sources in obj.aspect_ratios.items()
+                },
+            }
+
         try:
             query_params: QueryDict = self.context["request"].GET
         except KeyError:
