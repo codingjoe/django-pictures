@@ -246,9 +246,21 @@ class PictureSerializer(serializers.Serializer):
     picture = PictureField()
 ```
 
-You may provide optional GET parameters to the serializer, to specify the aspect
-ratio and breakpoints you want to include in the response. The parameters are
-prefixed with the `fieldname_` to avoid conflicts with other fields.
+The response can be restricted to a single aspect ratio and image source, by
+providing the `aspect_ratio` and `image_source` arguments to the field.
+
+```python
+from rest_framework import serializers
+from pictures.contrib.rest_framework import PictureField
+
+class PictureSerializer(serializers.Serializer):
+    picture = PictureField(aspect_ratio="16/9", image_source="WEBP")
+```
+
+You also may provide optional GET parameters to the serializer,
+to specify the aspect ratio and breakpoints you want to include in the response.
+The parameters are prefixed with the `fieldname_`
+to avoid conflicts with other fields.
 
 ```bash
 curl http://localhost:8000/api/path/?picture_ratio=16%2F9&picture_m=6&picture_l=4
