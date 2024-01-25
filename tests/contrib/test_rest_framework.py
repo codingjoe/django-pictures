@@ -12,10 +12,23 @@ rest_framework = pytest.importorskip("pictures.contrib.rest_framework")
 
 class ProfileSerializer(serializers.ModelSerializer):
     image = rest_framework.PictureField(source="picture")
+    image_mobile = rest_framework.PictureField(
+        source="picture", aspect_ratio="3/2", image_source="WEBP"
+    )
 
     class Meta:
         model = models.Profile
-        fields = ["image"]
+        fields = ["image", "image_mobile"]
+
+
+class ProfileSerializerWithInvalidData(serializers.ModelSerializer):
+    image_invalid = rest_framework.PictureField(
+        source="picture", aspect_ratio="21/11", image_source="GIF"
+    )
+
+    class Meta:
+        model = models.Profile
+        fields = ["image_invalid"]
 
 
 def test_default(settings):
@@ -264,3 +277,51 @@ class TestPictureField:
         with pytest.raises(ValueError) as e:
             serializer.data["image"]
         assert str(e.value) == "Container width is not a number: not_a_number"
+
+    @pytest.mark.django_db
+    def test_to_representation__with_prefiltered_aspect_ratio_and_source(
+        self, image_upload_file, settings
+    ):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
+
+        profile = models.Profile.objects.create(picture=image_upload_file)
+        serializer = ProfileSerializer(profile)
+
+        assert serializer.data["image_mobile"] == {
+            "url": "/media/testapp/profile/image.png",
+            "width": 800,
+            "height": 800,
+            "ratios": {
+                "3/2": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/3_2/800w.webp",
+                            "100": "/media/testapp/profile/image/3_2/100w.webp",
+                            "200": "/media/testapp/profile/image/3_2/200w.webp",
+                            "300": "/media/testapp/profile/image/3_2/300w.webp",
+                            "400": "/media/testapp/profile/image/3_2/400w.webp",
+                            "500": "/media/testapp/profile/image/3_2/500w.webp",
+                            "600": "/media/testapp/profile/image/3_2/600w.webp",
+                            "700": "/media/testapp/profile/image/3_2/700w.webp",
+                        }
+                    }
+                }
+            },
+        }
+
+    @pytest.mark.django_db
+    def test_to_representation__with_prefiltered_aspect_ratio_and_source__raise_value_error(
+        self, image_upload_file, settings
+    ):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
+
+        profile = models.Profile.objects.create(picture=image_upload_file)
+
+        serializer = ProfileSerializerWithInvalidData(profile)
+        with pytest.raises(ValueError) as e:
+            serializer.data["image_invalid"]
+
+        assert (
+            str(e.value)
+            == "Invalid ratio 21/11 or image source GIF. Choices are: 1/1, 3/2, 16/9"
+        )
