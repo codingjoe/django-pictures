@@ -63,7 +63,7 @@ jobs:
           python-version: "3.x"
       - run: python -m pip install .[test]
       - run: python -m pytest
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: ${{ matrix.os }}
 
@@ -90,7 +90,7 @@ jobs:
       - run: python -m pip install .[test]
       - run: python -m pip install django~=${{ matrix.django-version }}.0
       - run: python -m pytest
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: py${{ matrix.python-version }}
 
@@ -116,7 +116,7 @@ jobs:
       - run: python -m pip install .[test]
       - run: python -m pip install django~=${{ matrix.django-version }}.0
       - run: python -m pytest
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: dj${{ matrix.django-version }}
 
@@ -144,7 +144,7 @@ jobs:
         run: sudo apt install -y redis-server
       - run: python -m pip install .[test,${{ matrix.extras }}]
       - run: python -m pytest
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: ${{ matrix.extras }}
 
