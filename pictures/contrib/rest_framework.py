@@ -75,7 +75,7 @@ class PictureField(serializers.ReadOnlyField):
             try:
                 container = int(container)
             except TypeError:
-                container = None
+                container = get_settings().CONTAINER_WIDTH
             except ValueError as e:
                 raise ValueError(f"Container width is not a number: {container}") from e
             breakpoints = {
