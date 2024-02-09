@@ -41,7 +41,11 @@ def _media_query(*, container_width: int = None, **breakpoints: {str: int}):
             prev_width = width
         prev_ratio = ratio
     if prev_ratio:
-        yield f"{math.floor(prev_ratio * container_width)}px" if container_width else f"{math.floor(prev_ratio * 100)}vw"
+        yield (
+            f"{math.floor(prev_ratio * container_width)}px"
+            if container_width
+            else f"{math.floor(prev_ratio * 100)}vw"
+        )
     else:
         warnings.warn(
             "Your container is smaller than all your breakpoints.", UserWarning

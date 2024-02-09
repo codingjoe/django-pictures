@@ -44,9 +44,11 @@ class SimplePicture:
                 kwargs={
                     "alt": Path(self.parent_name).stem,
                     "width": self.width,
-                    "ratio": f"{self.aspect_ratio.numerator}x{self.aspect_ratio.denominator}"
-                    if self.aspect_ratio
-                    else None,
+                    "ratio": (
+                        f"{self.aspect_ratio.numerator}x{self.aspect_ratio.denominator}"
+                        if self.aspect_ratio
+                        else None
+                    ),
                     "file_type": self.file_type,
                 },
             )
