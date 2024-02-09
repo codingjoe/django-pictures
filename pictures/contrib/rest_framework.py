@@ -19,10 +19,10 @@ def default(obj):
 class PictureField(serializers.ReadOnlyField):
     """Read-only field for all aspect ratios and sizes of the image."""
 
-    def __init__(self, aspect_ratio=None, image_source=None, **kwargs):
-        self.aspect_ratio = aspect_ratio
-        self.image_source = image_source
+    def __init__(self, aspect_ratios=None, file_types=None, **kwargs):
         super().__init__(**kwargs)
+        self.aspect_ratios = aspect_ratios or []
+        self.file_types = file_types or []
 
     def to_representation(self, obj: PictureFieldFile):
         if not obj:
@@ -34,35 +34,20 @@ class PictureField(serializers.ReadOnlyField):
             "height": obj.height,
         }
 
-        # if aspect_ratio is set, only return that aspect ratio to reduce payload size
-        if self.aspect_ratio and self.image_source:
-            try:
-                sizes = obj.aspect_ratios[self.aspect_ratio][self.image_source]
-            except KeyError as e:
-                raise ValueError(
-                    f"Invalid ratio {self.aspect_ratio} or image source {self.image_source}. Choices are: {', '.join(filter(None, obj.aspect_ratios.keys()))}"
-                ) from e
-            payload = {
-                **base_payload,
-                "ratios": {
-                    self.aspect_ratio: {
-                        "sources": {f"image/{self.image_source.lower()}": sizes}
-                    }
-                },
-            }
-        else:
-            payload = {
-                **base_payload,
-                "ratios": {
-                    ratio: {
-                        "sources": {
-                            f"image/{file_type.lower()}": sizes
-                            for file_type, sizes in sources.items()
-                        },
-                    }
-                    for ratio, sources in obj.aspect_ratios.items()
-                },
-            }
+        payload = {
+            **base_payload,
+            "ratios": {
+                ratio: {
+                    "sources": {
+                        f"image/{file_type.lower()}": sizes
+                        for file_type, sizes in sources.items()
+                        if file_type in self.file_types or not self.file_types
+                    },
+                }
+                for ratio, sources in obj.aspect_ratios.items()
+                if ratio in self.aspect_ratios or not self.aspect_ratios
+            },
+        }
 
         # if the request has query parameters, filter the payload
         try:

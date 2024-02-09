@@ -13,7 +13,7 @@ rest_framework = pytest.importorskip("pictures.contrib.rest_framework")
 class ProfileSerializer(serializers.ModelSerializer):
     image = rest_framework.PictureField(source="picture")
     image_mobile = rest_framework.PictureField(
-        source="picture", aspect_ratio="3/2", image_source="WEBP"
+        source="picture", aspect_ratios=["3/2"], file_types=["WEBP"]
     )
 
     class Meta:
@@ -23,7 +23,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class ProfileSerializerWithInvalidData(serializers.ModelSerializer):
     image_invalid = rest_framework.PictureField(
-        source="picture", aspect_ratio="21/11", image_source="GIF"
+        source="picture", aspect_ratios=["21/11"], file_types=["GIF"]
     )
 
     class Meta:
@@ -308,20 +308,3 @@ class TestPictureField:
                 }
             },
         }
-
-    @pytest.mark.django_db
-    def test_to_representation__with_prefiltered_aspect_ratio_and_source__raise_value_error(
-        self, image_upload_file, settings
-    ):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
-
-        profile = models.Profile.objects.create(picture=image_upload_file)
-
-        serializer = ProfileSerializerWithInvalidData(profile)
-        with pytest.raises(ValueError) as e:
-            serializer.data["image_invalid"]
-
-        assert (
-            str(e.value)
-            == "Invalid ratio 21/11 or image source GIF. Choices are: 1/1, 3/2, 16/9"
-        )
