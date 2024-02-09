@@ -246,15 +246,15 @@ class PictureSerializer(serializers.Serializer):
     picture = PictureField()
 ```
 
-The response can be restricted to a single aspect ratio and image source, by
-providing the `aspect_ratio` and `image_source` arguments to the field.
+The response can be restricted to a fewer aspect ratios and file types, by
+providing the `aspect_ratios` and `file_types` arguments to the DRF field.
 
 ```python
 from rest_framework import serializers
 from pictures.contrib.rest_framework import PictureField
 
 class PictureSerializer(serializers.Serializer):
-    picture = PictureField(aspect_ratio="16/9", image_source="WEBP")
+    picture = PictureField(aspect_ratios=["16/9"], file_types=["WEBP"])
 ```
 
 You also may provide optional GET parameters to the serializer,
