@@ -157,7 +157,7 @@ class TestPictureField:
                             "700": "/media/testapp/profile/image/1/700w.webp",
                         }
                     },
-                    "media": "(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 25vw",
+                    "media": "(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 25vw, 400px",
                 }
             },
         }
@@ -257,7 +257,7 @@ class TestPictureField:
                             "700": "/media/testapp/profile/image/16_9/700w.webp",
                         }
                     },
-                    "media": "100vw",
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 }
             },
         }
