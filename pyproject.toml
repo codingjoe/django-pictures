@@ -45,7 +45,7 @@ test = [
 ]
 lint = [
   "bandit==1.7.8",
-  "black==24.3.0",
+  "black==24.4.0",
   "flake8==7.0.0",
   "isort==5.13.2",
   "pydocstyle[toml]==6.3.0",
