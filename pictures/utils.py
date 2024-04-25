@@ -63,7 +63,7 @@ def source_set(
 ) -> set:
     ratio = Fraction(ratio) if ratio else None
     img_width, img_height = size
-    ratio = ratio or (img_width / img_height)
+    ratio = ratio or Fraction(img_width, img_height)
     settings = conf.get_settings()
     # calc all widths at 1X resolution
     widths = (max_width * (w + 1) / cols for w in range(cols))
