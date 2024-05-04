@@ -27,7 +27,7 @@ def _grid(*, _columns=12, **breakpoint_sizes):
         yield key, prev_size / _columns
 
 
-def _media_query(*, container_width: int = None, **breakpoints: {str: int}):
+def _media_query(*, container_width: int | None = None, **breakpoints: int):
     settings = conf.get_settings()
     prev_ratio = None
     prev_width = 0
@@ -53,7 +53,7 @@ def _media_query(*, container_width: int = None, **breakpoints: {str: int}):
         yield f"{container_width}px" if container_width else "100vw"
 
 
-def sizes(*, cols=12, container_width: int = None, **breakpoints: {str: int}) -> str:
+def sizes(*, cols=12, container_width: int | None = None, **breakpoints: int) -> str:
     breakpoints = dict(_grid(_columns=cols, **breakpoints))
     return ", ".join(_media_query(container_width=container_width, **breakpoints))
 
@@ -63,7 +63,7 @@ def source_set(
 ) -> set:
     ratio = Fraction(ratio) if ratio else None
     img_width, img_height = size
-    ratio = ratio or (img_width / img_height)
+    ratio = ratio or Fraction(img_width, img_height)
     settings = conf.get_settings()
     # calc all widths at 1X resolution
     widths = (max_width * (w + 1) / cols for w in range(cols))
