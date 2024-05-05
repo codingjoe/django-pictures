@@ -1,6 +1,8 @@
 import pytest
+from django.core.files.storage import Storage, default_storage
 
 from pictures import utils
+from pictures.models import SimplePicture
 
 
 class TestGrid:
@@ -136,3 +138,34 @@ def test_placeholder():
     img = utils.placeholder(1600, 1200, "tiny")
     assert img.width == 1600
     assert img.height == 1200
+
+
+def test_reconstruct(image_upload_file):
+    picture = SimplePicture(
+        image_upload_file.name,
+        "WEBP",
+        "16/9",
+        default_storage,
+        100,
+    )
+    assert utils.reconstruct(*picture.deconstruct()) == picture
+    reconstructed = utils.reconstruct(*default_storage.deconstruct())
+    assert isinstance(reconstructed, Storage)
+
+    assert utils.reconstruct(
+        "pictures.models.SimplePicture",
+        [],
+        {
+            "parent_name": "test.jpg",
+            "file_type": "JPEG",
+            "aspect_ratio": "16/9",
+            "storage": default_storage,
+            "width": 100,
+        },
+    ) == SimplePicture(
+        "test.jpg",
+        "JPEG",
+        "16/9",
+        default_storage,
+        100,
+    )

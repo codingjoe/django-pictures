@@ -36,6 +36,14 @@ class SimplePicture:
     def __post_init__(self):
         self.aspect_ratio = Fraction(self.aspect_ratio) if self.aspect_ratio else None
 
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.deconstruct() == other.deconstruct()
+
     @property
     def url(self) -> str:
         if conf.get_settings().USE_PLACEHOLDERS:
@@ -93,30 +101,63 @@ class SimplePicture:
     def delete(self):
         self.storage.delete(self.name)
 
+    def deconstruct(self):
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__qualname__}",
+            (
+                self.parent_name,
+                self.file_type,
+                str(self.aspect_ratio) if self.aspect_ratio else None,
+                self.storage.deconstruct(),
+                self.width,
+            ),
+            {},
+        )
+
 
 class PictureFieldFile(ImageFieldFile):
+
+    def __xor__(self, other) -> tuple[set[SimplePicture], set[SimplePicture]]:
+        """Return the new and obsolete :class:`SimpleFile` instances."""
+        if not isinstance(other, PictureFieldFile):
+            return NotImplemented
+        new = self.get_picture_files_list() - other.get_picture_files_list()
+        obsolete = other.get_picture_files_list() - self.get_picture_files_list()
+
+        return new, obsolete
+
     def save(self, name, content, save=True):
         super().save(name, content, save)
         self.save_all()
 
     def save_all(self):
         if self:
-            import_string(conf.get_settings().PROCESSOR)(self)
+            self.update_all()
 
     def delete(self, save=True):
         self.delete_all()
         super().delete(save=save)
 
-    def delete_all(self, aspect_ratios=None):
-        aspect_ratios = aspect_ratios or self.aspect_ratios
-        for sources in aspect_ratios.values():
-            for srcset in sources.values():
-                for picture in srcset.values():
-                    picture.delete()
+    def delete_all(self):
+        import_string(conf.get_settings().PROCESSOR)(
+            self.storage.deconstruct(),
+            self.name,
+            [],
+            [i.deconstruct() for i in self.get_picture_files_list()],
+        )
 
-    def update_all(self, from_aspect_ratios):
-        self.delete_all(from_aspect_ratios)
-        self.save_all()
+    def update_all(self, other: PictureFieldFile | None = None):
+        if other is None:
+            new = self.get_picture_files_list()
+            old = []
+        else:
+            new, old = self ^ other
+        import_string(conf.get_settings().PROCESSOR)(
+            self.storage.deconstruct(),
+            self.name,
+            [i.deconstruct() for i in new],
+            [i.deconstruct() for i in old],
+        )
 
     @property
     def width(self):
@@ -143,7 +184,7 @@ class PictureFieldFile(ImageFieldFile):
         return self._get_image_dimensions()[1]
 
     @property
-    def aspect_ratios(self):
+    def aspect_ratios(self) -> {Fraction | None: {str: {int: SimplePicture}}}:
         self._require_file()
         return self.get_picture_files(
             file_name=self.name,
@@ -161,7 +202,7 @@ class PictureFieldFile(ImageFieldFile):
         img_height: int,
         storage: Storage,
         field: PictureField,
-    ):
+    ) -> {Fraction | None: {str: {int: SimplePicture}}}:
         return {
             ratio: {
                 file_type: {
@@ -178,6 +219,14 @@ class PictureFieldFile(ImageFieldFile):
             for ratio in field.aspect_ratios
         }
 
+    def get_picture_files_list(self) -> set[SimplePicture]:
+        return {
+            picture
+            for sources in self.aspect_ratios.values()
+            for srcset in sources.values()
+            for picture in srcset.values()
+        }
+
 
 class PictureField(ImageField):
     attr_class = PictureFieldFile
@@ -186,7 +235,7 @@ class PictureField(ImageField):
         self,
         verbose_name=None,
         name=None,
-        aspect_ratios: [str] = None,
+        aspect_ratios: [str | Fraction | None] = None,
         container_width: int = None,
         file_types: [str] = None,
         pixel_densities: [int] = None,

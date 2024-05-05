@@ -1,57 +1,46 @@
 from __future__ import annotations
 
-import importlib
+from typing import Protocol
 
-from django.apps import apps
-from django.core.files.storage import Storage
 from django.db import transaction
 from PIL import Image
 
-from pictures import conf
-from pictures.models import PictureFieldFile
+from pictures import conf, utils
 
 
-def _process_picture(field_file: PictureFieldFile) -> None:
-    # field_file.file may already be closed and can't be reopened.
-    # Therefore, we always open it from storage.
-    with field_file.storage.open(field_file.name) as fs:
-        with Image.open(fs) as img:
-            for ratio, sources in field_file.aspect_ratios.items():
-                for file_type, srcset in sources.items():
-                    for width, picture in srcset.items():
-                        picture.save(img)
+class PictureProcessor(Protocol):
+
+    def __call__(
+        self,
+        storage: tuple[str, list, dict],
+        file_name: str,
+        new: list[tuple[str, list, dict]] | None = None,
+        old: list[tuple[str, list, dict]] | None = None,
+    ) -> None: ...
 
 
-process_picture = _process_picture
-
-
-def construct_storage(
-    storage_cls: str, storage_args: tuple, storage_kwargs: dict
-) -> Storage:
-    storage_module, storage_class = storage_cls.rsplit(".", 1)
-    storage_cls = getattr(importlib.import_module(storage_module), storage_class)
-    return storage_cls(*storage_args, **storage_kwargs)
-
-
-def process_picture_async(
-    app_name: str, model_name: str, field_name: str, file_name: str, storage_construct
+def _process_picture(
+    storage: tuple[str, list, dict],
+    file_name: str,
+    new: list[tuple[str, list, dict]] | None = None,
+    old: list[tuple[str, list, dict]] | None = None,
 ) -> None:
-    model = apps.get_model(f"{app_name}.{model_name}")
-    field = model._meta.get_field(field_name)
-    storage = construct_storage(*storage_construct)
+    new = new or []
+    old = old or []
+    storage = utils.reconstruct(*storage)
+    if new:
+        with storage.open(file_name) as fs:
+            with Image.open(fs) as img:
+                for picture in new:
+                    picture = utils.reconstruct(*picture)
+                    picture.save(img)
 
-    with storage.open(file_name) as file:
-        with Image.open(file) as img:
-            for ratio, sources in PictureFieldFile.get_picture_files(
-                file_name=file_name,
-                img_width=img.width,
-                img_height=img.height,
-                storage=storage,
-                field=field,
-            ).items():
-                for file_type, srcset in sources.items():
-                    for width, picture in srcset.items():
-                        picture.save(img)
+    for picture in old:
+        picture = utils.reconstruct(*picture)
+        picture.delete()
+
+
+process_picture: PictureProcessor = _process_picture
 
 
 try:
@@ -62,21 +51,25 @@ else:
 
     @dramatiq.actor(queue_name=conf.get_settings().QUEUE_NAME)
     def process_picture_with_dramatiq(
-        app_name, model_name, field_name, file_name, storage_construct
+        storage: tuple[str, list, dict],
+        file_name: str,
+        new: list[tuple[str, list, dict]] | None = None,
+        old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        process_picture_async(
-            app_name, model_name, field_name, file_name, storage_construct
-        )
+        _process_picture(storage, file_name, new, old)
 
-    def process_picture(field_file: PictureFieldFile) -> None:  # noqa: F811
-        opts = field_file.instance._meta
+    def process_picture(  # noqa: F811
+        storage: tuple[str, list, dict],
+        file_name: str,
+        new: list[tuple[str, list, dict]] | None = None,
+        old: list[tuple[str, list, dict]] | None = None,
+    ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_dramatiq.send(
-                app_name=opts.app_label,
-                model_name=opts.model_name,
-                field_name=field_file.field.name,
-                file_name=field_file.name,
-                storage_construct=field_file.storage.deconstruct(),
+                storage=storage,
+                file_name=file_name,
+                new=new,
+                old=old,
             )
         )
 
@@ -92,22 +85,26 @@ else:
         retry_backoff=True,
     )
     def process_picture_with_celery(
-        app_name, model_name, field_name, file_name, storage_construct
+        storage: tuple[str, list, dict],
+        file_name: str,
+        new: list[tuple[str, list, dict]] | None = None,
+        old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        process_picture_async(
-            app_name, model_name, field_name, file_name, storage_construct
-        )
+        _process_picture(storage, file_name, new, old)
 
-    def process_picture(field_file: PictureFieldFile) -> None:  # noqa: F811
-        opts = field_file.instance._meta
+    def process_picture(  # noqa: F811
+        storage: tuple[str, list, dict],
+        file_name: str,
+        new: list[tuple[str, list, dict]] | None = None,
+        old: list[tuple[str, list, dict]] | None = None,
+    ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_celery.apply_async(
                 kwargs=dict(
-                    app_name=opts.app_label,
-                    model_name=opts.model_name,
-                    field_name=field_file.field.name,
-                    file_name=field_file.name,
-                    storage_construct=field_file.storage.deconstruct(),
+                    storage=storage,
+                    file_name=file_name,
+                    new=new,
+                    old=old,
                 ),
                 queue=conf.get_settings().QUEUE_NAME,
             )
@@ -122,20 +119,24 @@ else:
 
     @job(conf.get_settings().QUEUE_NAME)
     def process_picture_with_django_rq(
-        app_name, model_name, field_name, file_name, storage_construct
+        storage: tuple[str, list, dict],
+        file_name: str,
+        new: list[tuple[str, list, dict]] | None = None,
+        old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        process_picture_async(
-            app_name, model_name, field_name, file_name, storage_construct
-        )
+        _process_picture(storage, file_name, new, old)
 
-    def process_picture(field_file: PictureFieldFile) -> None:  # noqa: F811
-        opts = field_file.instance._meta
+    def process_picture(  # noqa: F811
+        storage: tuple[str, list, dict],
+        file_name: str,
+        new: list[tuple[str, list, dict]] | None = None,
+        old: list[tuple[str, list, dict]] | None = None,
+    ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_django_rq.delay(
-                app_name=opts.app_label,
-                model_name=opts.model_name,
-                field_name=field_file.field.name,
-                file_name=field_file.name,
-                storage_construct=field_file.storage.deconstruct(),
+                storage=storage,
+                file_name=file_name,
+                new=new,
+                old=old,
             )
         )

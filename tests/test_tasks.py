@@ -15,4 +15,8 @@ def test_process_picture__file_cannot_be_reopened(image_upload_file):
         "open",
         Mock(side_effect=ValueError("The file cannot be reopened.")),
     )
-    tasks._process_picture(obj.picture)
+    tasks._process_picture(
+        obj.picture.storage.deconstruct(),
+        obj.picture.name,
+        new=[i.deconstruct() for i in obj.picture.get_picture_files_list()],
+    )
