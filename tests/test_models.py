@@ -186,6 +186,22 @@ class TestPictureFieldFile:
             assert obj.picture.aspect_ratios["1/1"]["WEBP"][100].path.exists()
             assert not path.exists()
 
+    @pytest.mark.django_db
+    def test_width(self, stub_worker, image_upload_file):
+        obj = SimpleModel(picture=image_upload_file)
+        obj.save()
+        obj.picture_width = None
+
+        assert obj.picture.width == 800
+
+    @pytest.mark.django_db
+    def test_height(self, stub_worker, image_upload_file):
+        obj = SimpleModel(picture=image_upload_file)
+        obj.save()
+        obj.picture_height = None
+
+        assert obj.picture.height == 800
+
 
 class TestPictureField:
     @pytest.mark.django_db
