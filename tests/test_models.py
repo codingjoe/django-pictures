@@ -1,4 +1,5 @@
 import contextlib
+import copy
 import io
 from fractions import Fraction
 from pathlib import Path
@@ -15,10 +16,12 @@ from tests.testapp.models import JPEGModel, Profile, SimpleModel
 
 @contextlib.contextmanager
 def override_field_aspect_ratios(field, aspect_ratios):
-    old_ratios = field.aspect_ratios
+    old_ratios = copy.deepcopy(field.aspect_ratios)
     field.aspect_ratios = aspect_ratios
-    yield
-    field.aspect_ratios = old_ratios
+    try:
+        yield
+    finally:
+        field.aspect_ratios = old_ratios
 
 
 class TestSimplePicture:
@@ -37,6 +40,15 @@ class TestSimplePicture:
         storage=default_storage,
         width=800,
     )
+
+    def test_hash(self):
+        assert hash(self.picture_with_ratio) != hash(self.picture_without_ratio)
+        assert hash(self.picture_with_ratio) == hash(self.picture_with_ratio)
+
+    def test_eq(self):
+        assert self.picture_with_ratio != self.picture_without_ratio
+        assert self.picture_with_ratio == self.picture_with_ratio
+        assert self.picture_with_ratio != "not a picture"
 
     def test_url(self, settings):
         settings.PICTURES["USE_PLACEHOLDERS"] = False
@@ -100,6 +112,413 @@ class TestSimplePicture:
 
 
 class TestPictureFieldFile:
+
+    @pytest.mark.django_db
+    def test_symmetric_difference(self, image_upload_file):
+        obj = SimpleModel.objects.create(picture=image_upload_file)
+        assert obj.picture ^ obj.picture == (set(), set())
+        obj2 = Profile.objects.create(picture=image_upload_file)
+        with pytest.raises(TypeError):
+            obj.picture ^ "not a picture"
+        assert obj.picture ^ obj2.picture == (
+            {
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=300,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=600,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=500,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=500,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=300,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=700,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=800,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=200,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=300,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=700,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=100,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=400,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=800,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=100,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=700,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=200,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=600,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=500,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=800,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=200,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=100,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=400,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=600,
+                ),
+                SimplePicture(
+                    parent_name="testapp/simplemodel/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=400,
+                ),
+            },
+            {
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(1, 1),
+                    storage=default_storage,
+                    width=600,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=300,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(1, 1),
+                    storage=default_storage,
+                    width=800,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=500,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=700,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=100,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=500,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=700,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=800,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(1, 1),
+                    storage=default_storage,
+                    width=200,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=100,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=600,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(1, 1),
+                    storage=default_storage,
+                    width=100,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(1, 1),
+                    storage=default_storage,
+                    width=700,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=800,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=200,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=500,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=800,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=300,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(1, 1),
+                    storage=default_storage,
+                    width=300,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=600,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=700,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(1, 1),
+                    storage=default_storage,
+                    width=400,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=400,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=400,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=200,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=300,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=600,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(3, 2),
+                    storage=default_storage,
+                    width=100,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(16, 9),
+                    storage=default_storage,
+                    width=200,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=None,
+                    storage=default_storage,
+                    width=400,
+                ),
+                SimplePicture(
+                    parent_name="testapp/profile/image.png",
+                    file_type="WEBP",
+                    aspect_ratio=Fraction(1, 1),
+                    storage=default_storage,
+                    width=500,
+                ),
+            },
+        )
+
     @pytest.mark.django_db
     def test_save(self, stub_worker, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
@@ -178,9 +597,9 @@ class TestPictureFieldFile:
         assert default_storage.exists(name)
         assert path.exists()
 
-        aspect_ratios = {**obj.picture.aspect_ratios}
+        old = copy.deepcopy(obj.picture)
         with override_field_aspect_ratios(obj.picture.field, ["1/1"]):
-            obj.picture.update_all(from_aspect_ratios=aspect_ratios)
+            obj.picture.update_all(old)
             stub_worker.join()
             assert default_storage.exists(name)
             assert obj.picture.aspect_ratios["1/1"]["WEBP"][100].path.exists()
@@ -201,6 +620,17 @@ class TestPictureFieldFile:
         obj.picture_height = None
 
         assert obj.picture.height == 800
+
+    @pytest.mark.django_db
+    def test_update_all__empty(self, stub_worker, image_upload_file):
+        obj = SimpleModel()
+        obj.save()
+
+        obj.picture.update_all(obj.picture)
+
+    def test_delete_all__empty(self):
+        obj = SimpleModel()
+        obj.picture.delete_all()
 
 
 class TestPictureField:
@@ -398,9 +828,8 @@ class TestPictureField:
 
     def test_check_width_height_field(self):
         assert not PictureField(aspect_ratios=["3/2"])._check_width_height_field()
-        field = PictureField(aspect_ratios=[None])
-        field.contribute_to_class(Profile, "picture")
-        errors = field._check_width_height_field()
+        with override_field_aspect_ratios(Profile.picture.field, [None]):
+            errors = Profile.picture.field._check_width_height_field()
         assert errors
         assert errors[0].id == "fields.E101"
         assert errors[0].hint.startswith(

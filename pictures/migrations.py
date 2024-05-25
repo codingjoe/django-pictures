@@ -4,7 +4,7 @@ from django.db import models
 from django.db.migrations import AlterField
 from django.db.models import Q
 
-from pictures.models import PictureField, PictureFieldFile
+from pictures.models import PictureField
 
 __all__ = ["AlterPictureField"]
 
@@ -47,19 +47,15 @@ class AlterPictureField(AlterField):
             self.update_pictures(from_field, to_model)
 
     def update_pictures(self, from_field: PictureField, to_model: Type[models.Model]):
+        """Remove obsolete pictures and create new ones."""
         for obj in to_model._default_manager.exclude(
             Q(**{self.name: ""}) | Q(**{self.name: None})
         ).iterator():
-            field_file = getattr(obj, self.name)
-            field_file.update_all(
-                from_aspect_ratios=PictureFieldFile.get_picture_files(
-                    file_name=field_file.name,
-                    img_width=field_file.width,
-                    img_height=field_file.height,
-                    storage=field_file.storage,
-                    field=from_field,
-                )
+            new_field_file = getattr(obj, self.name)
+            old_field_file = from_field.attr_class(
+                instance=obj, field=from_field, name=new_field_file.name
             )
+            new_field_file.update_all(old_field_file)
 
     def from_picture_field(self, from_model: Type[models.Model]):
         for obj in from_model._default_manager.all().iterator():

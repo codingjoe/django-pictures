@@ -112,3 +112,23 @@ def placeholder(width: int, height: int, alt):
         anchor="mm",
     )
     return img
+
+
+def reconstruct(path: str, args: list, kwargs: dict):
+    """Reconstruct a class instance from its deconstructed state."""
+    module_name, _, name = path.rpartition(".")
+    module = __import__(module_name, fromlist=[name])
+    klass = getattr(module, name)
+    _args = []
+    _kwargs = {}
+    for arg in args:
+        try:
+            _args.append(reconstruct(*arg))
+        except (TypeError, ValueError, ImportError):
+            _args.append(arg)
+    for key, value in kwargs.items():
+        try:
+            _kwargs[key] = reconstruct(*value)
+        except (TypeError, ValueError, ImportError):
+            _kwargs[key] = value
+    return klass(*_args, **_kwargs)
