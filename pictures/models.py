@@ -163,25 +163,19 @@ class PictureFieldFile(ImageFieldFile):
     @property
     def width(self):
         self._require_file()
-        if (
-            self._committed
-            and self.field.width_field
-            and hasattr(self.instance, self.field.width_field)
-        ):
-            # get width from width field, to avoid loading image
-            return getattr(self.instance, self.field.width_field)
+        if self._committed and self.field.width_field:
+            if width := getattr(self.instance, self.field.width_field, None):
+                # get width from width field, to avoid loading image
+                return width
         return self._get_image_dimensions()[0]
 
     @property
     def height(self):
         self._require_file()
-        if (
-            self._committed
-            and self.field.height_field
-            and hasattr(self.instance, self.field.height_field)
-        ):
-            # get height from height field, to avoid loading image
-            return getattr(self.instance, self.field.height_field)
+        if self._committed and self.field.height_field:
+            if height := getattr(self.instance, self.field.height_field, None):
+                # get height from height field, to avoid loading image
+                return height
         return self._get_image_dimensions()[1]
 
     @property

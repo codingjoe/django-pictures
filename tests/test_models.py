@@ -606,6 +606,22 @@ class TestPictureFieldFile:
             assert not path.exists()
 
     @pytest.mark.django_db
+    def test_width(self, stub_worker, image_upload_file):
+        obj = SimpleModel(picture=image_upload_file)
+        obj.save()
+        obj.picture_width = None
+
+        assert obj.picture.width == 800
+
+    @pytest.mark.django_db
+    def test_height(self, stub_worker, image_upload_file):
+        obj = SimpleModel(picture=image_upload_file)
+        obj.save()
+        obj.picture_height = None
+
+        assert obj.picture.height == 800
+
+    @pytest.mark.django_db
     def test_update_all__empty(self, stub_worker, image_upload_file):
         obj = SimpleModel()
         obj.save()
