@@ -131,33 +131,34 @@ class PictureFieldFile(ImageFieldFile):
         self.save_all()
 
     def save_all(self):
-        if self:
-            self.update_all()
+        self.update_all()
 
     def delete(self, save=True):
         self.delete_all()
         super().delete(save=save)
 
     def delete_all(self):
-        import_string(conf.get_settings().PROCESSOR)(
-            self.storage.deconstruct(),
-            self.name,
-            [],
-            [i.deconstruct() for i in self.get_picture_files_list()],
-        )
+        if self:
+            import_string(conf.get_settings().PROCESSOR)(
+                self.storage.deconstruct(),
+                self.name,
+                [],
+                [i.deconstruct() for i in self.get_picture_files_list()],
+            )
 
     def update_all(self, other: PictureFieldFile | None = None):
-        if other is None:
-            new = self.get_picture_files_list()
-            old = []
-        else:
-            new, old = self ^ other
-        import_string(conf.get_settings().PROCESSOR)(
-            self.storage.deconstruct(),
-            self.name,
-            [i.deconstruct() for i in new],
-            [i.deconstruct() for i in old],
-        )
+        if self:
+            if not other:
+                new = self.get_picture_files_list()
+                old = []
+            else:
+                new, old = self ^ other
+            import_string(conf.get_settings().PROCESSOR)(
+                self.storage.deconstruct(),
+                self.name,
+                [i.deconstruct() for i in new],
+                [i.deconstruct() for i in old],
+            )
 
     @property
     def width(self):
