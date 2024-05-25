@@ -605,6 +605,17 @@ class TestPictureFieldFile:
             assert obj.picture.aspect_ratios["1/1"]["WEBP"][100].path.exists()
             assert not path.exists()
 
+    @pytest.mark.django_db
+    def test_update_all__empty(self, stub_worker, image_upload_file):
+        obj = SimpleModel()
+        obj.save()
+
+        obj.picture.update_all(obj.picture)
+
+    def test_delete_all__empty(self):
+        obj = SimpleModel()
+        obj.picture.delete_all()
+
 
 class TestPictureField:
     @pytest.mark.django_db
