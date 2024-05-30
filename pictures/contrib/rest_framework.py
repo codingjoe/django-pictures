@@ -34,28 +34,17 @@ class PictureField(serializers.ReadOnlyField):
             "height": obj.height,
         }
 
-        payload = {
-            **base_payload,
-            "ratios": {
-                ratio: {
-                    "sources": {
-                        f"image/{file_type.lower()}": sizes
-                        for file_type, sizes in sources.items()
-                        if file_type in self.file_types or not self.file_types
-                    },
-                }
-                for ratio, sources in obj.aspect_ratios.items()
-                if ratio in self.aspect_ratios or not self.aspect_ratios
-            },
-        }
-
         # if the request has query parameters, filter the payload
         try:
             query_params: QueryDict = self.context["request"].GET
         except KeyError:
-            pass
+            ratios = self.aspect_ratios
+            container = get_settings().CONTAINER_WIDTH
+            breakpoints = {}
         else:
-            ratio = query_params.get(f"{self.field_name}_ratio")
+            ratios = (
+                query_params.getlist(f"{self.field_name}_ratio")
+            ) or self.aspect_ratios
             container = query_params.get(f"{self.field_name}_container")
             try:
                 container = int(container)
@@ -68,16 +57,25 @@ class PictureField(serializers.ReadOnlyField):
                 for bp in get_settings().BREAKPOINTS
                 if f"{self.field_name}_{bp}" in query_params
             }
-            if ratio is not None:
-                try:
-                    payload["ratios"] = {ratio: payload["ratios"][ratio]}
-                except KeyError as e:
-                    raise ValueError(
-                        f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, obj.aspect_ratios.keys()))}"
-                    ) from e
-                else:
-                    payload["ratios"][ratio]["media"] = utils.sizes(
-                        container_width=container, **breakpoints
-                    )
+            if set(ratios) - set(self.aspect_ratios or obj.aspect_ratios.keys()):
+                raise ValueError(
+                    f"Invalid ratios: {', '.join(ratios)}. Choices are: {', '.join(filter(None, obj.aspect_ratios.keys()))}"
+                )
+
+        payload = {
+            **base_payload,
+            "ratios": {
+                ratio: {
+                    "sources": {
+                        f"image/{file_type.lower()}": sizes
+                        for file_type, sizes in sources.items()
+                        if file_type in self.file_types or not self.file_types
+                    },
+                    "media": utils.sizes(container_width=container, **breakpoints),
+                }
+                for ratio, sources in obj.aspect_ratios.items()
+                if ratio in ratios or not ratios
+            },
+        }
 
         return json.loads(json.dumps(payload, default=default))

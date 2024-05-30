@@ -78,7 +78,8 @@ class TestPictureField:
                             "600": "/media/testapp/profile/image/600w.webp",
                             "700": "/media/testapp/profile/image/700w.webp",
                         }
-                    }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 },
                 "1/1": {
                     "sources": {
@@ -92,7 +93,8 @@ class TestPictureField:
                             "600": "/media/testapp/profile/image/1/600w.webp",
                             "700": "/media/testapp/profile/image/1/700w.webp",
                         }
-                    }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 },
                 "3/2": {
                     "sources": {
@@ -106,7 +108,8 @@ class TestPictureField:
                             "600": "/media/testapp/profile/image/3_2/600w.webp",
                             "700": "/media/testapp/profile/image/3_2/700w.webp",
                         }
-                    }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 },
                 "16/9": {
                     "sources": {
@@ -120,7 +123,8 @@ class TestPictureField:
                             "600": "/media/testapp/profile/image/16_9/600w.webp",
                             "700": "/media/testapp/profile/image/16_9/700w.webp",
                         }
-                    }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 },
             },
         }
@@ -179,7 +183,7 @@ class TestPictureField:
         with pytest.raises(ValueError) as e:
             serializer.data["image"]
 
-        assert str(e.value) == "Invalid ratio: 21/11. Choices are: 1/1, 3/2, 16/9"
+        assert str(e.value) == "Invalid ratios: 21/11. Choices are: 1/1, 3/2, 16/9"
 
     @pytest.mark.django_db
     def test_to_representation__blank(self, rf, image_upload_file, settings):
@@ -194,6 +198,86 @@ class TestPictureField:
         serializer = ProfileSerializer(profile, context={"request": request})
 
         assert serializer.data["image"] is None
+
+    @pytest.mark.django_db
+    def test_to_representation__no_get_params(self, rf, image_upload_file, settings):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
+
+        profile = models.Profile.objects.create(picture=image_upload_file)
+        request = rf.get("/")
+        request.GET._mutable = True
+        request.GET["foo"] = "bar"
+        serializer = ProfileSerializer(profile, context={"request": request})
+        assert serializer.data["image_mobile"] == {
+            "url": "/media/testapp/profile/image.png",
+            "width": 800,
+            "height": 800,
+            "ratios": {
+                "3/2": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/3_2/800w.webp",
+                            "100": "/media/testapp/profile/image/3_2/100w.webp",
+                            "200": "/media/testapp/profile/image/3_2/200w.webp",
+                            "300": "/media/testapp/profile/image/3_2/300w.webp",
+                            "400": "/media/testapp/profile/image/3_2/400w.webp",
+                            "500": "/media/testapp/profile/image/3_2/500w.webp",
+                            "600": "/media/testapp/profile/image/3_2/600w.webp",
+                            "700": "/media/testapp/profile/image/3_2/700w.webp",
+                        }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
+                }
+            },
+        }
+
+    @pytest.mark.django_db
+    def test_to_representation__multiple_ratios(self, rf, image_upload_file, settings):
+        settings.PICTURES["USE_PLACEHOLDERS"] = False
+
+        profile = models.Profile.objects.create(picture=image_upload_file)
+        request = rf.get("/")
+        request.GET._mutable = True
+        request.GET.setlist("image_ratio", ["3/2", "16/9"])
+        serializer = ProfileSerializer(profile, context={"request": request})
+        print(serializer.data["image"])
+        assert serializer.data["image"] == {
+            "url": "/media/testapp/profile/image.png",
+            "width": 800,
+            "height": 800,
+            "ratios": {
+                "3/2": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/3_2/800w.webp",
+                            "100": "/media/testapp/profile/image/3_2/100w.webp",
+                            "200": "/media/testapp/profile/image/3_2/200w.webp",
+                            "300": "/media/testapp/profile/image/3_2/300w.webp",
+                            "400": "/media/testapp/profile/image/3_2/400w.webp",
+                            "500": "/media/testapp/profile/image/3_2/500w.webp",
+                            "600": "/media/testapp/profile/image/3_2/600w.webp",
+                            "700": "/media/testapp/profile/image/3_2/700w.webp",
+                        }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
+                },
+                "16/9": {
+                    "sources": {
+                        "image/webp": {
+                            "800": "/media/testapp/profile/image/16_9/800w.webp",
+                            "100": "/media/testapp/profile/image/16_9/100w.webp",
+                            "200": "/media/testapp/profile/image/16_9/200w.webp",
+                            "300": "/media/testapp/profile/image/16_9/300w.webp",
+                            "400": "/media/testapp/profile/image/16_9/400w.webp",
+                            "500": "/media/testapp/profile/image/16_9/500w.webp",
+                            "600": "/media/testapp/profile/image/16_9/600w.webp",
+                            "700": "/media/testapp/profile/image/16_9/700w.webp",
+                        }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
+                },
+            },
+        }
 
     @pytest.mark.django_db
     def test_to_representation__with_container(self, rf, image_upload_file, settings):
@@ -304,7 +388,8 @@ class TestPictureField:
                             "600": "/media/testapp/profile/image/3_2/600w.webp",
                             "700": "/media/testapp/profile/image/3_2/700w.webp",
                         }
-                    }
+                    },
+                    "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 }
             },
         }
