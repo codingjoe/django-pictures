@@ -14,7 +14,10 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
     tmpl = loader.get_template("pictures/picture.html")
     breakpoints = {}
     picture_attrs = {}
-    img_attrs = {}
+    img_attrs = {
+        "width": field_file.width,
+        "height": field_file.height,
+    }
     try:
         sources = field_file.aspect_ratios[ratio]
     except KeyError as e:
