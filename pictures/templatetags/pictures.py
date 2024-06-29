@@ -15,6 +15,8 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
     breakpoints = {}
     picture_attrs = {}
     img_attrs = {
+        "src": field_file.url,
+        "alt": img_alt,
         "width": field_file.width,
         "height": field_file.height,
     }

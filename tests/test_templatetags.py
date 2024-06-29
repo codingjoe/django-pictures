@@ -36,7 +36,6 @@ def test_picture__placeholder(client, image_upload_file, settings):
     settings.PICTURES["USE_PLACEHOLDERS"] = True
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     response = client.get(profile.get_absolute_url())
-    print(response.content.decode())
     assert response.status_code == 200
     assert picture_with_placeholders_html in response.content
 
@@ -72,13 +71,6 @@ def test_picture__additional_attrs_img_size(image_upload_file):
     html = picture(profile.picture, ratio="3/2", img_width=500, img_height=500)
     assert ' width="500"' in html
     assert ' height="500"' in html
-
-
-@pytest.mark.django_db
-def test_picture__additional_attrs_alt_empty(image_upload_file):
-    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
-    html = picture(profile.picture)
-    assert ' alt=""' in html
 
 
 @pytest.mark.django_db

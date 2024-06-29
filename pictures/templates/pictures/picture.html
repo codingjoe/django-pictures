@@ -2,5 +2,5 @@
   <source type="image/{{ type|lower }}"
           srcset="{% for width, pic in srcset.items %}{% if use_placeholders %}{% url 'pictures:placeholder' alt|urlencode:'' ratio width type %}{% else %}{{ pic.url }}{% endif %} {{ width }}w{% if not forloop.last %}, {% endif %}{% endfor %}"
           sizes="{{ media }}">{% endfor %}
-  <img src="{{ field_file.url }}" alt="{{ alt|default_if_none:'' }}"{% include 'pictures/attrs.html' with attrs=img_attrs %}>
+  <img{% include 'pictures/attrs.html' with attrs=img_attrs %}>
 </picture>
