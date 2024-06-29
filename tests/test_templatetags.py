@@ -66,6 +66,14 @@ def test_picture__additional_attrs_img(image_upload_file):
 
 
 @pytest.mark.django_db
+def test_picture__additional_attrs_img_size(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
+    html = picture(profile.picture, ratio="3/2", img_width=500, img_height=500)
+    assert ' width="500"' in html
+    assert ' height="500"' in html
+
+
+@pytest.mark.django_db
 def test_picture__additional_attrs_picture(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     html = picture(profile.picture, ratio="3/2", picture_class="picture-class")
