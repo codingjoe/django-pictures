@@ -1,3 +1,5 @@
+import warnings
+
 from django import template
 from django.template import loader
 
@@ -68,6 +70,12 @@ def img_url(field_file, file_type, width, ratio=None) -> str:
         raise ValueError(
             f"Invalid file type: {file_type}. Choices are: {', '.join(file_types.keys())}"
         ) from e
+    url = field_file.url
+    if not sizes.items():
+        warnings.warn(
+            "Image is smaller than requested size, using source file URL.",
+            stacklevel=2,
+        )
     for w, img in sorted(sizes.items()):
         url = img.url
         if w >= int(width):
