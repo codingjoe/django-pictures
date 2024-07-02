@@ -111,3 +111,18 @@ def test_img_url__raise_wrong_file_type(image_upload_file):
     with pytest.raises(ValueError) as e:
         img_url(profile.picture, ratio="3/2", file_type="gif", width=800)
     assert "Invalid file type: gif. Choices are: WEBP" in str(e.value)
+
+
+@pytest.mark.django_db
+def test_img_url__too_small(tiny_image_upload_file, caplog):
+    profile = Profile.objects.create(name="Spiderman", picture=tiny_image_upload_file)
+    with pytest.warns() as record:
+        assert (
+            img_url(profile.picture, ratio="3/2", file_type="webp", width="800")
+            == "/media/testapp/profile/image.png"
+        )
+    assert len(record) == 1
+    assert (
+        "Image is smaller than requested size, using source file URL."
+        in record[0].message.args[0]
+    )
