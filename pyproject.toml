@@ -44,7 +44,7 @@ test = [
   "redis",
 ]
 lint = [
-  "bandit==1.7.9",
+  "bandit==1.7.10",
   "black==24.8.0",
   "flake8==7.1.1",
   "isort==5.13.2",
