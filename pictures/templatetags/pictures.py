@@ -29,7 +29,7 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
             f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, field_file.aspect_ratios.keys()))}"
         ) from e
     for key, value in kwargs.items():
-        if key in settings.BREAKPOINTS:
+        if key in field_file.field.breakpoints:
             breakpoints[key] = value
         elif key.startswith("picture_"):
             picture_attrs[key[8:]] = value
@@ -43,7 +43,12 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
             "alt": img_alt,
             "ratio": (ratio or "3/2").replace("/", "x"),
             "sources": sources,
-            "media": utils.sizes(container_width=container, **breakpoints),
+            "media": utils.sizes(
+                cols=field_file.field.grid_columns,
+                container_width=container,
+                breakpoint_settings=field_file.field.breakpoints,
+                **breakpoints,
+            ),
             "picture_attrs": picture_attrs,
             "img_attrs": img_attrs,
             "use_placeholders": settings.USE_PLACEHOLDERS,

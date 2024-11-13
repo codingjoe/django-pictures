@@ -15,24 +15,36 @@ from . import conf
 __all__ = ["sizes", "source_set", "placeholder"]
 
 
-def _grid(*, _columns=12, **breakpoint_sizes):
-    settings = conf.get_settings()
-    for key in breakpoint_sizes.keys() - settings.BREAKPOINTS.keys():
+def _grid(
+    *,
+    _columns=12,
+    breakpoint_settings: dict[str, int] = {},
+    **breakpoint_sizes: dict[str, int],
+):
+    if not breakpoint_settings:
+        # fallback to global settings to make tests work
+        settings = conf.get_settings()
+        breakpoint_settings = settings.BREAKPOINTS
+    for key in breakpoint_sizes.keys() - breakpoint_settings.keys():
         raise KeyError(
-            f"Invalid breakpoint: {key}. Choices are: {', '.join(settings.BREAKPOINTS.keys())}"
+            f"Invalid breakpoint: {key}. Choices are: {', '.join(breakpoint_settings.keys())}"
         )
     prev_size = _columns
-    for key, value in settings.BREAKPOINTS.items():
+    for key, value in breakpoint_settings.items():
         prev_size = breakpoint_sizes.get(key, prev_size)
         yield key, prev_size / _columns
 
 
-def _media_query(*, container_width: int | None = None, **breakpoints: int):
-    settings = conf.get_settings()
+def _media_query(
+    *,
+    container_width: int | None = None,
+    breakpoint_settings: dict[str, int] = {},
+    **breakpoints: dict[str, int],
+):
     prev_ratio = None
     prev_width = 0
     for key, ratio in breakpoints.items():
-        width = settings.BREAKPOINTS[key]
+        width = breakpoint_settings[key]
         if container_width and width >= container_width:
             yield f"(min-width: {prev_width}px) and (max-width: {container_width - 1}px) {math.floor(ratio * 100)}vw"
             break
@@ -53,9 +65,31 @@ def _media_query(*, container_width: int | None = None, **breakpoints: int):
         yield f"{container_width}px" if container_width else "100vw"
 
 
-def sizes(*, cols=12, container_width: int | None = None, **breakpoints: int) -> str:
-    breakpoints = dict(_grid(_columns=cols, **breakpoints))
-    return ", ".join(_media_query(container_width=container_width, **breakpoints))
+def sizes(
+    *,
+    cols=12,
+    container_width: int | None = None,
+    breakpoint_settings: dict[str, int] = {},
+    **breakpoints: dict[str, int],
+) -> str:
+    if not breakpoint_settings:
+        # fallback to global settings to make tests work
+        settings = conf.get_settings()
+        breakpoint_settings = settings.BREAKPOINTS
+    breakpoints = dict(
+        _grid(
+            _columns=cols,
+            breakpoint_settings=breakpoint_settings,
+            **breakpoints,
+        )
+    )
+    return ", ".join(
+        _media_query(
+            container_width=container_width,
+            breakpoint_settings=breakpoint_settings,
+            **breakpoints,
+        )
+    )
 
 
 def source_set(
