@@ -12,7 +12,8 @@ register = template.Library()
 @register.simple_tag()
 def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
     settings = get_settings()
-    container = container or settings.CONTAINER_WIDTH
+    field = field_file.field
+    container = container or field.container_width
     tmpl = loader.get_template("pictures/picture.html")
     breakpoints = {}
     picture_attrs = {}
@@ -29,7 +30,7 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
             f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, field_file.aspect_ratios.keys()))}"
         ) from e
     for key, value in kwargs.items():
-        if key in settings.BREAKPOINTS:
+        if key in field.breakpoints:
             breakpoints[key] = value
         elif key.startswith("picture_"):
             picture_attrs[key[8:]] = value
@@ -43,7 +44,7 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
             "alt": img_alt,
             "ratio": (ratio or "3/2").replace("/", "x"),
             "sources": sources,
-            "media": utils.sizes(container_width=container, **breakpoints),
+            "media": utils.sizes(field=field, container_width=container, **breakpoints),
             "picture_attrs": picture_attrs,
             "img_attrs": img_attrs,
             "use_placeholders": settings.USE_PLACEHOLDERS,

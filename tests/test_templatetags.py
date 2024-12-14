@@ -89,6 +89,16 @@ def test_picture__additional_attrs__type_error(image_upload_file):
 
 
 @pytest.mark.django_db
+def test_picture__field_defaults(image_upload_file):
+    profile = Profile.objects.create(name="Spiderman", other_picture=image_upload_file)
+    html = picture(profile.other_picture, ratio="3/2", small=2, medium=3)
+    assert (
+        'sizes="(min-width: 0px) and (max-width: 399px) 16vw, (min-width: 400px) and (max-width: 599px) 25vw, 150px"'
+        in html
+    )
+
+
+@pytest.mark.django_db
 def test_img_url(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     assert (
