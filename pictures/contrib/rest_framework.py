@@ -6,7 +6,6 @@ from rest_framework import serializers
 __all__ = ["PictureField"]
 
 from pictures import utils
-from pictures.conf import get_settings
 from pictures.models import PictureFieldFile, SimplePicture
 
 
@@ -33,13 +32,14 @@ class PictureField(serializers.ReadOnlyField):
             "width": obj.width,
             "height": obj.height,
         }
+        field = obj.field
 
         # if the request has query parameters, filter the payload
         try:
             query_params: QueryDict = self.context["request"].GET
         except KeyError:
             ratios = self.aspect_ratios
-            container = get_settings().CONTAINER_WIDTH
+            container = field.container_width
             breakpoints = {}
         else:
             ratios = (
@@ -49,12 +49,12 @@ class PictureField(serializers.ReadOnlyField):
             try:
                 container = int(container)
             except TypeError:
-                container = get_settings().CONTAINER_WIDTH
+                container = field.container_width
             except ValueError as e:
                 raise ValueError(f"Container width is not a number: {container}") from e
             breakpoints = {
                 bp: int(query_params.get(f"{self.field_name}_{bp}"))
-                for bp in get_settings().BREAKPOINTS
+                for bp in field.breakpoints
                 if f"{self.field_name}_{bp}" in query_params
             }
             if set(ratios) - set(self.aspect_ratios or obj.aspect_ratios.keys()):
@@ -71,7 +71,9 @@ class PictureField(serializers.ReadOnlyField):
                         for file_type, sizes in sources.items()
                         if file_type in self.file_types or not self.file_types
                     },
-                    "media": utils.sizes(container_width=container, **breakpoints),
+                    "media": utils.sizes(
+                        field=field, container_width=container, **breakpoints
+                    ),
                 }
                 for ratio, sources in obj.aspect_ratios.items()
                 if ratio in ratios or not ratios

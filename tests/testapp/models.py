@@ -40,6 +40,19 @@ class Profile(models.Model):
         blank=True,
     )
 
+    other_picture = PictureField(
+        upload_to="testapp/profile/",
+        aspect_ratios=[None, "1/1", "3/2", "16/9"],
+        breakpoints={
+            "small": 200,
+            "medium": 400,
+            "large": 800,
+        },
+        container_width=600,
+        blank=True,
+        null=True,
+    )
+
     def get_absolute_url(self):
         return reverse("profile_detail", kwargs={"pk": self.pk})
 

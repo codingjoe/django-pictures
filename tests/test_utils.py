@@ -3,11 +3,12 @@ from django.core.files.storage import Storage, default_storage
 
 from pictures import utils
 from pictures.models import SimplePicture
+from tests.testapp.models import SimpleModel
 
 
 class TestGrid:
     def test_default(self):
-        assert list(utils._grid()) == [
+        assert list(utils._grid(field=SimpleModel.picture.field)) == [
             ("xs", 1.0),
             ("s", 1.0),
             ("m", 1.0),
@@ -16,7 +17,7 @@ class TestGrid:
         ]
 
     def test_small_up(self):
-        assert list(utils._grid(xs=6)) == [
+        assert list(utils._grid(field=SimpleModel.picture.field, xs=6)) == [
             ("xs", 0.5),
             ("s", 0.5),
             ("m", 0.5),
@@ -25,7 +26,7 @@ class TestGrid:
         ]
 
     def test_mixed(self):
-        assert list(utils._grid(s=6, l=9)) == [
+        assert list(utils._grid(field=SimpleModel.picture.field, s=6, l=9)) == [
             ("xs", 1.0),
             ("s", 0.5),
             ("m", 0.5),
@@ -35,35 +36,38 @@ class TestGrid:
 
     def test_key_error(self):
         with pytest.raises(KeyError) as e:
-            list(utils._grid(xxxxl=6))
+            list(utils._grid(field=SimpleModel.picture.field, xxxxl=6))
         assert "Invalid breakpoint: xxxxl. Choices are: xs, s, m, l, xl" in str(e.value)
 
 
 class TestSizes:
     def test_default(self):
-        assert utils.sizes() == "100vw"
+        assert utils.sizes(field=SimpleModel.picture.field) == "100vw"
 
     def test_default__container(self):
         assert (
-            utils.sizes(container_width=1200)
+            utils.sizes(field=SimpleModel.picture.field, container_width=1200)
             == "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px"
         )
 
     def test_bottom_up(self):
-        assert utils.sizes(xs=6) == "50vw"
+        assert utils.sizes(field=SimpleModel.picture.field, xs=6) == "50vw"
 
     def test_bottom_up__container(self):
         assert (
-            utils.sizes(container_width=1200, xs=6)
+            utils.sizes(field=SimpleModel.picture.field, container_width=1200, xs=6)
             == "(min-width: 0px) and (max-width: 1199px) 50vw, 600px"
         )
 
     def test_medium_up(self):
-        assert utils.sizes(s=6) == "(min-width: 0px) and (max-width: 767px) 100vw, 50vw"
+        assert (
+            utils.sizes(field=SimpleModel.picture.field, s=6)
+            == "(min-width: 0px) and (max-width: 767px) 100vw, 50vw"
+        )
 
     def test_medium_up__container(self):
         assert (
-            utils.sizes(container_width=1200, s=6)
+            utils.sizes(field=SimpleModel.picture.field, container_width=1200, s=6)
             == "(min-width: 0px) and (max-width: 767px) 100vw,"
             " (min-width: 768px) and (max-width: 1199px) 50vw,"
             " 600px"
@@ -71,14 +75,15 @@ class TestSizes:
 
     def test_mixed(self):
         assert (
-            utils.sizes(s=6, l=9) == "(min-width: 0px) and (max-width: 767px) 100vw,"
+            utils.sizes(field=SimpleModel.picture.field, s=6, l=9)
+            == "(min-width: 0px) and (max-width: 767px) 100vw,"
             " (min-width: 768px) and (max-width: 1199px) 50vw,"
             " 75vw"
         )
 
     def test_mixed__container(self):
         assert (
-            utils.sizes(container_width=1200, s=6, l=9)
+            utils.sizes(field=SimpleModel.picture.field, container_width=1200, s=6, l=9)
             == "(min-width: 0px) and (max-width: 767px) 100vw,"
             " (min-width: 768px) and (max-width: 1199px) 75vw,"
             " 600px"
@@ -87,7 +92,7 @@ class TestSizes:
     def test_container__smaller_than_breakpoint(self):
         with pytest.warns() as records:
             assert (
-                utils.sizes(container_width=500)
+                utils.sizes(field=SimpleModel.picture.field, container_width=500)
                 == "(min-width: 0px) and (max-width: 499px) 100vw, 500px"
             )
         assert str(records[0].message) == (
