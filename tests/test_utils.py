@@ -2,7 +2,7 @@ import pytest
 from django.core.files.storage import Storage, default_storage
 
 from pictures import utils
-from pictures.models import SimplePicture
+from pictures.models import Picture
 from tests.testapp.models import SimpleModel
 
 
@@ -145,8 +145,15 @@ def test_placeholder():
     assert img.height == 1200
 
 
+class TestPicture(Picture):
+    @property
+    def url(self):
+        return f"/media/{self.parent_name}"
+
+
 def test_reconstruct(image_upload_file):
-    picture = SimplePicture(
+
+    picture = TestPicture(
         image_upload_file.name,
         "WEBP",
         "16/9",
@@ -158,7 +165,7 @@ def test_reconstruct(image_upload_file):
     assert isinstance(reconstructed, Storage)
 
     assert utils.reconstruct(
-        "pictures.models.SimplePicture",
+        "tests.test_utils.TestPicture",
         [],
         {
             "parent_name": "test.jpg",
@@ -167,7 +174,7 @@ def test_reconstruct(image_upload_file):
             "storage": default_storage,
             "width": 100,
         },
-    ) == SimplePicture(
+    ) == TestPicture(
         "test.jpg",
         "JPEG",
         "16/9",

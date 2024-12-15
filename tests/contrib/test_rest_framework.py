@@ -3,7 +3,7 @@ from fractions import Fraction
 import pytest
 from django.core.files.storage import default_storage
 
-from pictures.models import SimplePicture
+from pictures.models import Picture
 from tests.testapp import models
 
 serializers = pytest.importorskip("rest_framework.serializers")
@@ -31,11 +31,17 @@ class ProfileSerializerWithInvalidData(serializers.ModelSerializer):
         fields = ["image_invalid"]
 
 
+class TestPicture(Picture):
+    @property
+    def url(self):
+        return f"/media/{self.parent_name}"
+
+
 def test_default(settings):
     settings.PICTURES["USE_PLACEHOLDERS"] = False
     assert (
         rest_framework.default(
-            obj=SimplePicture(
+            obj=TestPicture(
                 parent_name="testapp/simplemodel/image.jpg",
                 file_type="WEBP",
                 aspect_ratio=Fraction("4/3"),
@@ -43,7 +49,7 @@ def test_default(settings):
                 width=800,
             )
         )
-        == "/media/testapp/simplemodel/image/4_3/800w.webp"
+        == "/media/testapp/simplemodel/image.jpg"
     )
 
 

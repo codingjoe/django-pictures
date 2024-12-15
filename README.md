@@ -296,6 +296,47 @@ Note that the `media` keys are only included, if you have specified breakpoints.
 `PictureField` is compatible with [Django Cleanup](https://github.com/un1t/django-cleanup),
 which automatically deletes its file and corresponding `SimplePicture` files.
 
+### external image processing (via CDNs)
+
+This package is built with growth in mind. You can start small and grow big.
+Should you use a CDN, or some other external image processing service, you can
+you set up can be complete in two simple steps:
+
+1. Override `PICTURES["PROCESSOR"]` to disable the default processing.
+2. Override `PICTURES["PICTURE_CLASS"]` implement any custom behavior.
+
+```python
+# settings.py
+PICTURES = {
+    "PROCESSOR": "pictures.tasks.noop",  # disable default processing and do nothing
+    "PICTURE_CLASS": "path.to.MyPicture",  # override the default picture class
+}
+```
+
+The `MyPicture` class should implement the `url` property, that returns the
+URL of the image. You can use the `Picture` class as a base class.
+
+Available attributes are:
+* `parent_name` - name of the source file uploaded to the `PictureField`
+* `aspect_ratio` - aspect ratio of the output image
+* `width` - width of the output image
+* `file_type` - file type of the output image
+
+```python
+# path/to.py
+from pathlib import Path
+from pictures.models import Picture
+
+
+class MyPicture(Picture):
+    @property
+    def url(self):
+        return (
+            f"https://cdn.example.com/{self.aspect_ratio}/"
+            f"{Path(self.parent_name).stem}_{self.width}w.{self.file_type.lower()}"
+        )
+```
+
 [drf]: https://www.django-rest-framework.org/
 [celery]: https://docs.celeryproject.org/en/stable/
 [dramatiq]: https://dramatiq.io/

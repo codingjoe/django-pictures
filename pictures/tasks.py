@@ -8,6 +8,10 @@ from PIL import Image
 from pictures import conf, utils
 
 
+def noop(*args, **kwargs) -> None:
+    """Do not process the picture, but rely on some other service to do so."""
+
+
 class PictureProcessor(Protocol):
 
     def __call__(

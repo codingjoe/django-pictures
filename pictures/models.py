@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 import dataclasses
 import io
 import math
@@ -12,19 +13,18 @@ from django.core.files.storage import Storage
 from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from PIL import Image, ImageOps
 
-__all__ = ["PictureField", "PictureFieldFile"]
-
-from django.utils.module_loading import import_string
-
 from pictures import conf, utils
+
+__all__ = ["PictureField", "PictureFieldFile", "Picture"]
 
 RGB_FORMATS = ["JPEG"]
 
 
 @dataclasses.dataclass
-class SimplePicture:
+class Picture(abc.ABC):
     """A simple picture class similar to Django's image class."""
 
     parent_name: str
@@ -37,12 +37,34 @@ class SimplePicture:
         self.aspect_ratio = Fraction(self.aspect_ratio) if self.aspect_ratio else None
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(self.url)
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
             return NotImplemented
         return self.deconstruct() == other.deconstruct()
+
+    def deconstruct(self):
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__qualname__}",
+            (
+                self.parent_name,
+                self.file_type,
+                str(self.aspect_ratio) if self.aspect_ratio else None,
+                self.storage.deconstruct(),
+                self.width,
+            ),
+            {},
+        )
+
+    @property
+    @abc.abstractmethod
+    def url(self) -> str:
+        """Return the URL of the picture."""
+
+
+class PillowPicture(Picture):
+    """A simple picture class similar to Django's image class."""
 
     @property
     def url(self) -> str:
@@ -78,7 +100,7 @@ class SimplePicture:
     def path(self) -> Path:
         return Path(self.storage.path(self.name))
 
-    def process(self, image) -> Image:
+    def process(self, image) -> "Image":
         image = ImageOps.exif_transpose(image)  # crates a copy
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
@@ -101,23 +123,10 @@ class SimplePicture:
     def delete(self):
         self.storage.delete(self.name)
 
-    def deconstruct(self):
-        return (
-            f"{self.__class__.__module__}.{self.__class__.__qualname__}",
-            (
-                self.parent_name,
-                self.file_type,
-                str(self.aspect_ratio) if self.aspect_ratio else None,
-                self.storage.deconstruct(),
-                self.width,
-            ),
-            {},
-        )
-
 
 class PictureFieldFile(ImageFieldFile):
 
-    def __xor__(self, other) -> tuple[set[SimplePicture], set[SimplePicture]]:
+    def __xor__(self, other) -> tuple[set[Picture], set[Picture]]:
         """Return the new and obsolete :class:`SimpleFile` instances."""
         if not isinstance(other, PictureFieldFile):
             return NotImplemented
@@ -179,7 +188,7 @@ class PictureFieldFile(ImageFieldFile):
         return self._get_image_dimensions()[1]
 
     @property
-    def aspect_ratios(self) -> {Fraction | None: {str: {int: SimplePicture}}}:
+    def aspect_ratios(self) -> {Fraction | None: {str: {int: Picture}}}:
         self._require_file()
         return self.get_picture_files(
             file_name=self.name,
@@ -197,11 +206,12 @@ class PictureFieldFile(ImageFieldFile):
         img_height: int,
         storage: Storage,
         field: PictureField,
-    ) -> {Fraction | None: {str: {int: SimplePicture}}}:
+    ) -> {Fraction | None: {str: {int: Picture}}}:
+        PictureClass = import_string(conf.get_settings().PICTURE_CLASS)
         return {
             ratio: {
                 file_type: {
-                    width: SimplePicture(file_name, file_type, ratio, storage, width)
+                    width: PictureClass(file_name, file_type, ratio, storage, width)
                     for width in utils.source_set(
                         (img_width, img_height),
                         ratio=ratio,
@@ -214,7 +224,7 @@ class PictureFieldFile(ImageFieldFile):
             for ratio in field.aspect_ratios
         }
 
-    def get_picture_files_list(self) -> set[SimplePicture]:
+    def get_picture_files_list(self) -> set[Picture]:
         return {
             picture
             for sources in self.aspect_ratios.values()

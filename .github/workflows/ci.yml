@@ -130,6 +130,7 @@ jobs:
     strategy:
       matrix:
         extras:
+          - "nopillow"
           - "celery"
           - "dramatiq"
           - "django-rq"
