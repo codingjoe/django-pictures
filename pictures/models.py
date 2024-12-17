@@ -25,7 +25,11 @@ RGB_FORMATS = ["JPEG"]
 
 @dataclasses.dataclass
 class Picture(abc.ABC):
-    """A simple picture class similar to Django's image class."""
+    """
+    An abstract picture class similar to Django's image class.
+
+    Subclasses will need to implement the `url` property.
+    """
 
     parent_name: str
     file_type: str
@@ -64,7 +68,7 @@ class Picture(abc.ABC):
 
 
 class PillowPicture(Picture):
-    """A simple picture class similar to Django's image class."""
+    """Use the Pillow library to process images."""
 
     @property
     def url(self) -> str:
@@ -127,7 +131,7 @@ class PillowPicture(Picture):
 class PictureFieldFile(ImageFieldFile):
 
     def __xor__(self, other) -> tuple[set[Picture], set[Picture]]:
-        """Return the new and obsolete :class:`SimpleFile` instances."""
+        """Return the new and obsolete :class:`Picture` instances."""
         if not isinstance(other, PictureFieldFile):
             return NotImplemented
         new = self.get_picture_files_list() - other.get_picture_files_list()

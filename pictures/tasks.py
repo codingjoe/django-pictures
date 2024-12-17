@@ -9,7 +9,7 @@ from pictures import conf, utils
 
 
 def noop(*args, **kwargs) -> None:
-    """Do not process the picture, but rely on some other service to do so."""
+    """Do nothing. You will need to set up your own image processing (like a CDN)."""
 
 
 class PictureProcessor(Protocol):

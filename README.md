@@ -298,9 +298,9 @@ which automatically deletes its file and corresponding `SimplePicture` files.
 
 ### external image processing (via CDNs)
 
-This package is built with growth in mind. You can start small and grow big.
+This package is designed to accommodate growth, allowing you to start small and scale up as needed.
 Should you use a CDN, or some other external image processing service, you can
-you set up can be complete in two simple steps:
+set this up in two simple steps:
 
 1. Override `PICTURES["PROCESSOR"]` to disable the default processing.
 2. Override `PICTURES["PICTURE_CLASS"]` implement any custom behavior.
@@ -313,8 +313,8 @@ PICTURES = {
 }
 ```
 
-The `MyPicture` class should implement the `url` property, that returns the
-URL of the image. You can use the `Picture` class as a base class.
+The `MyPicture`class should implement the url property, which returns the URL
+of the image. You may use the `Picture` class as a base class.
 
 Available attributes are:
 * `parent_name` - name of the source file uploaded to the `PictureField`
@@ -332,8 +332,8 @@ class MyPicture(Picture):
     @property
     def url(self):
         return (
-            f"https://cdn.example.com/{self.aspect_ratio}/"
-            f"{Path(self.parent_name).stem}_{self.width}w.{self.file_type.lower()}"
+            f"https://cdn.example.com/{Path(self.parent_name).stem}"
+            f"_{self.aspect_ratio}_{self.width}w.{self.file_type.lower()}"
         )
 ```
 
