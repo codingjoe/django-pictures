@@ -10,7 +10,7 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image, ImageDraw
 
-from pictures.models import PictureField, SimplePicture
+from pictures.models import PictureField, PillowPicture
 from tests.testapp.models import JPEGModel, Profile, SimpleModel
 
 
@@ -24,8 +24,8 @@ def override_field_aspect_ratios(field, aspect_ratios):
         field.aspect_ratios = old_ratios
 
 
-class TestSimplePicture:
-    picture_with_ratio = SimplePicture(
+class TestPillowPicture:
+    picture_with_ratio = PillowPicture(
         parent_name="testapp/simplemodel/image.png",
         file_type="WEBP",
         aspect_ratio=Fraction("4/3"),
@@ -33,7 +33,7 @@ class TestSimplePicture:
         width=800,
     )
 
-    picture_without_ratio = SimplePicture(
+    picture_without_ratio = PillowPicture(
         parent_name="testapp/simplemodel/image.png",
         file_type="WEBP",
         aspect_ratio=None,
@@ -90,7 +90,7 @@ class TestSimplePicture:
     def test_process__copy(self):
         """Do not mutate input image."""
         image = Image.new("RGB", (800, 800), (255, 55, 255))
-        assert SimplePicture(
+        assert PillowPicture(
             parent_name="testapp/simplemodel/image.png",
             file_type="WEBP",
             aspect_ratio=None,
@@ -100,7 +100,7 @@ class TestSimplePicture:
 
         assert image.size == (800, 800), "Image was mutated."
 
-        assert SimplePicture(
+        assert PillowPicture(
             parent_name="testapp/simplemodel/image.png",
             file_type="WEBP",
             aspect_ratio="4/3",
@@ -122,168 +122,168 @@ class TestPictureFieldFile:
             obj.picture ^ "not a picture"
         assert obj.picture ^ obj2.picture == (
             {
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=300,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=600,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=500,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=500,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=300,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=700,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=800,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=200,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=300,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=700,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=100,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=400,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=800,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=100,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=700,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=200,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=600,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=500,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=800,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=200,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=100,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=400,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=600,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
@@ -292,224 +292,224 @@ class TestPictureFieldFile:
                 ),
             },
             {
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=600,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=300,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=800,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=500,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=700,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=100,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=500,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=700,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=800,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=200,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=100,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=600,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=100,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=700,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=800,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=200,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=500,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=800,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=300,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=300,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=600,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=700,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=400,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=400,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=400,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=200,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=300,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=600,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=100,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=200,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=400,
                 ),
-                SimplePicture(
+                PillowPicture(
                     parent_name="testapp/profile/image.png",
                     file_type="WEBP",
                     aspect_ratio=Fraction(1, 1),
@@ -640,56 +640,56 @@ class TestPictureField:
         assert obj.picture.aspect_ratios == {
             None: {
                 "WEBP": {
-                    800: SimplePicture(
+                    800: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=800,
                     ),
-                    100: SimplePicture(
+                    100: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=100,
                     ),
-                    200: SimplePicture(
+                    200: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=200,
                     ),
-                    300: SimplePicture(
+                    300: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=300,
                     ),
-                    400: SimplePicture(
+                    400: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=400,
                     ),
-                    500: SimplePicture(
+                    500: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=500,
                     ),
-                    600: SimplePicture(
+                    600: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=600,
                     ),
-                    700: SimplePicture(
+                    700: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=None,
@@ -700,56 +700,56 @@ class TestPictureField:
             },
             "3/2": {
                 "WEBP": {
-                    800: SimplePicture(
+                    800: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=800,
                     ),
-                    100: SimplePicture(
+                    100: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=100,
                     ),
-                    200: SimplePicture(
+                    200: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=200,
                     ),
-                    300: SimplePicture(
+                    300: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=300,
                     ),
-                    400: SimplePicture(
+                    400: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=400,
                     ),
-                    500: SimplePicture(
+                    500: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=500,
                     ),
-                    600: SimplePicture(
+                    600: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=600,
                     ),
-                    700: SimplePicture(
+                    700: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(3, 2),
@@ -760,56 +760,56 @@ class TestPictureField:
             },
             "16/9": {
                 "WEBP": {
-                    800: SimplePicture(
+                    800: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=800,
                     ),
-                    100: SimplePicture(
+                    100: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=100,
                     ),
-                    200: SimplePicture(
+                    200: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=200,
                     ),
-                    300: SimplePicture(
+                    300: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=300,
                     ),
-                    400: SimplePicture(
+                    400: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=400,
                     ),
-                    500: SimplePicture(
+                    500: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=500,
                     ),
-                    600: SimplePicture(
+                    600: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=600,
                     ),
-                    700: SimplePicture(
+                    700: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
                         file_type="WEBP",
                         aspect_ratio=Fraction(16, 9),

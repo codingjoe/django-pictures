@@ -8,6 +8,10 @@ from PIL import Image
 from pictures import conf, utils
 
 
+def noop(*args, **kwargs) -> None:
+    """Do nothing. You will need to set up your own image processing (like a CDN)."""
+
+
 class PictureProcessor(Protocol):
 
     def __call__(

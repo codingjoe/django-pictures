@@ -6,11 +6,11 @@ from rest_framework import serializers
 __all__ = ["PictureField"]
 
 from pictures import utils
-from pictures.models import PictureFieldFile, SimplePicture
+from pictures.models import Picture, PictureFieldFile
 
 
 def default(obj):
-    if isinstance(obj, SimplePicture):
+    if isinstance(obj, Picture):
         return obj.url
     raise TypeError(f"Type '{type(obj).__name__}' not serializable")
 
