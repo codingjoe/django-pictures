@@ -47,7 +47,7 @@ lint = [
   "bandit==1.8.2",
   "black==24.10.0",
   "flake8==7.1.1",
-  "isort==5.13.2",
+  "isort==6.0.0",
   "pydocstyle[toml]==6.3.0",
 ]
 dramatiq = [
