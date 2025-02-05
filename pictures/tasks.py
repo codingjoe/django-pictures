@@ -33,11 +33,15 @@ def _process_picture(
     old = old or []
     storage = utils.reconstruct(*storage)
     if new:
-        with storage.open(file_name) as fs:
-            with Image.open(fs) as img:
-                for picture in new:
-                    picture = utils.reconstruct(*picture)
-                    picture.save(img)
+        try:
+            with storage.open(file_name) as fs:
+                with Image.open(fs) as img:
+                    for picture in new:
+                        picture = utils.reconstruct(*picture)
+                        picture.save(img)
+        except FileNotFoundError:
+            # The file no longer exists (for example, because it was deleted or replaced).
+            return
 
     for picture in old:
         picture = utils.reconstruct(*picture)

@@ -22,5 +22,20 @@ def test_process_picture__file_cannot_be_reopened(image_upload_file):
     )
 
 
+@pytest.mark.django_db
+def test_process_picture__file_missing(image_upload_file):
+    obj = SimpleModel.objects.create(picture=image_upload_file)
+    setattr(
+        obj.picture.file,
+        "open",
+        Mock(side_effect=FileNotFoundError("The file does not exist anymore.")),
+    )
+    tasks._process_picture(
+        obj.picture.storage.deconstruct(),
+        obj.picture.name,
+        new=[i.deconstruct() for i in obj.picture.get_picture_files_list()],
+    )
+
+
 def test_noop():
     tasks.noop()  # does nothing
