@@ -33,15 +33,11 @@ def _process_picture(
     old = old or []
     storage = utils.reconstruct(*storage)
     if new:
-        try:
-            with storage.open(file_name) as fs:
-                with Image.open(fs) as img:
-                    for picture in new:
-                        picture = utils.reconstruct(*picture)
-                        picture.save(img)
-        except FileNotFoundError:
-            # The file no longer exists (for example, because it was deleted or replaced).
-            return
+        with storage.open(file_name) as fs:
+            with Image.open(fs) as img:
+                for picture in new:
+                    picture = utils.reconstruct(*picture)
+                    picture.save(img)
 
     for picture in old:
         picture = utils.reconstruct(*picture)
@@ -57,7 +53,9 @@ except ImportError:
     pass
 else:
 
-    @dramatiq.actor(queue_name=conf.get_settings().QUEUE_NAME)
+    @dramatiq.actor(
+        queue_name=conf.get_settings().QUEUE_NAME, throws=(FileNotFoundError,)
+    )
     def process_picture_with_dramatiq(
         storage: tuple[str, list, dict],
         file_name: str,
@@ -91,6 +89,7 @@ else:
     @shared_task(
         ignore_results=True,
         retry_backoff=True,
+        dont_autoretry_for=(FileNotFoundError,),
     )
     def process_picture_with_celery(
         storage: tuple[str, list, dict],
