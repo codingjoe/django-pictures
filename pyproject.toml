@@ -98,6 +98,7 @@ known_first_party = "pictures, tests"
 include_trailing_comma = true
 default_section = "THIRDPARTY"
 combine_as_imports = true
+skip = ["pictures/_version.py"]
 
 [tool.pydocstyle]
 add_ignore = "D1"
