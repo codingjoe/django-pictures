@@ -61,6 +61,25 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - run: |
+          sudo apt update && sudo apt install libavif-dev libwebp-dev libjpeg8-dev -y
+        if: matrix.os == 'ubuntu-latest'
+      - run: brew install libavif libjpeg libraqm libtiff little-cms2 openjpeg webp
+        if: matrix.os == 'macos-latest'
+      - run: pacman -S \
+          mingw-w64-x86_64-gcc \
+          mingw-w64-x86_64-libjpeg-turbo \
+          mingw-w64-x86_64-zlib \
+          mingw-w64-x86_64-libtiff \
+          mingw-w64-x86_64-freetype \
+          mingw-w64-x86_64-lcms2 \
+          mingw-w64-x86_64-libwebp \
+          mingw-w64-x86_64-openjpeg2 \
+          mingw-w64-x86_64-libimagequant \
+          mingw-w64-x86_64-libraqm \
+          mingw-w64-x86_64-libavif
+        if: matrix.os == 'windows-latest'
+      - run: 'python -m pip install --upgrade Pillow --no-binary :all:'
       - run: python -m pip install .[test]
       - run: python -m pytest
       - uses: codecov/codecov-action@v5
@@ -88,6 +107,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - run: sudo apt update && sudo apt install libavif-dev libwebp-dev libjpeg8-dev -y
+      - run: 'python -m pip install --upgrade Pillow --no-binary :all:'
       - run: python -m pip install .[test]
       - run: python -m pip install django~=${{ matrix.django-version }}.0
       - run: python -m pytest
@@ -115,6 +136,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - run: sudo apt update && sudo apt install libavif-dev libwebp-dev libjpeg8-dev -y
+      - run: 'python -m pip install --upgrade Pillow --no-binary :all:'
       - run: python -m pip install .[test]
       - run: python -m pip install django~=${{ matrix.django-version }}.0
       - run: python -m pytest
@@ -142,6 +165,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.x
+      - run: sudo apt update && sudo apt install libavif-dev libwebp-dev libjpeg8-dev -y
+      - run: 'python -m pip install --upgrade Pillow --no-binary :all:'
       - name: Install redis
         if: matrix.extras == 'dramatiq' || matrix.extras == 'django-rq'
         run: sudo apt install -y redis-server
