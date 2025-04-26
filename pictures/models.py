@@ -104,7 +104,7 @@ class PillowPicture(Picture):
     def path(self) -> Path:
         return Path(self.storage.path(self.name))
 
-    def process(self, image) -> "Image":
+    def process(self, image) -> Image:
         image = ImageOps.exif_transpose(image)  # crates a copy
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
