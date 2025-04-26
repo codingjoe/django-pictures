@@ -91,7 +91,7 @@ PICTURES = {
     },
     "GRID_COLUMNS": 12,
     "CONTAINER_WIDTH": 1200,
-    "FILE_TYPES": ["WEBP"],
+    "FILE_TYPES": ["AVIF"],
     "PIXEL_DENSITIES": [1, 2],
     "USE_PLACEHOLDERS": True,
     "QUEUE_NAME": "pictures",
@@ -199,12 +199,6 @@ Baseline 2024 and is supported by all major browsers. Additionally, most modern
 devices will have hardware acceleration for AVIF decoding. This will not only
 reduce network IO but speed up page rendering.
 
-> [!NOTE]
-> Pillow 11.2.1 shipped without AVIF binaries.
-> You will need to [install Pillow from source][libavif-install] for AVIF support.
-> This should be resolved in upcoming releases, once
-> [#8858](https://github.com/python-pillow/Pillow/pull/8858) has been merged.
-
 Should you still serve IE11, use add `JPEG` to the list. But, beware, this may
 drastically increase your storage needs.
 
@@ -256,7 +250,7 @@ from rest_framework import serializers
 from pictures.contrib.rest_framework import PictureField
 
 class PictureSerializer(serializers.Serializer):
-    picture = PictureField(aspect_ratios=["16/9"], file_types=["WEBP"])
+    picture = PictureField(aspect_ratios=["16/9"], file_types=["AVIF"])
 ```
 
 You also may provide optional GET parameters to the serializer
