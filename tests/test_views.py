@@ -5,15 +5,15 @@ from pictures.views import placeholder
 
 
 def test_placeholder(rf):
-    response = placeholder(rf.get("/"), 400, "4x3", "webp", "amazing_img")
+    response = placeholder(rf.get("/"), 400, "4x3", "avif", "amazing_img")
     assert response.status_code == 200
-    assert response["Content-Type"] == "image/webp"
+    assert response["Content-Type"] == "image/avif"
     assert response["Cache-Control"] == "public, max-age=31536000"
 
 
 def test_placeholder__invalid_ratio(rf):
     with pytest.raises(Http404):
-        placeholder(rf.get("/"), 400, "not-a-fraction", "webp", "amazing_img")
+        placeholder(rf.get("/"), 400, "not-a-fraction", "avif", "amazing_img")
 
 
 def test_placeholder__invalid_file_type(rf):

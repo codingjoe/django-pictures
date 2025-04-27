@@ -27,7 +27,7 @@ def override_field_aspect_ratios(field, aspect_ratios):
 class TestPillowPicture:
     picture_with_ratio = PillowPicture(
         parent_name="testapp/simplemodel/image.png",
-        file_type="WEBP",
+        file_type="AVIF",
         aspect_ratio=Fraction("4/3"),
         storage=default_storage,
         width=800,
@@ -35,7 +35,7 @@ class TestPillowPicture:
 
     picture_without_ratio = PillowPicture(
         parent_name="testapp/simplemodel/image.png",
-        file_type="WEBP",
+        file_type="AVIF",
         aspect_ratio=None,
         storage=default_storage,
         width=800,
@@ -54,12 +54,12 @@ class TestPillowPicture:
         settings.PICTURES["USE_PLACEHOLDERS"] = False
         assert (
             self.picture_with_ratio.url
-            == "/media/testapp/simplemodel/image/4_3/800w.webp"
+            == "/media/testapp/simplemodel/image/4_3/800w.avif"
         )
 
     def test_url__placeholder(self, settings):
         settings.PICTURES["USE_PLACEHOLDERS"] = True
-        assert self.picture_with_ratio.url == "/_pictures/image/4x3/800w.WEBP"
+        assert self.picture_with_ratio.url == "/_pictures/image/4x3/800w.AVIF"
 
     def test_height(self):
         assert self.picture_with_ratio.height == 600
@@ -67,10 +67,10 @@ class TestPillowPicture:
 
     def test_name(self):
         assert Path(self.picture_without_ratio.name) == Path(
-            "testapp/simplemodel/image/800w.webp"
+            "testapp/simplemodel/image/800w.avif"
         )
         assert Path(self.picture_with_ratio.name) == Path(
-            "testapp/simplemodel/image/4_3/800w.webp"
+            "testapp/simplemodel/image/4_3/800w.avif"
         )
 
     def test_path(self):
@@ -92,7 +92,7 @@ class TestPillowPicture:
         image = Image.new("RGB", (800, 800), (255, 55, 255))
         assert PillowPicture(
             parent_name="testapp/simplemodel/image.png",
-            file_type="WEBP",
+            file_type="AVIF",
             aspect_ratio=None,
             storage=default_storage,
             width=100,
@@ -102,7 +102,7 @@ class TestPillowPicture:
 
         assert PillowPicture(
             parent_name="testapp/simplemodel/image.png",
-            file_type="WEBP",
+            file_type="AVIF",
             aspect_ratio="4/3",
             storage=default_storage,
             width=400,
@@ -124,168 +124,168 @@ class TestPictureFieldFile:
             {
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=300,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=600,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=500,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=500,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=300,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=700,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=800,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=200,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=300,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=700,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=100,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=400,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=800,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=100,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=700,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=200,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=600,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=500,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=800,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=200,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=100,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=400,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=600,
                 ),
                 PillowPicture(
                     parent_name="testapp/simplemodel/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=400,
@@ -294,224 +294,224 @@ class TestPictureFieldFile:
             {
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=600,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=300,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=800,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=500,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=700,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=100,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=500,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=700,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=800,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=200,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=100,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=600,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=100,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=700,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=800,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=200,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=500,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=800,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=300,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=300,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=600,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=700,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=400,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=400,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=400,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=200,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=300,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=600,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(3, 2),
                     storage=default_storage,
                     width=100,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(16, 9),
                     storage=default_storage,
                     width=200,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=None,
                     storage=default_storage,
                     width=400,
                 ),
                 PillowPicture(
                     parent_name="testapp/profile/image.png",
-                    file_type="WEBP",
+                    file_type="AVIF",
                     aspect_ratio=Fraction(1, 1),
                     storage=default_storage,
                     width=500,
@@ -526,7 +526,7 @@ class TestPictureFieldFile:
         stub_worker.join()
 
         assert default_storage.exists(obj.picture.name)
-        assert obj.picture.aspect_ratios["16/9"]["WEBP"][100].path.exists()
+        assert obj.picture.aspect_ratios["16/9"]["AVIF"][100].path.exists()
 
     @pytest.mark.django_db
     def test_save_JPEG_RGA(self, stub_worker, image_upload_file):
@@ -554,13 +554,13 @@ class TestPictureFieldFile:
         stub_worker.join()
 
         assert default_storage.exists(obj.picture.name)
-        assert obj.picture.aspect_ratios["16/9"]["WEBP"][100].path.exists()
+        assert obj.picture.aspect_ratios["16/9"]["AVIF"][100].path.exists()
         with Image.open(
-            obj.picture.aspect_ratios["16/9"]["WEBP"][100].path
+            obj.picture.aspect_ratios["16/9"]["AVIF"][100].path
         ) as img_small:
             assert img_small.size == (100, 56)
             pixels = img_small.load()
-            assert pixels[0, 0] == (2, 0, 255)  # blue is on the top, always blue!
+            assert pixels[0, 0][1] == 0  # blue is on the top, always blue!
 
     @pytest.mark.django_db
     def test_save__is_blank(self, monkeypatch):
@@ -577,7 +577,7 @@ class TestPictureFieldFile:
         stub_worker.join()
 
         name = obj.picture.name
-        path = obj.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        path = obj.picture.aspect_ratios["16/9"]["AVIF"][100].path
         assert default_storage.exists(name)
         assert path.exists()
 
@@ -593,7 +593,7 @@ class TestPictureFieldFile:
         stub_worker.join()
 
         name = obj.picture.name
-        path = obj.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        path = obj.picture.aspect_ratios["16/9"]["AVIF"][100].path
         assert default_storage.exists(name)
         assert path.exists()
 
@@ -602,7 +602,7 @@ class TestPictureFieldFile:
             obj.picture.update_all(old)
             stub_worker.join()
             assert default_storage.exists(name)
-            assert obj.picture.aspect_ratios["1/1"]["WEBP"][100].path.exists()
+            assert obj.picture.aspect_ratios["1/1"]["AVIF"][100].path.exists()
             assert not path.exists()
 
     @pytest.mark.django_db
@@ -639,59 +639,59 @@ class TestPictureField:
         obj = SimpleModel.objects.create(picture=image_upload_file)
         assert obj.picture.aspect_ratios == {
             None: {
-                "WEBP": {
+                "AVIF": {
                     800: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=800,
                     ),
                     100: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=100,
                     ),
                     200: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=200,
                     ),
                     300: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=300,
                     ),
                     400: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=400,
                     ),
                     500: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=500,
                     ),
                     600: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=600,
                     ),
                     700: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=None,
                         storage=default_storage,
                         width=700,
@@ -699,59 +699,59 @@ class TestPictureField:
                 }
             },
             "3/2": {
-                "WEBP": {
+                "AVIF": {
                     800: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=800,
                     ),
                     100: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=100,
                     ),
                     200: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=200,
                     ),
                     300: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=300,
                     ),
                     400: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=400,
                     ),
                     500: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=500,
                     ),
                     600: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=600,
                     ),
                     700: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(3, 2),
                         storage=default_storage,
                         width=700,
@@ -759,59 +759,59 @@ class TestPictureField:
                 }
             },
             "16/9": {
-                "WEBP": {
+                "AVIF": {
                     800: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=800,
                     ),
                     100: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=100,
                     ),
                     200: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=200,
                     ),
                     300: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=300,
                     ),
                     400: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=400,
                     ),
                     500: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=500,
                     ),
                     600: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=600,
                     ),
                     700: PillowPicture(
                         parent_name="testapp/simplemodel/image.png",
-                        file_type="WEBP",
+                        file_type="AVIF",
                         aspect_ratio=Fraction(16, 9),
                         storage=default_storage,
                         width=700,

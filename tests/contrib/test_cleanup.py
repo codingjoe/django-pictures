@@ -19,7 +19,7 @@ class TestCleanCase:
         stub_worker.join()
 
         name = obj.picture.name
-        path = obj.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        path = obj.picture.aspect_ratios["16/9"]["AVIF"][100].path
         assert default_storage.exists(name)
         assert path.exists()
         with transaction.atomic(get_using(obj)):

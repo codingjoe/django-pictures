@@ -13,7 +13,7 @@ rest_framework = pytest.importorskip("pictures.contrib.rest_framework")
 class ProfileSerializer(serializers.ModelSerializer):
     image = rest_framework.PictureField(source="picture")
     image_mobile = rest_framework.PictureField(
-        source="picture", aspect_ratios=["3/2"], file_types=["WEBP"]
+        source="picture", aspect_ratios=["3/2"], file_types=["AVIF"]
     )
 
     class Meta:
@@ -74,60 +74,60 @@ class TestPictureField:
             "ratios": {
                 "null": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/800w.webp",
-                            "100": "/media/testapp/profile/image/100w.webp",
-                            "200": "/media/testapp/profile/image/200w.webp",
-                            "300": "/media/testapp/profile/image/300w.webp",
-                            "400": "/media/testapp/profile/image/400w.webp",
-                            "500": "/media/testapp/profile/image/500w.webp",
-                            "600": "/media/testapp/profile/image/600w.webp",
-                            "700": "/media/testapp/profile/image/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/800w.avif",
+                            "100": "/media/testapp/profile/image/100w.avif",
+                            "200": "/media/testapp/profile/image/200w.avif",
+                            "300": "/media/testapp/profile/image/300w.avif",
+                            "400": "/media/testapp/profile/image/400w.avif",
+                            "500": "/media/testapp/profile/image/500w.avif",
+                            "600": "/media/testapp/profile/image/600w.avif",
+                            "700": "/media/testapp/profile/image/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 },
                 "1/1": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/1/800w.webp",
-                            "100": "/media/testapp/profile/image/1/100w.webp",
-                            "200": "/media/testapp/profile/image/1/200w.webp",
-                            "300": "/media/testapp/profile/image/1/300w.webp",
-                            "400": "/media/testapp/profile/image/1/400w.webp",
-                            "500": "/media/testapp/profile/image/1/500w.webp",
-                            "600": "/media/testapp/profile/image/1/600w.webp",
-                            "700": "/media/testapp/profile/image/1/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/1/800w.avif",
+                            "100": "/media/testapp/profile/image/1/100w.avif",
+                            "200": "/media/testapp/profile/image/1/200w.avif",
+                            "300": "/media/testapp/profile/image/1/300w.avif",
+                            "400": "/media/testapp/profile/image/1/400w.avif",
+                            "500": "/media/testapp/profile/image/1/500w.avif",
+                            "600": "/media/testapp/profile/image/1/600w.avif",
+                            "700": "/media/testapp/profile/image/1/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 },
                 "3/2": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/3_2/800w.webp",
-                            "100": "/media/testapp/profile/image/3_2/100w.webp",
-                            "200": "/media/testapp/profile/image/3_2/200w.webp",
-                            "300": "/media/testapp/profile/image/3_2/300w.webp",
-                            "400": "/media/testapp/profile/image/3_2/400w.webp",
-                            "500": "/media/testapp/profile/image/3_2/500w.webp",
-                            "600": "/media/testapp/profile/image/3_2/600w.webp",
-                            "700": "/media/testapp/profile/image/3_2/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/3_2/800w.avif",
+                            "100": "/media/testapp/profile/image/3_2/100w.avif",
+                            "200": "/media/testapp/profile/image/3_2/200w.avif",
+                            "300": "/media/testapp/profile/image/3_2/300w.avif",
+                            "400": "/media/testapp/profile/image/3_2/400w.avif",
+                            "500": "/media/testapp/profile/image/3_2/500w.avif",
+                            "600": "/media/testapp/profile/image/3_2/600w.avif",
+                            "700": "/media/testapp/profile/image/3_2/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 },
                 "16/9": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/16_9/800w.webp",
-                            "100": "/media/testapp/profile/image/16_9/100w.webp",
-                            "200": "/media/testapp/profile/image/16_9/200w.webp",
-                            "300": "/media/testapp/profile/image/16_9/300w.webp",
-                            "400": "/media/testapp/profile/image/16_9/400w.webp",
-                            "500": "/media/testapp/profile/image/16_9/500w.webp",
-                            "600": "/media/testapp/profile/image/16_9/600w.webp",
-                            "700": "/media/testapp/profile/image/16_9/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/16_9/800w.avif",
+                            "100": "/media/testapp/profile/image/16_9/100w.avif",
+                            "200": "/media/testapp/profile/image/16_9/200w.avif",
+                            "300": "/media/testapp/profile/image/16_9/300w.avif",
+                            "400": "/media/testapp/profile/image/16_9/400w.avif",
+                            "500": "/media/testapp/profile/image/16_9/500w.avif",
+                            "600": "/media/testapp/profile/image/16_9/600w.avif",
+                            "700": "/media/testapp/profile/image/16_9/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
@@ -156,15 +156,15 @@ class TestPictureField:
             "ratios": {
                 "1/1": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/1/800w.webp",
-                            "100": "/media/testapp/profile/image/1/100w.webp",
-                            "200": "/media/testapp/profile/image/1/200w.webp",
-                            "300": "/media/testapp/profile/image/1/300w.webp",
-                            "400": "/media/testapp/profile/image/1/400w.webp",
-                            "500": "/media/testapp/profile/image/1/500w.webp",
-                            "600": "/media/testapp/profile/image/1/600w.webp",
-                            "700": "/media/testapp/profile/image/1/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/1/800w.avif",
+                            "100": "/media/testapp/profile/image/1/100w.avif",
+                            "200": "/media/testapp/profile/image/1/200w.avif",
+                            "300": "/media/testapp/profile/image/1/300w.avif",
+                            "400": "/media/testapp/profile/image/1/400w.avif",
+                            "500": "/media/testapp/profile/image/1/500w.avif",
+                            "600": "/media/testapp/profile/image/1/600w.avif",
+                            "700": "/media/testapp/profile/image/1/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 25vw, 400px",
@@ -221,15 +221,15 @@ class TestPictureField:
             "ratios": {
                 "3/2": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/3_2/800w.webp",
-                            "100": "/media/testapp/profile/image/3_2/100w.webp",
-                            "200": "/media/testapp/profile/image/3_2/200w.webp",
-                            "300": "/media/testapp/profile/image/3_2/300w.webp",
-                            "400": "/media/testapp/profile/image/3_2/400w.webp",
-                            "500": "/media/testapp/profile/image/3_2/500w.webp",
-                            "600": "/media/testapp/profile/image/3_2/600w.webp",
-                            "700": "/media/testapp/profile/image/3_2/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/3_2/800w.avif",
+                            "100": "/media/testapp/profile/image/3_2/100w.avif",
+                            "200": "/media/testapp/profile/image/3_2/200w.avif",
+                            "300": "/media/testapp/profile/image/3_2/300w.avif",
+                            "400": "/media/testapp/profile/image/3_2/400w.avif",
+                            "500": "/media/testapp/profile/image/3_2/500w.avif",
+                            "600": "/media/testapp/profile/image/3_2/600w.avif",
+                            "700": "/media/testapp/profile/image/3_2/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
@@ -254,30 +254,30 @@ class TestPictureField:
             "ratios": {
                 "3/2": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/3_2/800w.webp",
-                            "100": "/media/testapp/profile/image/3_2/100w.webp",
-                            "200": "/media/testapp/profile/image/3_2/200w.webp",
-                            "300": "/media/testapp/profile/image/3_2/300w.webp",
-                            "400": "/media/testapp/profile/image/3_2/400w.webp",
-                            "500": "/media/testapp/profile/image/3_2/500w.webp",
-                            "600": "/media/testapp/profile/image/3_2/600w.webp",
-                            "700": "/media/testapp/profile/image/3_2/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/3_2/800w.avif",
+                            "100": "/media/testapp/profile/image/3_2/100w.avif",
+                            "200": "/media/testapp/profile/image/3_2/200w.avif",
+                            "300": "/media/testapp/profile/image/3_2/300w.avif",
+                            "400": "/media/testapp/profile/image/3_2/400w.avif",
+                            "500": "/media/testapp/profile/image/3_2/500w.avif",
+                            "600": "/media/testapp/profile/image/3_2/600w.avif",
+                            "700": "/media/testapp/profile/image/3_2/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
                 },
                 "16/9": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/16_9/800w.webp",
-                            "100": "/media/testapp/profile/image/16_9/100w.webp",
-                            "200": "/media/testapp/profile/image/16_9/200w.webp",
-                            "300": "/media/testapp/profile/image/16_9/300w.webp",
-                            "400": "/media/testapp/profile/image/16_9/400w.webp",
-                            "500": "/media/testapp/profile/image/16_9/500w.webp",
-                            "600": "/media/testapp/profile/image/16_9/600w.webp",
-                            "700": "/media/testapp/profile/image/16_9/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/16_9/800w.avif",
+                            "100": "/media/testapp/profile/image/16_9/100w.avif",
+                            "200": "/media/testapp/profile/image/16_9/200w.avif",
+                            "300": "/media/testapp/profile/image/16_9/300w.avif",
+                            "400": "/media/testapp/profile/image/16_9/400w.avif",
+                            "500": "/media/testapp/profile/image/16_9/500w.avif",
+                            "600": "/media/testapp/profile/image/16_9/600w.avif",
+                            "700": "/media/testapp/profile/image/16_9/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
@@ -302,15 +302,15 @@ class TestPictureField:
             "ratios": {
                 "16/9": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/16_9/800w.webp",
-                            "100": "/media/testapp/profile/image/16_9/100w.webp",
-                            "200": "/media/testapp/profile/image/16_9/200w.webp",
-                            "300": "/media/testapp/profile/image/16_9/300w.webp",
-                            "400": "/media/testapp/profile/image/16_9/400w.webp",
-                            "500": "/media/testapp/profile/image/16_9/500w.webp",
-                            "600": "/media/testapp/profile/image/16_9/600w.webp",
-                            "700": "/media/testapp/profile/image/16_9/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/16_9/800w.avif",
+                            "100": "/media/testapp/profile/image/16_9/100w.avif",
+                            "200": "/media/testapp/profile/image/16_9/200w.avif",
+                            "300": "/media/testapp/profile/image/16_9/300w.avif",
+                            "400": "/media/testapp/profile/image/16_9/400w.avif",
+                            "500": "/media/testapp/profile/image/16_9/500w.avif",
+                            "600": "/media/testapp/profile/image/16_9/600w.avif",
+                            "700": "/media/testapp/profile/image/16_9/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
@@ -336,15 +336,15 @@ class TestPictureField:
             "ratios": {
                 "16/9": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/16_9/800w.webp",
-                            "100": "/media/testapp/profile/image/16_9/100w.webp",
-                            "200": "/media/testapp/profile/image/16_9/200w.webp",
-                            "300": "/media/testapp/profile/image/16_9/300w.webp",
-                            "400": "/media/testapp/profile/image/16_9/400w.webp",
-                            "500": "/media/testapp/profile/image/16_9/500w.webp",
-                            "600": "/media/testapp/profile/image/16_9/600w.webp",
-                            "700": "/media/testapp/profile/image/16_9/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/16_9/800w.avif",
+                            "100": "/media/testapp/profile/image/16_9/100w.avif",
+                            "200": "/media/testapp/profile/image/16_9/200w.avif",
+                            "300": "/media/testapp/profile/image/16_9/300w.avif",
+                            "400": "/media/testapp/profile/image/16_9/400w.avif",
+                            "500": "/media/testapp/profile/image/16_9/500w.avif",
+                            "600": "/media/testapp/profile/image/16_9/600w.avif",
+                            "700": "/media/testapp/profile/image/16_9/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
@@ -384,15 +384,15 @@ class TestPictureField:
             "ratios": {
                 "3/2": {
                     "sources": {
-                        "image/webp": {
-                            "800": "/media/testapp/profile/image/3_2/800w.webp",
-                            "100": "/media/testapp/profile/image/3_2/100w.webp",
-                            "200": "/media/testapp/profile/image/3_2/200w.webp",
-                            "300": "/media/testapp/profile/image/3_2/300w.webp",
-                            "400": "/media/testapp/profile/image/3_2/400w.webp",
-                            "500": "/media/testapp/profile/image/3_2/500w.webp",
-                            "600": "/media/testapp/profile/image/3_2/600w.webp",
-                            "700": "/media/testapp/profile/image/3_2/700w.webp",
+                        "image/avif": {
+                            "800": "/media/testapp/profile/image/3_2/800w.avif",
+                            "100": "/media/testapp/profile/image/3_2/100w.avif",
+                            "200": "/media/testapp/profile/image/3_2/200w.avif",
+                            "300": "/media/testapp/profile/image/3_2/300w.avif",
+                            "400": "/media/testapp/profile/image/3_2/400w.avif",
+                            "500": "/media/testapp/profile/image/3_2/500w.avif",
+                            "600": "/media/testapp/profile/image/3_2/600w.avif",
+                            "700": "/media/testapp/profile/image/3_2/700w.avif",
                         }
                     },
                     "media": "(min-width: 0px) and (max-width: 1199px) 100vw, 1200px",
