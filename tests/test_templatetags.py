@@ -12,6 +12,15 @@ picture_html = b"""
 </picture>
 """
 
+picture_html_large = b"""
+<picture>
+  <source type="image/webp"
+          srcset="/media/testapp/profile/image/800w.webp 800w, /media/testapp/profile/image/100w.webp 100w, /media/testapp/profile/image/900w.webp 900w, /media/testapp/profile/image/200w.webp 200w, /media/testapp/profile/image/1000w.webp 1000w, /media/testapp/profile/image/300w.webp 300w, /media/testapp/profile/image/400w.webp 400w, /media/testapp/profile/image/500w.webp 500w, /media/testapp/profile/image/600w.webp 600w, /media/testapp/profile/image/700w.webp 700w"
+          sizes="(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 600px">
+  <img src="/media/testapp/profile/image.png" alt="Spiderman" width="1000" height="1000">
+</picture>
+"""
+
 picture_with_placeholders_html = b"""
 <picture>
   <source type="image/webp"
@@ -29,6 +38,17 @@ def test_picture(client, image_upload_file, settings):
     response = client.get(profile.get_absolute_url())
     assert response.status_code == 200
     assert picture_html in response.content
+
+
+@pytest.mark.django_db
+def test_picture__large(client, large_image_upload_file, settings):
+    settings.PICTURES["USE_PLACEHOLDERS"] = False
+    # ensure that USE_THOUSAND_SEPARATOR doesn't break srcset with widths greater than 1000px
+    settings.USE_THOUSAND_SEPARATOR = True
+    profile = Profile.objects.create(name="Spiderman", picture=large_image_upload_file)
+    response = client.get(profile.get_absolute_url())
+    assert response.status_code == 200
+    assert picture_html_large in response.content
 
 
 @pytest.mark.django_db
