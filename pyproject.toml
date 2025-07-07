@@ -23,18 +23,18 @@ classifiers = [
   "Topic :: Software Development",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Framework :: Django",
-  "Framework :: Django :: 3.2",
-  "Framework :: Django :: 4.1",
   "Framework :: Django :: 4.2",
+  "Framework :: Django :: 5.1",
+  "Framework :: Django :: 5.2",
 ]
-requires-python = ">=3.8"
-dependencies = ["django>=3.2.0", "pillow>=9.0.0"]
+requires-python = ">=3.9"
+dependencies = ["django>=4.2.0", "pillow>=11.3.0"]
 
 [project.optional-dependencies]
 test = [
@@ -44,10 +44,10 @@ test = [
   "redis",
 ]
 lint = [
-  "bandit==1.8.2",
+  "bandit==1.8.5",
   "black==25.1.0",
-  "flake8==7.1.1",
-  "isort==6.0.0",
+  "flake8==7.3.0",
+  "isort==6.0.1",
   "pydocstyle[toml]==6.3.0",
 ]
 dramatiq = [
@@ -98,6 +98,7 @@ known_first_party = "pictures, tests"
 include_trailing_comma = true
 default_section = "THIRDPARTY"
 combine_as_imports = true
+skip = ["pictures/_version.py"]
 
 [tool.pydocstyle]
 add_ignore = "D1"

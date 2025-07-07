@@ -1,6 +1,6 @@
 <picture{% include 'pictures/attrs.html' with attrs=picture_attrs %}>{% for type, srcset in sources.items %}
   <source type="image/{{ type|lower }}"
-          srcset="{% for width, pic in srcset.items %}{% if use_placeholders %}{% url 'pictures:placeholder' alt|urlencode:'' ratio width type %}{% else %}{{ pic.url }}{% endif %} {{ width }}w{% if not forloop.last %}, {% endif %}{% endfor %}"
+          srcset="{% for width, pic in srcset.items %}{% if use_placeholders %}{% url 'pictures:placeholder' alt|urlencode:'' ratio width type %}{% else %}{{ pic.url }}{% endif %} {{ width|stringformat:'i' }}w{% if not forloop.last %}, {% endif %}{% endfor %}"
           sizes="{{ media }}">{% endfor %}
   <img{% include 'pictures/attrs.html' with attrs=img_attrs %}>
 </picture>

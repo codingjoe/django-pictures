@@ -133,7 +133,7 @@ class TestAlterPictureField:
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         from_field = Profile._meta.get_field("picture")
 
-        path = luke.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        path = luke.picture.aspect_ratios["16/9"]["AVIF"][100].path
         assert path.exists()
 
         migration.update_pictures(from_field, ToModel)
@@ -143,7 +143,7 @@ class TestAlterPictureField:
         luke.refresh_from_db()
         path = (
             ToModel.objects.get(pk=luke.pk)
-            .picture.aspect_ratios["21/9"]["WEBP"][100]
+            .picture.aspect_ratios["21/9"]["AVIF"][100]
             .path
         )
         assert path.exists()
@@ -175,7 +175,7 @@ class TestAlterPictureField:
     def test_from_picture_field(self, stub_worker, image_upload_file):
         luke = Profile.objects.create(name="Luke", picture=image_upload_file)
         stub_worker.join()
-        path = luke.picture.aspect_ratios["16/9"]["WEBP"][100].path
+        path = luke.picture.aspect_ratios["16/9"]["AVIF"][100].path
         assert path.exists()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         migration.from_picture_field(Profile)
@@ -207,7 +207,7 @@ class TestAlterPictureField:
         luke.refresh_from_db()
         path = (
             Profile.objects.get(pk=luke.pk)
-            .picture.aspect_ratios["16/9"]["WEBP"][100]
+            .picture.aspect_ratios["16/9"]["AVIF"][100]
             .path
         )
         assert path.exists()
@@ -267,7 +267,7 @@ class TestAlterPictureField:
         luke.refresh_from_db()
         path = (
             Profile.objects.get(pk=luke.pk)
-            .picture.aspect_ratios["16/9"]["WEBP"][100]
+            .picture.aspect_ratios["16/9"]["AVIF"][100]
             .path
         )
         assert path.exists()
