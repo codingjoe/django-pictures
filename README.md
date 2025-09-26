@@ -219,6 +219,26 @@ The default processor is `pictures.tasks.process_picture`. It takes a single
 argument, the `PictureFileFile` instance. You can use this to override the
 processor, should you need to do some custom processing.
 
+### Validators
+
+The library includes built-in validators to control image dimensions:
+
+```python
+from pictures.models import PictureField
+from pictures.validators import MaxSizeValidator, MinSizeValidator
+
+class Profile(models.Model):
+    picture = PictureField(
+        upload_to="avatars",
+        validators=[
+            MinSizeValidator(400, 300),    # At least 400x300 pixels
+            MaxSizeValidator(4096, 4096),  # At most 4096x4096 pixels
+        ]
+    )
+```
+
+Use `None` to limit only one dimension: `MaxSizeValidator(2048, None)` limits only width.
+
 ## Migrations
 
 Django doesn't support file field migrations, but we do.
