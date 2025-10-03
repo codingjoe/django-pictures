@@ -221,7 +221,7 @@ processor, should you need to do some custom processing.
 
 ### Validators
 
-The library ships with validators to restraint image dimensions:
+The library ships with validators to restrain image dimensions:
 
 ```python
 from django.db import models
