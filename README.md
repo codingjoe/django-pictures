@@ -239,6 +239,7 @@ class Profile(models.Model):
     )
 
 Use `None` to limit only one dimension: `MaxSizeValidator(2048, None)` limits only width.
+```
 
 > [!IMPORTANT]
 > These validators check image dimensions, not file size. Consider implementing HTTP request body size restrictions (e.g., in your web server or Django middleware) to prevent large file uploads.
