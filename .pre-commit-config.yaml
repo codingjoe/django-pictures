@@ -14,32 +14,30 @@ repos:
       - id: no-commit-to-branch
         args: [--branch, main]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.29.0
+    rev: 1.29.1
     hooks:
       - id: django-upgrade
   - repo: https://github.com/hukkin/mdformat
-    rev: 0.7.22
+    rev: 1.0.0
     hooks:
       - id: mdformat
         additional_dependencies:
           - mdformat-ruff
-          - mdformat-deflist
           - mdformat-footnote
           - mdformat-gfm
           - mdformat-gfm-alerts
-          - mdformat-tables
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.3
+    rev: v0.14.3
     hooks:
       - id: ruff-check
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
   - repo: https://github.com/google/yamlfmt
-    rev: v0.19.0
+    rev: v0.20.0
     hooks:
       - id: yamlfmt
 ci:
