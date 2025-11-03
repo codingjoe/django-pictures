@@ -27,11 +27,9 @@ repos:
       - id: mdformat
         additional_dependencies:
           - mdformat-ruff
-          - mdformat-deflist
           - mdformat-footnote
           - mdformat-gfm
           - mdformat-gfm-alerts
-          - mdformat-tables
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.3
     hooks:
