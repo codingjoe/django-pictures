@@ -6,7 +6,6 @@ import pictures.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("testapp", "0005_alter_profile_picture"),
     ]

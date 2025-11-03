@@ -112,7 +112,6 @@ class TestPillowPicture:
 
 
 class TestPictureFieldFile:
-
     @pytest.mark.django_db
     def test_symmetric_difference(self, image_upload_file):
         obj = SimpleModel.objects.create(picture=image_upload_file)

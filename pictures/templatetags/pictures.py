@@ -38,18 +38,16 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
             img_attrs[key[4:]] = value
         else:
             raise TypeError(f"Invalid keyword argument: {key}")
-    return tmpl.render(
-        {
-            "field_file": field_file,
-            "alt": img_alt,
-            "ratio": (ratio or "3/2").replace("/", "x"),
-            "sources": sources,
-            "media": utils.sizes(field=field, container_width=container, **breakpoints),
-            "picture_attrs": picture_attrs,
-            "img_attrs": img_attrs,
-            "use_placeholders": settings.USE_PLACEHOLDERS,
-        }
-    )
+    return tmpl.render({
+        "field_file": field_file,
+        "alt": img_alt,
+        "ratio": (ratio or "3/2").replace("/", "x"),
+        "sources": sources,
+        "media": utils.sizes(field=field, container_width=container, **breakpoints),
+        "picture_attrs": picture_attrs,
+        "img_attrs": img_attrs,
+        "use_placeholders": settings.USE_PLACEHOLDERS,
+    })
 
 
 @register.simple_tag()
