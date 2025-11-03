@@ -1,33 +1,10 @@
 name: CI
-
 on:
   push:
     branches:
       - main
   pull_request:
-
 jobs:
-
-  lint:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        lint-command:
-          - bandit -r . -x ./tests
-          - black --check --diff .
-          - flake8 .
-          - isort --check-only --diff .
-          - pydocstyle .
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-          cache: 'pip'
-          cache-dependency-path: 'pyproject.toml'
-      - run: python -m pip install -e .[lint]
-      - run: ${{ matrix.lint-command }}
-
   dist:
     runs-on: ubuntu-latest
     steps:
@@ -43,11 +20,8 @@ jobs:
       - uses: actions/upload-artifact@v5
         with:
           path: dist/*
-
   pytest-os:
     name: PyTest
-    needs:
-      - lint
     strategy:
       matrix:
         os:
@@ -67,11 +41,8 @@ jobs:
         with:
           flags: ${{ matrix.os }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
   pytest-python:
     name: PyTest
-    needs:
-      - lint
     strategy:
       matrix:
         python-version:
@@ -80,7 +51,7 @@ jobs:
           - "3.12"
           - "3.13"
         django-version:
-          - "4.2"  # LTS
+          - "4.2" # LTS
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -95,11 +66,8 @@ jobs:
         with:
           flags: py${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
   pytest-django:
     name: PyTest
-    needs:
-      - lint
     strategy:
       matrix:
         python-version:
@@ -122,11 +90,8 @@ jobs:
         with:
           flags: dj${{ matrix.django-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
   pytest-extras:
     name: PyTest
-    needs:
-      - lint
     strategy:
       matrix:
         extras:
@@ -151,10 +116,9 @@ jobs:
         with:
           flags: ${{ matrix.extras }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
   codeql:
     name: CodeQL
-    needs: [ dist, pytest-os, pytest-python, pytest-django, pytest-extras ]
+    needs: [dist, pytest-os, pytest-python, pytest-django, pytest-extras]
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -163,7 +127,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ python ]
+        language: [python]
     steps:
       - name: Checkout
         uses: actions/checkout@v5

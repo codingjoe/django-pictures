@@ -43,13 +43,6 @@ test = [
   "pytest-django",
   "redis",
 ]
-lint = [
-  "bandit==1.8.6",
-  "black==25.9.0",
-  "flake8==7.3.0",
-  "isort==6.1.0",
-  "pydocstyle[toml]==6.3.0",
-]
 dramatiq = [
   "django-dramatiq",
 ]
@@ -102,3 +95,49 @@ skip = ["pictures/_version.py"]
 
 [tool.pydocstyle]
 add_ignore = "D1"
+
+[tool.ruff]
+src = ["flit_gettext", "tests"]
+line-length = 88
+indent-width = 4
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+preview = true
+
+[tool.ruff.lint]
+select = [
+    "D", # pydocstyle
+    "EXE", # flake8-executable
+    "F", # pyflakes
+    "I", # isort
+    "PT", # flake8-pytest-style
+    "RET", # flake8-return
+    "S", # flake8-bandit
+    "SIM", # flake8-simplify
+    "UP", # pyupgrade
+    "W", # pycodestyle warnings
+]
+
+ignore = ["D1"]
+
+[tool.ruff.lint.per-file-ignores]
+"*/test*.py" = ["S101", "E501", "PT011"]
+"*/migrations/*.py" = ["E501"]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+split-on-trailing-comma = true
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+force-wrap-aliases = true
+known-first-party = ["pictures", "tests"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
