@@ -13,7 +13,6 @@ def noop(*args, **kwargs) -> None:
 
 
 class PictureProcessor(Protocol):
-
     def __call__(
         self,
         storage: tuple[str, list, dict],
@@ -33,11 +32,10 @@ def _process_picture(
     old = old or []
     storage = utils.reconstruct(*storage)
     if new:
-        with storage.open(file_name) as fs:
-            with Image.open(fs) as img:
-                for picture in new:
-                    picture = utils.reconstruct(*picture)
-                    picture.save(img)
+        with storage.open(file_name) as fs, Image.open(fs) as img:
+            for picture in new:
+                picture = utils.reconstruct(*picture)
+                picture.save(img)
 
     for picture in old:
         picture = utils.reconstruct(*picture)

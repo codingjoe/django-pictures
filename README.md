@@ -30,6 +30,7 @@ and are ready to adopt in your project :)
 from django.db import models
 from pictures.models import PictureField
 
+
 class Profile(models.Model):
     title = models.CharField(max_length=255)
     picture = PictureField(upload_to="avatars")
@@ -77,7 +78,7 @@ python3 -m pip install django-pictures
 # settings.py
 INSTALLED_APPS = [
     # ...
-    'pictures',
+    "pictures",
 ]
 
 # the following are defaults, but you can override them
@@ -96,7 +97,6 @@ PICTURES = {
     "USE_PLACEHOLDERS": True,
     "QUEUE_NAME": "pictures",
     "PROCESSOR": "pictures.tasks.process_picture",
-
 }
 ```
 
@@ -155,8 +155,8 @@ from pictures.models import PictureField
 class Profile(models.Model):
     title = models.CharField(max_length=255)
     picture = PictureField(
-      upload_to="avatars",
-      aspect_ratios=[None, "1/1", "3/2", "16/9"],
+        upload_to="avatars",
+        aspect_ratios=[None, "1/1", "3/2", "16/9"],
     )
 ```
 
@@ -263,6 +263,7 @@ available picture sizes in a DRF serializer.
 from rest_framework import serializers
 from pictures.contrib.rest_framework import PictureField
 
+
 class PictureSerializer(serializers.Serializer):
     picture = PictureField()
 ```
@@ -273,6 +274,7 @@ providing the `aspect_ratios` and `file_types` arguments to the DRF field.
 ```python
 from rest_framework import serializers
 from pictures.contrib.rest_framework import PictureField
+
 
 class PictureSerializer(serializers.Serializer):
     picture = PictureField(aspect_ratios=["16/9"], file_types=["AVIF"])
@@ -366,5 +368,4 @@ class MyPicture(Picture):
 [django-rq]: https://github.com/rq/django-rq
 [dramatiq]: https://dramatiq.io/
 [drf]: https://www.django-rest-framework.org/
-[libavif-install]: https://pillow.readthedocs.io/en/latest/installation/building-from-source.html#external-libraries
 [migration]: tests/testapp/migrations/0002_alter_profile_picture.py

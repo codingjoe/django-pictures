@@ -7,7 +7,6 @@ from pictures import checks
 
 def test_placeholder_url_check(settings, monkeypatch):
     """Test that the placeholder URL check works."""
-
     settings.PICTURES["USE_PLACEHOLDERS"] = True
     assert not checks.placeholder_url_check({})
 
