@@ -51,7 +51,9 @@ except ImportError:
     pass
 else:
 
-    @dramatiq.actor(queue_name=conf.get_settings().QUEUE_NAME)
+    @dramatiq.actor(
+        queue_name=conf.get_settings().QUEUE_NAME, throws=(FileNotFoundError,)
+    )
     def process_picture_with_dramatiq(
         storage: tuple[str, list, dict],
         file_name: str,
@@ -85,6 +87,7 @@ else:
     @shared_task(
         ignore_results=True,
         retry_backoff=True,
+        dont_autoretry_for=(FileNotFoundError,),
     )
     def process_picture_with_celery(
         storage: tuple[str, list, dict],
