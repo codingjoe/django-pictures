@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from django.apps import apps
 from django.db import transaction
 from PIL import Image
 
@@ -19,6 +20,7 @@ class PictureProcessor(Protocol):
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
+        field: str = "",
     ) -> None: ...
 
 
@@ -27,6 +29,7 @@ def _process_picture(
     file_name: str,
     new: list[tuple[str, list, dict]] | None = None,
     old: list[tuple[str, list, dict]] | None = None,
+    field: str = "",
 ) -> None:
     new = new or []
     old = old or []
@@ -41,12 +44,19 @@ def _process_picture(
         picture = utils.reconstruct(*picture)
         picture.delete()
 
+    if field:
+        app_label, model_name, _ = field.split(".")
+        sender = apps.get_model(app_label=app_label, model_name=model_name)
+    else:
+        sender = _process_picture
+
     signals.process_picture_done.send(
-        sender=_process_picture,
+        sender=sender,
         storage=storage.deconstruct(),
         file_name=file_name,
         new=new,
         old=old,
+        field=field,
     )
 
 
@@ -65,14 +75,16 @@ else:
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
+        field: str = "",
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(storage, file_name, new, old, field)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
+        field: str = "",
     ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_dramatiq.send(
@@ -80,6 +92,7 @@ else:
                 file_name=file_name,
                 new=new,
                 old=old,
+                field=field,
             )
         )
 
@@ -99,14 +112,16 @@ else:
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
+        field: str = "",
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(storage, file_name, new, old, field)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
+        field: str = "",
     ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_celery.apply_async(
@@ -115,6 +130,7 @@ else:
                     file_name=file_name,
                     new=new,
                     old=old,
+                    field=field,
                 ),
                 queue=conf.get_settings().QUEUE_NAME,
             )
@@ -133,14 +149,16 @@ else:
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
+        field: str = "",
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(storage, file_name, new, old, field)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
+        field: str = "",
     ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_django_rq.delay(
@@ -148,5 +166,6 @@ else:
                 file_name=file_name,
                 new=new,
                 old=old,
+                field=field,
             )
         )
