@@ -5,7 +5,7 @@ from typing import Protocol
 from django.db import transaction
 from PIL import Image
 
-from pictures import conf, utils
+from pictures import conf, signals, utils
 
 
 def noop(*args, **kwargs) -> None:
@@ -40,6 +40,14 @@ def _process_picture(
     for picture in old:
         picture = utils.reconstruct(*picture)
         picture.delete()
+
+    signals.process_picture_done.send(
+        sender=_process_picture,
+        storage=storage.deconstruct(),
+        file_name=file_name,
+        new=new,
+        old=old,
+    )
 
 
 process_picture: PictureProcessor = _process_picture
