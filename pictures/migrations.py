@@ -56,7 +56,9 @@ class AlterPictureField(AlterField):
             new_field_file.update_all(old_field_file)
 
     def from_picture_field(self, from_model: type[models.Model]):
-        for obj in from_model._default_manager.all().iterator():
+        for obj in from_model._default_manager.exclude(
+            Q(**{self.name: ""}) | Q(**{self.name: None})
+        ).iterator():
             field_file = getattr(obj, self.name)
             field_file.delete_all()
 
@@ -66,9 +68,13 @@ class AlterPictureField(AlterField):
         from_field = from_model._meta.get_field(self.name)
         if hasattr(from_field.attr_class, "delete_variations"):
             # remove obsolete django-stdimage variations
-            for obj in from_model._default_manager.all().iterator():
+            for obj in from_model._default_manager.exclude(
+                Q(**{self.name: ""}) | Q(**{self.name: None})
+            ).iterator():
                 field_file = getattr(obj, self.name)
                 field_file.delete_variations()
-        for obj in to_model._default_manager.all().iterator():
+        for obj in to_model._default_manager.exclude(
+            Q(**{self.name: ""}) | Q(**{self.name: None})
+        ).iterator():
             field_file = getattr(obj, self.name)
             field_file.save_all()
