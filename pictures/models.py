@@ -291,7 +291,7 @@ class PictureField(ImageField):
         return errors
 
     def _check_width_height_field(self):
-        if None in self.aspect_ratios and not (self.width_field and self.height_field):
+        if not (self.width_field and self.height_field):
             return [
                 checks.Warning(
                     "width_field and height_field attributes are missing",
