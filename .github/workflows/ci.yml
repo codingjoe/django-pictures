@@ -1,38 +1,15 @@
 name: CI
-
 on:
   push:
     branches:
       - main
   pull_request:
-
 jobs:
-
-  lint:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        lint-command:
-          - bandit -r . -x ./tests
-          - black --check --diff .
-          - flake8 .
-          - isort --check-only --diff .
-          - pydocstyle .
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-          cache: 'pip'
-          cache-dependency-path: 'pyproject.toml'
-      - run: python -m pip install -e .[lint]
-      - run: ${{ matrix.lint-command }}
-
   dist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.x"
       - run: sudo apt install gettext -y
@@ -40,14 +17,11 @@ jobs:
       - run: make gettext
       - run: python -m build --sdist --wheel
       - run: python -m twine check dist/*
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           path: dist/*
-
   pytest-os:
     name: PyTest
-    needs:
-      - lint
     strategy:
       matrix:
         os:
@@ -56,9 +30,9 @@ jobs:
           - "windows-latest"
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.x"
       - run: python -m pip install .[test]
@@ -67,25 +41,22 @@ jobs:
         with:
           flags: ${{ matrix.os }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
   pytest-python:
     name: PyTest
-    needs:
-      - lint
     strategy:
       matrix:
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.12"
+          - "3.13"
         django-version:
-          - "3.2"  # LTS
+          - "4.2" # LTS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install .[test]
@@ -95,24 +66,21 @@ jobs:
         with:
           flags: py${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
   pytest-django:
     name: PyTest
-    needs:
-      - lint
     strategy:
       matrix:
         python-version:
-          - "3.11"
+          - "3.12"
         django-version:
           # LTS gets tested on all OS
-          - "4.1"
-          - "4.2"
+          - "5.1"
+          - "5.2"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install .[test]
@@ -122,11 +90,8 @@ jobs:
         with:
           flags: dj${{ matrix.django-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
   pytest-extras:
     name: PyTest
-    needs:
-      - lint
     strategy:
       matrix:
         extras:
@@ -137,9 +102,9 @@ jobs:
           - "cleanup"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - name: Install redis
@@ -151,10 +116,9 @@ jobs:
         with:
           flags: ${{ matrix.extras }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
   codeql:
     name: CodeQL
-    needs: [ dist, pytest-os, pytest-python, pytest-django, pytest-extras ]
+    needs: [dist, pytest-os, pytest-python, pytest-django, pytest-extras]
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -163,18 +127,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ python ]
+        language: [python]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           queries: +security-and-quality
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{ matrix.language }}"

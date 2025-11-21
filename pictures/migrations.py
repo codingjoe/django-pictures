@@ -1,5 +1,3 @@
-from typing import Type
-
 from django.db import models
 from django.db.migrations import AlterField
 from django.db.models import Q
@@ -28,7 +26,7 @@ class AlterPictureField(AlterField):
         self.alter_picture_field(from_model, to_model)
 
     def alter_picture_field(
-        self, from_model: Type[models.Model], to_model: Type[models.Model]
+        self, from_model: type[models.Model], to_model: type[models.Model]
     ):
         from_field = from_model._meta.get_field(self.name)
         to_field = to_model._meta.get_field(self.name)
@@ -46,7 +44,7 @@ class AlterPictureField(AlterField):
         ):
             self.update_pictures(from_field, to_model)
 
-    def update_pictures(self, from_field: PictureField, to_model: Type[models.Model]):
+    def update_pictures(self, from_field: PictureField, to_model: type[models.Model]):
         """Remove obsolete pictures and create new ones."""
         for obj in to_model._default_manager.exclude(
             Q(**{self.name: ""}) | Q(**{self.name: None})
@@ -57,13 +55,13 @@ class AlterPictureField(AlterField):
             )
             new_field_file.update_all(old_field_file)
 
-    def from_picture_field(self, from_model: Type[models.Model]):
+    def from_picture_field(self, from_model: type[models.Model]):
         for obj in from_model._default_manager.all().iterator():
             field_file = getattr(obj, self.name)
             field_file.delete_all()
 
     def to_picture_field(
-        self, from_model: Type[models.Model], to_model: Type[models.Model]
+        self, from_model: type[models.Model], to_model: type[models.Model]
     ):
         from_field = from_model._meta.get_field(self.name)
         if hasattr(from_field.attr_class, "delete_variations"):

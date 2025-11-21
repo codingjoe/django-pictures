@@ -17,7 +17,7 @@ def get_settings():
             },
             "GRID_COLUMNS": 12,
             "CONTAINER_WIDTH": 1200,
-            "FILE_TYPES": ["WEBP"],
+            "FILE_TYPES": ["AVIF"],
             "PIXEL_DENSITIES": [1, 2],
             "USE_PLACEHOLDERS": settings.DEBUG,
             "QUEUE_NAME": "pictures",

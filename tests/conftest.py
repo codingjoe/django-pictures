@@ -26,7 +26,16 @@ def tiny_image_upload_file():
         return SimpleUploadedFile("image.png", output.getvalue())
 
 
-@pytest.fixture(autouse=True, scope="function")
+@pytest.fixture
+def large_image_upload_file():
+    img = Image.new("RGBA", (1000, 1000), (255, 55, 255, 1))
+
+    with io.BytesIO() as output:
+        img.save(output, format="PNG")
+        return SimpleUploadedFile("image.png", output.getvalue())
+
+
+@pytest.fixture(autouse=True)
 def media_root(settings, tmpdir_factory):
     settings.MEDIA_ROOT = tmpdir_factory.mktemp("media", numbered=True)
 
@@ -36,7 +45,7 @@ def instant_commit(monkeypatch):
     monkeypatch.setattr("django.db.transaction.on_commit", lambda f: f())
 
 
-@pytest.fixture()
+@pytest.fixture
 def stub_worker():
     try:
         import dramatiq

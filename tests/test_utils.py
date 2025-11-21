@@ -152,7 +152,6 @@ class TestPicture(Picture):
 
 
 def test_reconstruct(image_upload_file):
-
     picture = TestPicture(
         image_upload_file.name,
         "WEBP",

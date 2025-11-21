@@ -79,7 +79,7 @@ def source_set(
 
 @lru_cache
 def placeholder(width: int, height: int, alt):
-    hue = random.randint(0, 360)  # nosec
+    hue = random.randint(0, 360)  # NoQA S311
     img = Image.new("RGB", (width, height), color=f"hsl({hue}, 40%, 80%)")
     draw = ImageDraw.Draw(img)
     draw.line(((0, 0, width, height)), width=3, fill=f"hsl({hue}, 60%, 20%)")

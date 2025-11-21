@@ -92,6 +92,7 @@ class PillowPicture(Picture):
     def height(self) -> int | None:
         if self.aspect_ratio:
             return math.floor(self.width / self.aspect_ratio)
+        return None
 
     @property
     def name(self) -> str:
@@ -104,7 +105,7 @@ class PillowPicture(Picture):
     def path(self) -> Path:
         return Path(self.storage.path(self.name))
 
-    def process(self, image) -> "Image":
+    def process(self, image) -> Image:
         image = ImageOps.exif_transpose(image)  # crates a copy
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
@@ -129,7 +130,6 @@ class PillowPicture(Picture):
 
 
 class PictureFieldFile(ImageFieldFile):
-
     def __xor__(self, other) -> tuple[set[Picture], set[Picture]]:
         """Return the new and obsolete :class:`Picture` instances."""
         if not isinstance(other, PictureFieldFile):
@@ -176,7 +176,7 @@ class PictureFieldFile(ImageFieldFile):
     @property
     def width(self):
         self._require_file()
-        if self._committed and self.field.width_field:
+        if self._committed and self.field.width_field:  # NoQA SIM102
             if width := getattr(self.instance, self.field.width_field, None):
                 # get width from width field, to avoid loading image
                 return width
@@ -185,7 +185,7 @@ class PictureFieldFile(ImageFieldFile):
     @property
     def height(self):
         self._require_file()
-        if self._committed and self.field.height_field:
+        if self._committed and self.field.height_field:  # NoQA SIM102
             if height := getattr(self.instance, self.field.height_field, None):
                 # get height from height field, to avoid loading image
                 return height
@@ -244,10 +244,10 @@ class PictureField(ImageField):
         self,
         verbose_name=None,
         name=None,
-        aspect_ratios: [str | Fraction | None] = None,
+        aspect_ratios: list[str | Fraction | None] = None,
         container_width: int = None,
-        file_types: [str] = None,
-        pixel_densities: [int] = None,
+        file_types: list[str] = None,
+        pixel_densities: list[int] = None,
         grid_columns: int = None,
         breakpoints: {str: int} = None,
         **kwargs,
