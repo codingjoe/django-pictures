@@ -44,6 +44,7 @@ test = [
   "redis",
 ]
 dramatiq = [
+  "dramatiq<2",
   "django-dramatiq",
 ]
 celery = [
