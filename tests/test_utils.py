@@ -145,14 +145,14 @@ def test_placeholder():
     assert img.height == 1200
 
 
-class TestPicture(Picture):
+class SamplePicture(Picture):
     @property
     def url(self):
         return f"/media/{self.parent_name}"
 
 
 def test_reconstruct(image_upload_file):
-    picture = TestPicture(
+    picture = SamplePicture(
         image_upload_file.name,
         "WEBP",
         "16/9",
@@ -164,7 +164,7 @@ def test_reconstruct(image_upload_file):
     assert isinstance(reconstructed, Storage)
 
     assert utils.reconstruct(
-        "tests.test_utils.TestPicture",
+        "tests.test_utils.SamplePicture",
         [],
         {
             "parent_name": "test.jpg",
@@ -173,7 +173,7 @@ def test_reconstruct(image_upload_file):
             "storage": default_storage,
             "width": 100,
         },
-    ) == TestPicture(
+    ) == SamplePicture(
         "test.jpg",
         "JPEG",
         "16/9",
