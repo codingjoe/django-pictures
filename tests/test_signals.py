@@ -4,10 +4,12 @@ import pytest
 from django.dispatch import receiver
 
 from pictures import signals, tasks
+from tests.test_migrations import skip_dramatiq
 from tests.testapp.models import SimpleModel
 
 
 @pytest.mark.django_db
+@skip_dramatiq
 def test_process_picture_sends_process_picture_done(image_upload_file):
     obj = SimpleModel.objects.create(picture=image_upload_file)
 
@@ -31,6 +33,7 @@ def test_process_picture_sends_process_picture_done(image_upload_file):
 
 
 @pytest.mark.django_db
+@skip_dramatiq
 def test_process_picture_sends_process_picture_done_on_create(image_upload_file):
     handler = Mock()
     signals.picture_processed.connect(handler)
@@ -47,6 +50,7 @@ def test_process_picture_sends_process_picture_done_on_create(image_upload_file)
 
 
 @pytest.mark.django_db
+@skip_dramatiq
 def test_processed_object_found(image_upload_file):
     obj = SimpleModel.objects.create()
 
