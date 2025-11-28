@@ -61,7 +61,7 @@ def sizes(
 
 
 def source_set(
-    size: (int, int), *, ratio: str | Fraction | None, max_width: int, cols: int
+    size: tuple[int, int], *, ratio: str | Fraction | None, max_width: int, cols: int
 ) -> set:
     ratio = Fraction(ratio) if ratio else None
     img_width, img_height = size
@@ -82,8 +82,8 @@ def placeholder(width: int, height: int, alt):
     hue = random.randint(0, 360)  # NoQA S311
     img = Image.new("RGB", (width, height), color=f"hsl({hue}, 40%, 80%)")
     draw = ImageDraw.Draw(img)
-    draw.line(((0, 0, width, height)), width=3, fill=f"hsl({hue}, 60%, 20%)")
-    draw.line(((0, height, width, 0)), width=3, fill=f"hsl({hue}, 60%, 20%)")
+    draw.line((0, 0, width, height), width=3, fill=f"hsl({hue}, 60%, 20%)")
+    draw.line((0, height, width, 0), width=3, fill=f"hsl({hue}, 60%, 20%)")
     draw.rectangle(
         (width / 4, height / 4, width * 3 / 4, height * 3 / 4),
         fill=f"hsl({hue}, 40%, 80%)",

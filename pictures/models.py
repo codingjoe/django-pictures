@@ -6,6 +6,7 @@ import io
 import math
 from fractions import Fraction
 from pathlib import Path
+from types import NotImplementedType
 
 from django.core import checks
 from django.core.files.base import ContentFile
@@ -105,7 +106,7 @@ class PillowPicture(Picture):
     def path(self) -> Path:
         return Path(self.storage.path(self.name))
 
-    def process(self, image) -> Image:
+    def process(self, image) -> Image.Image:
         image = ImageOps.exif_transpose(image)  # crates a copy
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
@@ -130,7 +131,7 @@ class PillowPicture(Picture):
 
 
 class PictureFieldFile(ImageFieldFile):
-    def __xor__(self, other) -> tuple[set[Picture], set[Picture]]:
+    def __xor__(self, other) -> tuple[set[Picture], set[Picture]] | NotImplementedType:
         """Return the new and obsolete :class:`Picture` instances."""
         if not isinstance(other, PictureFieldFile):
             return NotImplemented
@@ -192,7 +193,7 @@ class PictureFieldFile(ImageFieldFile):
         return self._get_image_dimensions()[1]
 
     @property
-    def aspect_ratios(self) -> {Fraction | None: {str: {int: Picture}}}:
+    def aspect_ratios(self) -> dict[Fraction | None, dict[str, dict[int, Picture]]]:
         self._require_file()
         return self.get_picture_files(
             file_name=self.name,
@@ -210,7 +211,7 @@ class PictureFieldFile(ImageFieldFile):
         img_height: int,
         storage: Storage,
         field: PictureField,
-    ) -> {Fraction | None: {str: {int: Picture}}}:
+    ) -> dict[Fraction | None, dict[str, dict[int, Picture]]]:
         PictureClass = import_string(conf.get_settings().PICTURE_CLASS)
         return {
             ratio: {
@@ -291,7 +292,7 @@ class PictureField(ImageField):
         return errors
 
     def _check_width_height_field(self):
-        if None in self.aspect_ratios and not (self.width_field and self.height_field):
+        if not (self.width_field and self.height_field):
             return [
                 checks.Warning(
                     "width_field and height_field attributes are missing",
