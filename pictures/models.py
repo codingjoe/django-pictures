@@ -155,9 +155,9 @@ class PictureFieldFile(ImageFieldFile):
             import_string(conf.get_settings().PROCESSOR)(
                 self.storage.deconstruct(),
                 self.name,
+                self.sender,
                 [],
                 [i.deconstruct() for i in self.get_picture_files_list()],
-                self.instance_name,
             )
 
     def update_all(self, other: PictureFieldFile | None = None):
@@ -170,14 +170,18 @@ class PictureFieldFile(ImageFieldFile):
             import_string(conf.get_settings().PROCESSOR)(
                 self.storage.deconstruct(),
                 self.name,
+                self.sender,
                 [i.deconstruct() for i in new],
                 [i.deconstruct() for i in old],
-                self.instance_name,
             )
 
     @property
-    def instance_name(self):
-        return f"{self.instance._meta.app_label}.{self.instance._meta.model_name}.{self.field.name}"
+    def sender(self):
+        return (
+            self.instance._meta.app_label,
+            self.instance._meta.model_name,
+            self.field.name,
+        )
 
     @property
     def width(self):

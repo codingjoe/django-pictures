@@ -18,18 +18,18 @@ class PictureProcessor(Protocol):
         self,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
-        field: str = "",
     ) -> None: ...
 
 
 def _process_picture(
     storage: tuple[str, list, dict],
     file_name: str,
+    sender: tuple[str, str, str],
     new: list[tuple[str, list, dict]] | None = None,
     old: list[tuple[str, list, dict]] | None = None,
-    field: str = "",
 ) -> None:
     new = new or []
     old = old or []
@@ -44,19 +44,15 @@ def _process_picture(
         picture = utils.reconstruct(*picture)
         picture.delete()
 
-    if field:
-        app_label, model_name, _ = field.split(".")
-        sender = apps.get_model(app_label=app_label, model_name=model_name)
-    else:
-        sender = _process_picture
+    app_label, model_name, field_name = sender
+    model = apps.get_model(app_label=app_label, model_name=model_name)
+    field = model._meta.get_field(field_name)
 
-    signals.process_picture_done.send(
-        sender=sender,
-        storage=storage.deconstruct(),
+    signals.picture_processed.send(
+        sender=field,
         file_name=file_name,
         new=new,
         old=old,
-        field=field,
     )
 
 
@@ -73,26 +69,26 @@ else:
     def process_picture_with_dramatiq(
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
-        field: str = "",
     ) -> None:
-        _process_picture(storage, file_name, new, old, field)
+        _process_picture(storage, file_name, sender, new, old)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
-        field: str = "",
     ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_dramatiq.send(
                 storage=storage,
                 file_name=file_name,
+                sender=sender,
                 new=new,
                 old=old,
-                field=field,
             )
         )
 
@@ -110,27 +106,27 @@ else:
     def process_picture_with_celery(
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
-        field: str = "",
     ) -> None:
-        _process_picture(storage, file_name, new, old, field)
+        _process_picture(storage, file_name, sender, new, old)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
-        field: str = "",
     ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_celery.apply_async(
                 kwargs=dict(
                     storage=storage,
                     file_name=file_name,
+                    sender=sender,
                     new=new,
                     old=old,
-                    field=field,
                 ),
                 queue=conf.get_settings().QUEUE_NAME,
             )
@@ -147,25 +143,25 @@ else:
     def process_picture_with_django_rq(
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
-        field: str = "",
     ) -> None:
-        _process_picture(storage, file_name, new, old, field)
+        _process_picture(storage, file_name, sender, new, old)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
-        field: str = "",
     ) -> None:
         transaction.on_commit(
             lambda: process_picture_with_django_rq.delay(
                 storage=storage,
                 file_name=file_name,
+                sender=sender,
                 new=new,
                 old=old,
-                field=field,
             )
         )
