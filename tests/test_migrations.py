@@ -172,6 +172,54 @@ class TestAlterPictureField:
         assert not luke.picture
 
     @pytest.mark.django_db
+    def test_update_pictures__with_empty_pictures(
+        self, request, stub_worker, image_upload_file
+    ):
+        """Test that update_pictures skips objects with empty/null pictures."""
+
+        class ToModel(models.Model):
+            name = models.CharField(max_length=100)
+            picture = PictureField(
+                upload_to="testapp/profile/", aspect_ratios=[None, "21/9"], blank=True
+            )
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
+        # Create profiles with different picture states
+        luke = Profile.objects.create(name="Luke", picture=image_upload_file)
+        leia = Profile.objects.create(name="Leia", picture="")
+        han = Profile.objects.create(name="Han", picture=None)
+        stub_worker.join()
+
+        path = luke.picture.aspect_ratios["16/9"]["AVIF"][100].path
+        assert path.exists()
+
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        from_field = Profile._meta.get_field("picture")
+
+        # This should not fail despite empty/null pictures
+        migration.update_pictures(from_field, ToModel)
+        stub_worker.join()
+
+        # Verify old path was deleted and new one was created for luke
+        assert not path.exists()
+        luke.refresh_from_db()
+        path = (
+            ToModel.objects.get(pk=luke.pk)
+            .picture.aspect_ratios["21/9"]["AVIF"][100]
+            .path
+        )
+        assert path.exists()
+
+        # Verify empty profiles still exist and remain empty
+        leia_profile = Profile.objects.get(pk=leia.pk)
+        assert not leia_profile.picture
+        han_profile = Profile.objects.get(pk=han.pk)
+        assert not han_profile.picture
+
+    @pytest.mark.django_db
     def test_from_picture_field(self, stub_worker, image_upload_file):
         luke = Profile.objects.create(name="Luke", picture=image_upload_file)
         stub_worker.join()
@@ -181,6 +229,30 @@ class TestAlterPictureField:
         migration.from_picture_field(Profile)
         stub_worker.join()
         assert not path.exists()
+
+    @pytest.mark.django_db
+    def test_from_picture_field__with_empty_pictures(
+        self, stub_worker, image_upload_file
+    ):
+        """Test that from_picture_field skips objects with empty/null pictures."""
+        # Create profiles with different picture states
+        luke = Profile.objects.create(name="Luke", picture=image_upload_file)
+        Profile.objects.create(name="Leia", picture="")
+        Profile.objects.create(name="Han", picture=None)
+        stub_worker.join()
+
+        path = luke.picture.aspect_ratios["16/9"]["AVIF"][100].path
+        assert path.exists()
+
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        # This should not fail despite empty/null pictures
+        migration.from_picture_field(Profile)
+        stub_worker.join()
+
+        assert not path.exists()
+        # Verify other profiles still exist and weren't affected
+        assert Profile.objects.filter(name="Leia").exists()
+        assert Profile.objects.filter(name="Han").exists()
 
     @pytest.mark.django_db
     def test_to_picture_field(self, request, stub_worker, image_upload_file):
@@ -233,6 +305,53 @@ class TestAlterPictureField:
         stub_worker.join()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         migration.to_picture_field(FromModel, Profile)
+
+    @pytest.mark.django_db
+    def test_to_picture_field__with_empty_pictures(
+        self, request, stub_worker, image_upload_file
+    ):
+        """Test that to_picture_field skips objects with empty/null pictures."""
+
+        class FromModel(models.Model):
+            picture = models.ImageField(blank=True)
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
+        class ToModel(models.Model):
+            name = models.CharField(max_length=100)
+            picture = models.ImageField(upload_to="testapp/profile/", blank=True)
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
+        # Create profiles with different picture states
+        luke = ToModel.objects.create(name="Luke", picture=image_upload_file)
+        leia = ToModel.objects.create(name="Leia", picture="")
+        han = ToModel.objects.create(name="Han", picture=None)
+        stub_worker.join()
+
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        # This should not fail despite empty/null pictures
+        migration.to_picture_field(FromModel, Profile)
+        stub_worker.join()
+
+        luke.refresh_from_db()
+        # Verify only luke's picture was processed
+        path = (
+            Profile.objects.get(pk=luke.pk)
+            .picture.aspect_ratios["16/9"]["AVIF"][100]
+            .path
+        )
+        assert path.exists()
+
+        # Verify empty profiles still exist
+        leia_profile = Profile.objects.get(pk=leia.pk)
+        assert not leia_profile.picture
+        han_profile = Profile.objects.get(pk=han.pk)
+        assert not han_profile.picture
 
     @pytest.mark.django_db
     def test_to_picture_field__from_stdimage(

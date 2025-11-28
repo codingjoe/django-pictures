@@ -33,7 +33,11 @@ from pictures.models import PictureField
 
 class Profile(models.Model):
     title = models.CharField(max_length=255)
-    picture = PictureField(upload_to="avatars")
+    picture = PictureField(
+        upload_to="avatars", width_field="picture_width", height_field="picture_height"
+    )
+    picture_width = models.PositiveIntegerField(editable=False)
+    picture_height = models.PositiveIntegerField(editable=False)
 ```
 
 ```html
@@ -157,7 +161,11 @@ class Profile(models.Model):
     picture = PictureField(
         upload_to="avatars",
         aspect_ratios=[None, "1/1", "3/2", "16/9"],
+        width_field="picture_width",
+        height_field="picture_height",
     )
+    picture_width = models.PositiveIntegerField(editable=False)
+    picture_height = models.PositiveIntegerField(editable=False)
 ```
 
 ```html
@@ -235,10 +243,15 @@ class Profile(models.Model):
         validators=[
             MinSizeValidator(400, 300),  # At least 400x300 pixels
             MaxSizeValidator(4096, 4096),  # At most 4096x4096 pixels
-        ]
+        ],
+        width_field="picture_width",
+        height_field="picture_height",
     )
+    picture_width = models.PositiveIntegerField(editable=False)
+    picture_height = models.PositiveIntegerField(editable=False)
 
-Use `None` to limit only one dimension: `MaxSizeValidator(2048, None)` limits only width.
+
+# Use `None` to limit only one dimension: `MaxSizeValidator(2048, None)` limits only width.
 ```
 
 > [!IMPORTANT]

@@ -825,9 +825,19 @@ class TestPictureField:
         assert errors
         assert errors[0].id == "fields.E100"
 
-    def test_check_width_height_field(self):
-        assert not PictureField(aspect_ratios=["3/2"])._check_width_height_field()
-        with override_field_aspect_ratios(Profile.picture.field, [None]):
+    @pytest.mark.parametrize(
+        "aspect_ratios",
+        [
+            ("3/2",),
+            (None,),
+            (
+                "3/2",
+                None,
+            ),
+        ],
+    )
+    def test_check_width_height_field(self, aspect_ratios):
+        with override_field_aspect_ratios(Profile.picture.field, aspect_ratios):
             errors = Profile.picture.field._check_width_height_field()
         assert errors
         assert errors[0].id == "fields.E101"
