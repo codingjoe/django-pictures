@@ -4,6 +4,7 @@ import pytest
 from django.core.management import call_command
 from django.db import models
 from django.db.models.fields.files import ImageFieldFile
+from django.test.utils import isolate_apps
 
 from pictures import migrations
 from pictures.models import PictureField
@@ -117,6 +118,7 @@ class TestAlterPictureField:
         assert not migration.to_picture_field.called
 
     @pytest.mark.django_db
+    @isolate_apps
     def test_update_pictures(self, request, stub_worker, image_upload_file):
         class ToModel(models.Model):
             name = models.CharField(max_length=100)
@@ -172,6 +174,7 @@ class TestAlterPictureField:
         assert not luke.picture
 
     @pytest.mark.django_db
+    @isolate_apps
     def test_update_pictures__with_empty_pictures(
         self, request, stub_worker, image_upload_file
     ):
