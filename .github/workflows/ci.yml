@@ -46,12 +46,13 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.9"
           - "3.10"
+          - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
         django-version:
-          - "4.2" # LTS
+          - "5.2" # LTS
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -71,11 +72,11 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.12"
+          - "3.10"
         django-version:
           # LTS gets tested on all OS
+          - "4.2"
           - "5.1"
-          - "5.2"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
