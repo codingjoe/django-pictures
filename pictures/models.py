@@ -179,8 +179,8 @@ class PictureFieldFile(ImageFieldFile):
     @property
     def sender(self):
         return (
-            self.instance._meta.app_label,
-            self.instance._meta.model_name,
+            self.field.model._meta.app_label,
+            self.field.model._meta.model_name,
             self.field.name,
         )
 
