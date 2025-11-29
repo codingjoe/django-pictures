@@ -227,6 +227,38 @@ The default processor is `pictures.tasks.process_picture`. It takes a single
 argument, the `PictureFileFile` instance. You can use this to override the
 processor, should you need to do some custom processing.
 
+### Signals
+
+The async image processing emits a signal when the task is complete.
+You can use that to store when the pictures have been processed,
+so that a placeholder could be rendered in the meantime.
+
+```python
+# models.py
+from django.db import models
+from pictures.models import PictureField
+
+
+class Profile(models.Model):
+    title = models.CharField(max_length=255)
+    picture = PictureField(upload_to="avatars")
+    picture_processed = models.BooleanField(editable=False, null=True)
+
+
+# signals.py
+from django.dispatch import receiver
+from pictures import signals
+
+from .models import Profile
+
+
+@receiver(signals.picture_processed, sender=Profile._meta.get_field("picture"))
+def picture_processed_handler(*, sender, file_name, **__):
+    sender.model.objects.filter(**{sender.name: file_name}).update(
+        picture_processed=True
+    )
+```
+
 ### Validators
 
 The library ships with validators to restrain image dimensions:

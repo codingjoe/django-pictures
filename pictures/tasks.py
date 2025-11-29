@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from django.apps import apps
 from django.db import transaction
 from PIL import Image
 
-from pictures import conf, utils
+from pictures import conf, signals, utils
 
 
 def noop(*args, **kwargs) -> None:
@@ -17,6 +18,7 @@ class PictureProcessor(Protocol):
         self,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None: ...
@@ -25,6 +27,7 @@ class PictureProcessor(Protocol):
 def _process_picture(
     storage: tuple[str, list, dict],
     file_name: str,
+    sender: tuple[str, str, str],
     new: list[tuple[str, list, dict]] | None = None,
     old: list[tuple[str, list, dict]] | None = None,
 ) -> None:
@@ -41,6 +44,17 @@ def _process_picture(
         picture = utils.reconstruct(*picture)
         picture.delete()
 
+    app_label, model_name, field_name = sender
+    model = apps.get_model(app_label=app_label, model_name=model_name)
+    field = model._meta.get_field(field_name)
+
+    signals.picture_processed.send(
+        sender=field,
+        file_name=file_name,
+        new=new,
+        old=old,
+    )
+
 
 process_picture: PictureProcessor = _process_picture
 
@@ -55,14 +69,16 @@ else:
     def process_picture_with_dramatiq(
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(storage, file_name, sender, new, old)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
@@ -70,6 +86,7 @@ else:
             lambda: process_picture_with_dramatiq.send(
                 storage=storage,
                 file_name=file_name,
+                sender=sender,
                 new=new,
                 old=old,
             )
@@ -89,14 +106,16 @@ else:
     def process_picture_with_celery(
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(storage, file_name, sender, new, old)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
@@ -105,6 +124,7 @@ else:
                 kwargs=dict(
                     storage=storage,
                     file_name=file_name,
+                    sender=sender,
                     new=new,
                     old=old,
                 ),
@@ -123,14 +143,16 @@ else:
     def process_picture_with_django_rq(
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(storage, file_name, sender, new, old)
 
     def process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
@@ -138,6 +160,7 @@ else:
             lambda: process_picture_with_django_rq.delay(
                 storage=storage,
                 file_name=file_name,
+                sender=sender,
                 new=new,
                 old=old,
             )

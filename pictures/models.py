@@ -156,6 +156,7 @@ class PictureFieldFile(ImageFieldFile):
             import_string(conf.get_settings().PROCESSOR)(
                 self.storage.deconstruct(),
                 self.name,
+                self.sender,
                 [],
                 [i.deconstruct() for i in self.get_picture_files_list()],
             )
@@ -170,9 +171,18 @@ class PictureFieldFile(ImageFieldFile):
             import_string(conf.get_settings().PROCESSOR)(
                 self.storage.deconstruct(),
                 self.name,
+                self.sender,
                 [i.deconstruct() for i in new],
                 [i.deconstruct() for i in old],
             )
+
+    @property
+    def sender(self):
+        return (
+            self.field.model._meta.app_label,
+            self.field.model._meta.model_name,
+            self.field.name,
+        )
 
     @property
     def width(self):
