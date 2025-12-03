@@ -10,18 +10,21 @@ from tests.testapp.models import SimpleModel
 
 @pytest.mark.django_db
 @skip_dramatiq
-def test_process_picture_sends_process_picture_done(image_upload_file):
+def test_process_picture_sends_picture_processed(image_upload_file):
     obj = SimpleModel.objects.create(picture=image_upload_file)
 
     handler = Mock()
     signals.picture_processed.connect(handler)
 
-    tasks._process_picture(
-        obj.picture.storage.deconstruct(),
-        obj.picture.name,
-        obj.picture.sender,
-        new=[i.deconstruct() for i in obj.picture.get_picture_files_list()],
-    )
+    try:
+        tasks._process_picture(
+            obj.picture.storage.deconstruct(),
+            obj.picture.name,
+            obj.picture.sender,
+            new=[i.deconstruct() for i in obj.picture.get_picture_files_list()],
+        )
+    finally:
+        signals.picture_processed.disconnect(handler)
 
     handler.assert_called_once_with(
         signal=signals.picture_processed,
@@ -34,11 +37,14 @@ def test_process_picture_sends_process_picture_done(image_upload_file):
 
 @pytest.mark.django_db
 @skip_dramatiq
-def test_process_picture_sends_process_picture_done_on_create(image_upload_file):
+def test_process_picture_sends_picture_processed_on_create(image_upload_file):
     handler = Mock()
     signals.picture_processed.connect(handler)
 
-    obj = SimpleModel.objects.create(picture=image_upload_file)
+    try:
+        obj = SimpleModel.objects.create(picture=image_upload_file)
+    finally:
+        signals.picture_processed.disconnect(handler)
 
     handler.assert_called_once_with(
         signal=signals.picture_processed,
@@ -63,6 +69,9 @@ def test_processed_object_found(image_upload_file):
         # Users can now modify the object that picture_processed corresponds to
         found_object = sender.model.objects.get(**{sender.name: file_name})
 
-    obj.picture.save("image.png", image_upload_file)
+    try:
+        obj.picture.save("image.png", image_upload_file)
+    finally:
+        signals.picture_processed.disconnect(handler)
 
     assert obj == found_object
