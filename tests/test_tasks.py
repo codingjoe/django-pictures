@@ -18,6 +18,7 @@ def test_process_picture__file_cannot_be_reopened(image_upload_file):
     tasks._process_picture(
         obj.picture.storage.deconstruct(),
         obj.picture.name,
+        obj.picture.sender,
         new=[i.deconstruct() for i in obj.picture.get_picture_files_list()],
     )
 
