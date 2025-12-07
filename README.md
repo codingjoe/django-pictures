@@ -9,7 +9,7 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 - serve files with or without a CDN
 - placeholders for local development
 - migration support
-- async image processing for via [Django Tasks][django-tasks]
+- async image processing via [Django Tasks][django-tasks]
 - [DRF] support
 
 [![PyPi Version](https://img.shields.io/pypi/v/django-pictures.svg)](https://pypi.python.org/pypi/django-pictures/)
@@ -109,9 +109,9 @@ If you have either Dramatiq or Celery installed, we will default to async
 image processing. You will need workers to listen to the `pictures` queue.
 
 > [!IMPORTANT]
-> Starting with Django version 6.0, this package leverage Django's built-in
+> Starting with Django version 6.0, this package leverages Django's built-in
 > task framework for async image processing by default. You will need to add
-> add the `pictures` queue to your `TASKS` setting:
+> the `pictures` queue to your `TASKS` setting:
 
 ```python
 # settings.py
@@ -238,11 +238,11 @@ densities.
 ### Async image processing
 
 > [!IMPORTANT]
-> Starting with Django version 6.0, this package leverage Django's built-in
+> Starting with Django version 6.0, this package leverages Django's built-in
 > task framework for async image processing by default. You can explicitly
 > override this behavior via the `PICTURES["PROCESSOR"]` setting.
 
-Images are processed on a separate queue by default, you will add the `pictures`
+Images are processed on a separate queue by default, you will need to add the `pictures`
 queue to your task backend configuration. You can override the queue name,
 via the `PICTURES["QUEUE_NAME"]` setting.
 
