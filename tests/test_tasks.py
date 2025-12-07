@@ -1,6 +1,8 @@
+import importlib
 from unittest.mock import Mock
 
 import pytest
+from django.core.exceptions import ImproperlyConfigured
 
 from pictures import tasks
 from tests.testapp.models import SimpleModel
@@ -24,3 +26,21 @@ def test_process_picture__file_cannot_be_reopened(image_upload_file):
 
 def test_noop():
     tasks.noop()  # does nothing
+
+
+def test_django_tasks_misconfiguration(settings):
+    pytest.importorskip(
+        "django", minversion="6.0", reason="Django tasks introduced in 6.0"
+    )
+    settings.TASKS = {
+        "default": {
+            "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
+            "QUEUES": ["default"],
+        }
+    }
+    with pytest.raises(ImproperlyConfigured) as e:
+        importlib.reload(tasks)
+    assert str(e.value) == (
+        "Pictures are processed on a separate queue by default,"
+        " please `TASKS` settings in accordance with Django-Pictures documentation."
+    )

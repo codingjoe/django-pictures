@@ -9,7 +9,7 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 - serve files with or without a CDN
 - placeholders for local development
 - migration support
-- async image processing for [Celery], [Dramatiq] or [Django RQ][django-rq]
+- async image processing for via [Django Tasks][django-tasks]
 - [DRF] support
 
 [![PyPi Version](https://img.shields.io/pypi/v/django-pictures.svg)](https://pypi.python.org/pypi/django-pictures/)
@@ -100,12 +100,31 @@ PICTURES = {
     "PIXEL_DENSITIES": [1, 2],
     "USE_PLACEHOLDERS": True,
     "QUEUE_NAME": "pictures",
+    "BACKEND": "default",
     "PROCESSOR": "pictures.tasks.process_picture",
 }
 ```
 
 If you have either Dramatiq or Celery installed, we will default to async
 image processing. You will need workers to listen to the `pictures` queue.
+
+> [!IMPORTANT]
+> Starting with Django version 6.0, this package leverage Django's built-in
+> task framework for async image processing by default. You will need to add
+> add the `pictures` queue to your `TASKS` setting:
+
+```python
+# settings.py
+TASKS = {
+    "default": {
+        # ...
+        "QUEUES": [
+            # ...
+            "pictures",  # add the new pictures queue here
+        ]
+    },
+}
+```
 
 ### Placeholders
 
@@ -217,6 +236,38 @@ close to your eyeballs, you should be fine, serving at the default `1x` and `2x`
 densities.
 
 ### Async image processing
+
+> [!IMPORTANT]
+> Starting with Django version 6.0, this package leverage Django's built-in
+> task framework for async image processing by default. You can explicitly
+> override this behavior via the `PICTURES["PROCESSOR"]` setting.
+
+Images are processed on a separate queue by default, you will add the `pictures`
+queue to your task backend configuration. You can override the queue name,
+via the `PICTURES["QUEUE_NAME"]` setting.
+
+If you want to run image processing on a separate backend, you can set the
+`PICTURES["BACKEND"]` setting to something other than `default`.
+
+You may also override the processor to explicitly use Celery, Dramatiq or
+Django RQ until they provide proper integration with Django Tasks.
+
+> [!WARNING]
+> The custom Celery, Dramatiq and Django RQ integration is deprecated
+> and will be removed in the next major release (version 2.0).
+
+```python
+# settings.py
+PICTURES = {
+    "PROCESSOR": "pictures.tasks.celery",  # use Celery
+    # or
+    "PROCESSOR": "pictures.tasks.dramatiq",  # use Dramatiq
+    # or
+    "PROCESSOR": "pictures.tasks.django_rq",  # use Django RQ
+}
+```
+
+#### Pre Django 6.0
 
 If you have either Dramatiq or Celery installed, we will default to async
 image processing. You will need workers to listen to the `pictures` queue.
@@ -377,8 +428,6 @@ class MyPicture(Picture):
 [caniemail-srcset]: https://www.caniemail.com/features/html-srcset/
 [caniemail-webp]: https://www.caniemail.com/features/image-webp/
 [caniuse-picture]: https://caniuse.com/picture
-[celery]: https://docs.celeryproject.org/en/stable/
-[django-rq]: https://github.com/rq/django-rq
-[dramatiq]: https://dramatiq.io/
+[django-tasks]: https://docs.djangoproject.com/en/stable/topics/tasks/
 [drf]: https://www.django-rest-framework.org/
 [migration]: tests/testapp/migrations/0002_alter_profile_picture.py

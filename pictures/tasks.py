@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import warnings
 from typing import Protocol
 
+import django
 from django.db import transaction
 from PIL import Image
 
@@ -46,12 +48,12 @@ process_picture: PictureProcessor = _process_picture
 
 
 try:
-    import dramatiq
+    from dramatiq import actor
 except ImportError:
     pass
 else:
 
-    @dramatiq.actor(queue_name=conf.get_settings().QUEUE_NAME)
+    @actor(queue_name=conf.get_settings().QUEUE_NAME)
     def process_picture_with_dramatiq(
         storage: tuple[str, list, dict],
         file_name: str,
@@ -60,12 +62,19 @@ else:
     ) -> None:
         _process_picture(storage, file_name, new, old)
 
-    def process_picture(  # noqa: F811
+    def dramatiq_process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
+        if django.VERSION >= (6, 0):
+            warnings.warn(
+                "The `dramatiq_process_picture`-processor deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with Django 5.2 version support.",
+                PendingDeprecationWarning,
+                stacklevel=2,
+            )
         transaction.on_commit(
             lambda: process_picture_with_dramatiq.send(
                 storage=storage,
@@ -74,6 +83,8 @@ else:
                 old=old,
             )
         )
+
+    process_picture = dramatiq_process_picture  # type: ignore[assignment]
 
 
 try:
@@ -94,12 +105,19 @@ else:
     ) -> None:
         _process_picture(storage, file_name, new, old)
 
-    def process_picture(  # noqa: F811
+    def celery_process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
+        if django.VERSION >= (6, 0):
+            warnings.warn(
+                "The `celery_process_picture`-processor deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with Django 5.2 version support.",
+                PendingDeprecationWarning,
+                stacklevel=2,
+            )
         transaction.on_commit(
             lambda: process_picture_with_celery.apply_async(
                 kwargs=dict(
@@ -111,6 +129,8 @@ else:
                 queue=conf.get_settings().QUEUE_NAME,
             )
         )
+
+    process_picture = celery_process_picture  # type: ignore[assignment]
 
 
 try:
@@ -128,12 +148,19 @@ else:
     ) -> None:
         _process_picture(storage, file_name, new, old)
 
-    def process_picture(  # noqa: F811
+    def rq_process_picture(  # noqa: F811
         storage: tuple[str, list, dict],
         file_name: str,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
+        if django.VERSION >= (6, 0):
+            warnings.warn(
+                "The `rq_process_picture`-processor deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with Django 5.2 version support.",
+                PendingDeprecationWarning,
+                stacklevel=2,
+            )
         transaction.on_commit(
             lambda: process_picture_with_django_rq.delay(
                 storage=storage,
@@ -142,3 +169,46 @@ else:
                 old=old,
             )
         )
+
+    process_picture = rq_process_picture  # type: ignore[assignment]
+
+
+try:
+    from django.tasks import exceptions, task
+except ImportError:
+    pass
+else:
+    try:
+
+        @task(
+            backend=conf.get_settings().BACKEND,
+            queue_name=conf.get_settings().QUEUE_NAME,
+        )
+        def process_picture_with_django_tasks(
+            storage: tuple[str, list, dict],
+            file_name: str,
+            new: list[tuple[str, list, dict]] | None = None,
+            old: list[tuple[str, list, dict]] | None = None,
+        ) -> None:
+            _process_picture(storage, file_name, new, old)
+
+        def process_picture(  # noqa: F811
+            storage: tuple[str, list, dict],
+            file_name: str,
+            new: list[tuple[str, list, dict]] | None = None,
+            old: list[tuple[str, list, dict]] | None = None,
+        ) -> None:
+            transaction.on_commit(
+                lambda: process_picture_with_django_tasks.enqueue(
+                    storage=storage,
+                    file_name=file_name,
+                    new=new,
+                    old=old,
+                )
+            )
+
+    except exceptions.InvalidTask as e:
+        raise exceptions.ImproperlyConfigured(
+            "Pictures are processed on a separate queue by default,"
+            " please `TASKS` settings in accordance with Django-Pictures documentation."
+        ) from e
