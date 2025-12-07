@@ -259,11 +259,11 @@ Django RQ until they provide proper integration with Django Tasks.
 ```python
 # settings.py
 PICTURES = {
-    "PROCESSOR": "pictures.tasks.celery",  # use Celery
+    "PROCESSOR": "pictures.tasks.celery_process_picture",  # use Celery
     # or
-    "PROCESSOR": "pictures.tasks.dramatiq",  # use Dramatiq
+    "PROCESSOR": "pictures.tasks.dramatiq_process_picture",  # use Dramatiq
     # or
-    "PROCESSOR": "pictures.tasks.django_rq",  # use Django RQ
+    "PROCESSOR": "pictures.tasks.rq_process_picture",  # use Django RQ
 }
 ```
 
