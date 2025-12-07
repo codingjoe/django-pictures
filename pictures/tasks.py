@@ -70,8 +70,8 @@ else:
     ) -> None:
         if django.VERSION >= (6, 0):
             warnings.warn(
-                "The 'dramatiq_process_picture'-processor is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with Django 5.2 version support.",
+                "The picture process 'dramatiq_process_picture' is deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with the expiration Django 5.2 version support.",
                 PendingDeprecationWarning,
                 stacklevel=2,
             )
@@ -113,8 +113,8 @@ else:
     ) -> None:
         if django.VERSION >= (6, 0):
             warnings.warn(
-                "The 'celery_process_picture'-processor is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with Django 5.2 version support.",
+                "The picture process 'celery_process_picture' is deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with the expiration Django 5.2 version support.",
                 PendingDeprecationWarning,
                 stacklevel=2,
             )
@@ -156,8 +156,8 @@ else:
     ) -> None:
         if django.VERSION >= (6, 0):
             warnings.warn(
-                "The 'rq_process_picture'-processor is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with Django 5.2 version support.",
+                "The picture process 'rq_process_picture' is deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with the expiration Django 5.2 version support.",
                 PendingDeprecationWarning,
                 stacklevel=2,
             )
@@ -210,5 +210,5 @@ else:
     except exceptions.InvalidTask as e:
         raise exceptions.ImproperlyConfigured(
             "Pictures are processed on a separate queue by default,"
-            " please configure the `TASKS` settings in accordance with Django-Pictures documentation."
+            " please update the 'TASKS' setting in accordance with Django-Pictures documentation."
         ) from e

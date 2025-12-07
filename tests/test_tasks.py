@@ -42,5 +42,5 @@ def test_django_tasks_misconfiguration(settings):
         importlib.reload(tasks)
     assert str(e.value) == (
         "Pictures are processed on a separate queue by default,"
-        " please `TASKS` settings in accordance with Django-Pictures documentation."
+        " please update the 'TASKS' setting in accordance with Django-Pictures documentation."
     )
