@@ -70,8 +70,8 @@ else:
     ) -> None:
         if django.VERSION >= (6, 0):
             warnings.warn(
-                "The picture process 'dramatiq_process_picture' is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with the expiration Django 5.2 version support.",
+                "The picture processor 'dramatiq_process_picture' is deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
                 PendingDeprecationWarning,
                 stacklevel=2,
             )
@@ -113,8 +113,8 @@ else:
     ) -> None:
         if django.VERSION >= (6, 0):
             warnings.warn(
-                "The picture process 'celery_process_picture' is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with the expiration Django 5.2 version support.",
+                "The picture processor 'celery_process_picture' is deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
                 PendingDeprecationWarning,
                 stacklevel=2,
             )
@@ -156,8 +156,8 @@ else:
     ) -> None:
         if django.VERSION >= (6, 0):
             warnings.warn(
-                "The picture process 'rq_process_picture' is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with the expiration Django 5.2 version support.",
+                "The picture processor 'rq_process_picture' is deprecated in favor of Django's tasks framework."
+                " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
                 PendingDeprecationWarning,
                 stacklevel=2,
             )
