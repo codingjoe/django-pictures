@@ -72,11 +72,12 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.10"
+          - "3.12"
         django-version:
           # LTS gets tested on all OS
           - "4.2"
           - "5.1"
+          - "6.0"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -95,6 +96,8 @@ jobs:
     name: PyTest
     strategy:
       matrix:
+        django-version:
+          - "5.2" # LTS
         extras:
           - "celery"
           - "dramatiq"
@@ -112,6 +115,7 @@ jobs:
         if: matrix.extras == 'dramatiq' || matrix.extras == 'django-rq'
         run: sudo apt install -y redis-server
       - run: python -m pip install .[test,${{ matrix.extras }}]
+      - run: python -m pip install django~=${{ matrix.django-version }}.0
       - run: python -m pytest
       - uses: codecov/codecov-action@v5
         with:

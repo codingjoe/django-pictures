@@ -140,6 +140,16 @@ PICTURES = {
 }
 
 
+# Django tasks (6.0+)
+
+TASKS = {
+    "default": {
+        "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
+        "QUEUES": ["default", "pictures"],
+    }
+}
+
+
 # Dramatiq
 try:
     import dramatiq  # NoQA
