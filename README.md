@@ -254,7 +254,7 @@ Django RQ until they provide proper integration with Django Tasks.
 
 > [!WARNING]
 > The custom Celery, Dramatiq and Django RQ integration is deprecated
-> and will be removed in the next major release (version 2.0).
+> and will be removed together with Django 5.2 LTS version support.
 
 ```python
 # settings.py
