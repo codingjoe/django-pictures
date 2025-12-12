@@ -17,7 +17,7 @@ jobs:
       - run: make gettext
       - run: python -m build --sdist --wheel
       - run: python -m twine check dist/*
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           path: dist/*
   pytest-os:
