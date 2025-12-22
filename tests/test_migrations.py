@@ -142,7 +142,8 @@ class TestAlterPictureField:
         assert not path.exists()
         luke.refresh_from_db()
         path = (
-            ToModel.objects.get(pk=luke.pk)
+            ToModel.objects
+            .get(pk=luke.pk)
             .picture.aspect_ratios["21/9"]["AVIF"][100]
             .path
         )
@@ -207,7 +208,8 @@ class TestAlterPictureField:
         assert not path.exists()
         luke.refresh_from_db()
         path = (
-            ToModel.objects.get(pk=luke.pk)
+            ToModel.objects
+            .get(pk=luke.pk)
             .picture.aspect_ratios["21/9"]["AVIF"][100]
             .path
         )
@@ -278,7 +280,8 @@ class TestAlterPictureField:
         stub_worker.join()
         luke.refresh_from_db()
         path = (
-            Profile.objects.get(pk=luke.pk)
+            Profile.objects
+            .get(pk=luke.pk)
             .picture.aspect_ratios["16/9"]["AVIF"][100]
             .path
         )
@@ -341,7 +344,8 @@ class TestAlterPictureField:
         luke.refresh_from_db()
         # Verify only luke's picture was processed
         path = (
-            Profile.objects.get(pk=luke.pk)
+            Profile.objects
+            .get(pk=luke.pk)
             .picture.aspect_ratios["16/9"]["AVIF"][100]
             .path
         )
@@ -385,7 +389,8 @@ class TestAlterPictureField:
         stub_worker.join()
         luke.refresh_from_db()
         path = (
-            Profile.objects.get(pk=luke.pk)
+            Profile.objects
+            .get(pk=luke.pk)
             .picture.aspect_ratios["16/9"]["AVIF"][100]
             .path
         )
