@@ -76,7 +76,6 @@ jobs:
         django-version:
           # LTS gets tested on all OS
           - "4.2"
-          - "5.1"
           - "6.0"
     runs-on: ubuntu-latest
     steps:
