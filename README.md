@@ -135,13 +135,13 @@ development. To enable them, add the following to enable the
 ```python
 # urls.py
 from django.urls import include, path
-from pictures.conf import get_settings
+from pictures.conf import app_settings
 
 urlpatterns = [
     # ...
 ]
 
-if get_settings().USE_PLACEHOLDERS:
+if app_settings.USE_PLACEHOLDERS:
     urlpatterns += [
         path("_pictures/", include("pictures.urls")),
     ]

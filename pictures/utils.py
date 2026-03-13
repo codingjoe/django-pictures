@@ -66,13 +66,12 @@ def source_set(
     ratio = Fraction(ratio) if ratio else None
     img_width, img_height = size
     ratio = ratio or Fraction(img_width, img_height)
-    settings = conf.get_settings()
     # calc all widths at 1X resolution
     widths = (max_width * (w + 1) / cols for w in range(cols))
     # exclude widths above the max width
     widths = (w for w in widths if w <= max_width)
     # sizes for all screen resolutions
-    widths = (w * res for w in widths for res in settings.PIXEL_DENSITIES)
+    widths = (w * res for w in widths for res in conf.app_settings.PIXEL_DENSITIES)
     # exclude sizes above the original image width or height
     return {math.floor(w) for w in widths if w <= img_width and w / ratio <= img_height}
 
