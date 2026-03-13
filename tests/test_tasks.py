@@ -42,5 +42,20 @@ def test_django_tasks_misconfiguration(settings):
         importlib.reload(tasks)
     assert str(e.value) == (
         "Pictures are processed on a separate queue by default,"
-        " please update the 'TASKS' setting in accordance with Django-Pictures documentation."
+        " please update the 'TASKS' setting in accordance with Django-Pictures documentation. If you need to continue to use a deprecated processor, please set the 'PROCESSOR' to another processor."
     )
+
+
+def test_django_tasks_misconfiguration__different_processor(settings):
+    """Do not raise if the processor is not the default one."""
+    pytest.importorskip(
+        "django", minversion="6.0", reason="Django tasks introduced in 6.0"
+    )
+    settings.TASKS = {
+        "default": {
+            "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
+            "QUEUES": ["default"],
+        }
+    }
+    settings.PICTURES = settings.PICTURES | {"PROCESSOR": "pictures.tasks.noop"}
+    importlib.reload(tasks)

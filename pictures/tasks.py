@@ -8,6 +8,7 @@ from django.db import transaction
 from PIL import Image
 
 from pictures import conf, utils
+from pictures.conf import app_settings
 
 
 def noop(*args, **kwargs) -> None:
@@ -208,7 +209,9 @@ else:
             )
 
     except exceptions.InvalidTask as e:
-        raise exceptions.ImproperlyConfigured(
-            "Pictures are processed on a separate queue by default,"
-            " please update the 'TASKS' setting in accordance with Django-Pictures documentation."
-        ) from e
+        if app_settings.PROCESSOR == "pictures.tasks.process_picture":
+            raise exceptions.ImproperlyConfigured(
+                "Pictures are processed on a separate queue by default,"
+                " please update the 'TASKS' setting in accordance with Django-Pictures documentation."
+                " If you need to continue to use a deprecated processor, please set the 'PROCESSOR' to another processor."
+            ) from e
