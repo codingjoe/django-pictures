@@ -45,6 +45,13 @@ def instant_commit(monkeypatch):
     monkeypatch.setattr("django.db.transaction.on_commit", lambda f: f())
 
 
+@pytest.fixture(autouse=True)
+def reset_pictures_settings():
+    """Reset the pictures settings to prevent side effects from other tests."""
+    conf.app_settings._reset()
+    return
+
+
 @pytest.fixture
 def stub_worker():
     try:
@@ -73,7 +80,7 @@ def stub_worker():
         class Meta:
             @staticmethod
             def join():
-                broker.join(conf.get_settings().QUEUE_NAME, timeout=60000)
+                broker.join(conf.app_settings.QUEUE_NAME, timeout=60000)
                 worker.join()
 
         yield Meta

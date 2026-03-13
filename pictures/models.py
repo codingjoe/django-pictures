@@ -73,7 +73,7 @@ class PillowPicture(Picture):
 
     @property
     def url(self) -> str:
-        if conf.get_settings().USE_PLACEHOLDERS:
+        if conf.app_settings.USE_PLACEHOLDERS:
             return reverse(
                 "pictures:placeholder",
                 kwargs={
@@ -153,7 +153,7 @@ class PictureFieldFile(ImageFieldFile):
 
     def delete_all(self):
         if self:
-            import_string(conf.get_settings().PROCESSOR)(
+            import_string(conf.app_settings.PROCESSOR)(
                 self.storage.deconstruct(),
                 self.name,
                 [],
@@ -167,7 +167,7 @@ class PictureFieldFile(ImageFieldFile):
                 old = []
             else:
                 new, old = self ^ other
-            import_string(conf.get_settings().PROCESSOR)(
+            import_string(conf.app_settings.PROCESSOR)(
                 self.storage.deconstruct(),
                 self.name,
                 [i.deconstruct() for i in new],
@@ -212,7 +212,7 @@ class PictureFieldFile(ImageFieldFile):
         storage: Storage,
         field: PictureField,
     ) -> dict[Fraction | None, dict[str, dict[int, Picture]]]:
-        PictureClass = import_string(conf.get_settings().PICTURE_CLASS)
+        PictureClass = import_string(conf.app_settings.PICTURE_CLASS)
         return {
             ratio: {
                 file_type: {
@@ -253,7 +253,7 @@ class PictureField(ImageField):
         breakpoints: {str: int} = None,
         **kwargs,
     ):
-        settings = conf.get_settings()
+        settings = conf.app_settings
         self.aspect_ratios = aspect_ratios or [None]
         self.container_width = container_width or settings.CONTAINER_WIDTH
         self.file_types = file_types or settings.FILE_TYPES

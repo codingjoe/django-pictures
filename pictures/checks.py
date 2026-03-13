@@ -9,7 +9,7 @@ __all__ = ["placeholder_url_check"]
 @register(Tags.urls)
 def placeholder_url_check(app_configs, **kwargs):
     errors = []
-    if conf.get_settings().USE_PLACEHOLDERS:
+    if conf.app_settings.USE_PLACEHOLDERS:
         try:
             reverse(
                 "pictures:placeholder",

@@ -53,7 +53,7 @@ except ImportError:
     pass
 else:
 
-    @actor(queue_name=conf.get_settings().QUEUE_NAME)
+    @actor(queue_name=conf.app_settings.QUEUE_NAME)
     def process_picture_with_dramatiq(
         storage: tuple[str, list, dict],
         file_name: str,
@@ -126,7 +126,7 @@ else:
                     new=new,
                     old=old,
                 ),
-                queue=conf.get_settings().QUEUE_NAME,
+                queue=conf.app_settings.QUEUE_NAME,
             )
         )
 
@@ -139,7 +139,7 @@ except ImportError:
     pass
 else:
 
-    @job(conf.get_settings().QUEUE_NAME)
+    @job(conf.app_settings.QUEUE_NAME)
     def process_picture_with_django_rq(
         storage: tuple[str, list, dict],
         file_name: str,
@@ -181,8 +181,8 @@ else:
     try:
 
         @task(
-            backend=conf.get_settings().BACKEND,
-            queue_name=conf.get_settings().QUEUE_NAME,
+            backend=conf.app_settings.BACKEND,
+            queue_name=conf.app_settings.QUEUE_NAME,
         )
         def process_picture_with_django_tasks(
             storage: tuple[str, list, dict],

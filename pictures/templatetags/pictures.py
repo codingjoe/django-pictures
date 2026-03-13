@@ -4,14 +4,13 @@ from django import template
 from django.template import loader
 
 from .. import utils
-from ..conf import get_settings
+from ..conf import app_settings
 
 register = template.Library()
 
 
 @register.simple_tag()
 def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
-    settings = get_settings()
     field = field_file.field
     container = container or field.container_width
     tmpl = loader.get_template("pictures/picture.html")
@@ -46,7 +45,7 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
         "media": utils.sizes(field=field, container_width=container, **breakpoints),
         "picture_attrs": picture_attrs,
         "img_attrs": img_attrs,
-        "use_placeholders": settings.USE_PLACEHOLDERS,
+        "use_placeholders": app_settings.USE_PLACEHOLDERS,
     })
 
 
