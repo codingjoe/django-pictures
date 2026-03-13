@@ -33,7 +33,7 @@ picture_with_placeholders_html = b"""
 
 @pytest.mark.django_db
 def test_picture(client, image_upload_file, settings):
-    settings.PICTURES["USE_PLACEHOLDERS"] = False
+    settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     response = client.get(profile.get_absolute_url())
     assert response.status_code == 200
@@ -42,7 +42,7 @@ def test_picture(client, image_upload_file, settings):
 
 @pytest.mark.django_db
 def test_picture__large(client, large_image_upload_file, settings):
-    settings.PICTURES["USE_PLACEHOLDERS"] = False
+    settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
     # ensure that USE_THOUSAND_SEPARATOR doesn't break srcset with widths greater than 1000px
     settings.USE_THOUSAND_SEPARATOR = True
     profile = Profile.objects.create(name="Spiderman", picture=large_image_upload_file)
@@ -54,7 +54,7 @@ def test_picture__large(client, large_image_upload_file, settings):
 
 @pytest.mark.django_db
 def test_picture__placeholder(client, image_upload_file, settings):
-    settings.PICTURES["USE_PLACEHOLDERS"] = True
+    settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": True}
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     response = client.get(profile.get_absolute_url())
     assert response.status_code == 200
@@ -63,7 +63,7 @@ def test_picture__placeholder(client, image_upload_file, settings):
 
 @pytest.mark.django_db
 def test_picture__placeholder_with_alt(client, image_upload_file, settings):
-    settings.PICTURES["USE_PLACEHOLDERS"] = True
+    settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": True}
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
     html = picture(
         profile.picture, img_alt="Event 2022/2023", ratio="3/2", img_loading="lazy"

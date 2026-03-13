@@ -38,7 +38,7 @@ class TestPicture(Picture):
 
 
 def test_default(settings):
-    settings.PICTURES["USE_PLACEHOLDERS"] = False
+    settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
     assert (
         rest_framework.default(
             obj=TestPicture(
@@ -62,7 +62,7 @@ def test_default__type_error():
 class TestPictureField:
     @pytest.mark.django_db
     def test_to_representation(self, image_upload_file, settings):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         serializer = ProfileSerializer(profile)
@@ -139,7 +139,7 @@ class TestPictureField:
     def test_to_representation__with_aspect_ratios(
         self, rf, image_upload_file, settings
     ):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
@@ -176,7 +176,7 @@ class TestPictureField:
     def test_to_representation__raise_value_error(
         self, rf, image_upload_file, settings
     ):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
@@ -193,7 +193,7 @@ class TestPictureField:
 
     @pytest.mark.django_db
     def test_to_representation__blank(self, rf, image_upload_file, settings):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create()
         request = rf.get("/")
@@ -207,7 +207,7 @@ class TestPictureField:
 
     @pytest.mark.django_db
     def test_to_representation__no_get_params(self, rf, image_upload_file, settings):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
@@ -239,7 +239,7 @@ class TestPictureField:
 
     @pytest.mark.django_db
     def test_to_representation__multiple_ratios(self, rf, image_upload_file, settings):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
@@ -287,7 +287,7 @@ class TestPictureField:
 
     @pytest.mark.django_db
     def test_to_representation__with_container(self, rf, image_upload_file, settings):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
@@ -322,7 +322,7 @@ class TestPictureField:
     def test_to_representation__without_container(
         self, rf, image_upload_file, settings
     ):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
@@ -356,7 +356,7 @@ class TestPictureField:
     def test_to_representation__with_false_str_container(
         self, rf, image_upload_file, settings
     ):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         request = rf.get("/")
@@ -372,7 +372,7 @@ class TestPictureField:
     def test_to_representation__with_prefiltered_aspect_ratio_and_source(
         self, image_upload_file, settings
     ):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
 
         profile = models.Profile.objects.create(picture=image_upload_file)
         serializer = ProfileSerializer(profile)

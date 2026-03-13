@@ -51,14 +51,14 @@ class TestPillowPicture:
         assert self.picture_with_ratio != "not a picture"
 
     def test_url(self, settings):
-        settings.PICTURES["USE_PLACEHOLDERS"] = False
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": False}
         assert (
             self.picture_with_ratio.url
             == "/media/testapp/simplemodel/image/4_3/800w.avif"
         )
 
     def test_url__placeholder(self, settings):
-        settings.PICTURES["USE_PLACEHOLDERS"] = True
+        settings.PICTURES = {**settings.PICTURES, "USE_PLACEHOLDERS": True}
         assert self.picture_with_ratio.url == "/_pictures/image/4x3/800w.AVIF"
 
     def test_height(self):

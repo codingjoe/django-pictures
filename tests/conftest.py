@@ -45,6 +45,14 @@ def instant_commit(monkeypatch):
     monkeypatch.setattr("django.db.transaction.on_commit", lambda f: f())
 
 
+@pytest.fixture(autouse=True)
+def reset_pictures_settings():
+    """Reset the pictures settings cache before and after each test."""
+    conf.settings.reload()
+    yield
+    conf.settings.reload()
+
+
 @pytest.fixture
 def stub_worker():
     try:
