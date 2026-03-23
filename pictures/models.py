@@ -85,6 +85,18 @@ class PillowPicture(Picture):
                 return image.convert(output_mode)
         return image
 
+    def _strip_color_profile(self, image: Image.Image) -> Image.Image:
+        if self.file_type not in RGB_FORMATS + RGBA_FORMATS:
+            return image
+        if "icc_profile" not in image.info:
+            return image
+
+        sanitized = image.copy()
+        sanitized.info = {
+            key: value for key, value in image.info.items() if key != "icc_profile"
+        }
+        return sanitized
+
     def _normalize_color_profile(self, image: Image.Image) -> Image.Image:
         icc_profile = image.info.get("icc_profile")
         output_mode = self._get_output_mode(image)
@@ -161,6 +173,7 @@ class PillowPicture(Picture):
             img = self.process(image)
             img = self._normalize_color_profile(img)
             img = self._coerce_output_mode(img)
+            img = self._strip_color_profile(img)
             img.save(file_buffer, format=self.file_type)
             self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))

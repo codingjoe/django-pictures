@@ -156,6 +156,67 @@ class TestPillowPicture:
             == "RGB"
         )
 
+    def test_strip_color_profile(self):
+        image = Image.new("RGB", (10, 10))
+        image.info["icc_profile"] = b"fake-icc-profile"
+
+        result = self.picture_with_ratio._strip_color_profile(image)
+
+        assert result is not image
+        assert "icc_profile" not in result.info
+        assert image.info["icc_profile"] == b"fake-icc-profile"
+
+    def test_strip_color_profile__leave_other_formats_unchanged(self):
+        image = Image.new("RGB", (10, 10))
+        image.info["icc_profile"] = b"fake-icc-profile"
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="TIFF",
+            aspect_ratio=Fraction("4/3"),
+            storage=default_storage,
+            width=800,
+        )
+
+        result = picture._strip_color_profile(image)
+
+        assert result is image
+        assert result.info["icc_profile"] == b"fake-icc-profile"
+
+    def test_save__strips_icc_profile_before_write(self, monkeypatch):
+        image = Image.new("RGB", (10, 10))
+        image.info["icc_profile"] = b"fake-icc-profile"
+        saved = {}
+
+        monkeypatch.setattr(
+            self.picture_with_ratio, "process", Mock(return_value=image)
+        )
+        monkeypatch.setattr(
+            self.picture_with_ratio,
+            "_normalize_color_profile",
+            Mock(return_value=image),
+        )
+        monkeypatch.setattr(
+            self.picture_with_ratio,
+            "_coerce_output_mode",
+            Mock(return_value=image),
+        )
+
+        def fake_save(self, fp, format=None, **kwargs):
+            saved["format"] = format
+            saved["kwargs"] = kwargs
+            saved["icc_profile"] = self.info.get("icc_profile")
+            fp.write(b"image-bytes")
+
+        monkeypatch.setattr("PIL.Image.Image.save", fake_save)
+
+        self.picture_with_ratio.save(image)
+
+        assert saved == {
+            "format": "AVIF",
+            "kwargs": {},
+            "icc_profile": None,
+        }
+
     def test_normalize_color_profile(self, monkeypatch):
         image = Image.new("CMYK", (10, 10))
         image.info["icc_profile"] = b"fake-icc-profile"
