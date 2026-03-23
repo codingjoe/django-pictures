@@ -110,6 +110,52 @@ class TestPillowPicture:
 
         assert image.size == (800, 800), "Image was mutated."
 
+    def test_normalize_color_profile(self, monkeypatch):
+        image = Image.new("CMYK", (10, 10))
+        image.info["icc_profile"] = b"fake-icc-profile"
+        converted = Image.new("RGB", image.size)
+
+        image_cms_profile = Mock(return_value="source-profile")
+        create_profile = Mock(return_value="srgb-profile")
+        profile_to_profile = Mock(return_value=converted)
+
+        monkeypatch.setattr("pictures.models.ImageCms.ImageCmsProfile", image_cms_profile)
+        monkeypatch.setattr("pictures.models.ImageCms.createProfile", create_profile)
+        monkeypatch.setattr(
+            "pictures.models.ImageCms.profileToProfile",
+            profile_to_profile,
+        )
+
+        result = self.picture_with_ratio._normalize_color_profile(image)
+
+        assert result is converted
+        assert result.mode == "RGB"
+        assert result.info["icc_profile"] == b""
+        image_cms_profile.assert_called_once()
+        create_profile.assert_called_once_with("sRGB")
+        profile_to_profile.assert_called_once_with(
+            image,
+            "source-profile",
+            "srgb-profile",
+            outputMode="RGB",
+        )
+
+    def test_normalize_color_profile__strip_icc_profile_on_error(self, monkeypatch):
+        image = Image.new("CMYK", (10, 10))
+        image.info["icc_profile"] = b"fake-icc-profile"
+
+        monkeypatch.setattr(
+            "pictures.models.ImageCms.ImageCmsProfile",
+            Mock(side_effect=OSError("broken profile")),
+        )
+
+        result = self.picture_with_ratio._normalize_color_profile(image)
+
+        assert result is not image
+        assert result.mode == "CMYK"
+        assert "icc_profile" not in result.info
+        assert image.info["icc_profile"] == b"fake-icc-profile"
+
 
 class TestPictureFieldFile:
     @pytest.mark.django_db

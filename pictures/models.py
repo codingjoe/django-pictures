@@ -15,7 +15,7 @@ from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
 from django.urls import reverse
 from django.utils.module_loading import import_string
-from PIL import Image, ImageOps
+from PIL import Image, ImageCms, ImageOps
 
 from pictures import conf, utils
 
@@ -71,6 +71,30 @@ class Picture(abc.ABC):
 class PillowPicture(Picture):
     """Use the Pillow library to process images."""
 
+    def _normalize_color_profile(self, image: Image.Image) -> Image.Image:
+        icc_profile = image.info.get("icc_profile")
+        if not icc_profile or image.mode != "CMYK":
+            return image
+
+        try:
+            source_profile = ImageCms.ImageCmsProfile(io.BytesIO(icc_profile))
+            srgb_profile = ImageCms.createProfile("sRGB")
+            converted = ImageCms.profileToProfile(
+                image,
+                source_profile,
+                srgb_profile,
+                outputMode="RGB",
+            )
+        except Exception:
+            sanitized = image.copy()
+            sanitized.info = {
+                key: value for key, value in image.info.items() if key != "icc_profile"
+            }
+            return sanitized
+
+        converted.info["icc_profile"] = converted.info.get("icc_profile", b"")
+        return converted
+
     @property
     def url(self) -> str:
         if conf.app_settings.USE_PLACEHOLDERS:
@@ -120,6 +144,7 @@ class PillowPicture(Picture):
     def save(self, image):
         with io.BytesIO() as file_buffer:
             img = self.process(image)
+            img = self._normalize_color_profile(img)
             if (self.file_type in RGB_FORMATS) and (img.mode != "RGB"):
                 img = img.convert("RGB")
             img.save(file_buffer, format=self.file_type)
