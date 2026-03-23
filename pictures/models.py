@@ -22,6 +22,7 @@ from pictures import conf, utils
 __all__ = ["PictureField", "PictureFieldFile", "Picture"]
 
 RGB_FORMATS = ["JPEG"]
+RGBA_FORMATS = ["AVIF", "GIF", "PNG", "WEBP"]
 
 
 @dataclasses.dataclass
@@ -71,9 +72,23 @@ class Picture(abc.ABC):
 class PillowPicture(Picture):
     """Use the Pillow library to process images."""
 
+    def _get_output_mode(self, image: Image.Image) -> str | None:
+        if self.file_type in RGB_FORMATS:
+            return "RGB"
+        if self.file_type in RGBA_FORMATS:
+            return "RGBA" if "A" in image.getbands() else "RGB"
+        return None
+
+    def _coerce_output_mode(self, image: Image.Image) -> Image.Image:
+        if output_mode := self._get_output_mode(image):
+            if image.mode != output_mode:
+                return image.convert(output_mode)
+        return image
+
     def _normalize_color_profile(self, image: Image.Image) -> Image.Image:
         icc_profile = image.info.get("icc_profile")
-        if not icc_profile or image.mode != "CMYK":
+        output_mode = self._get_output_mode(image)
+        if not icc_profile or not output_mode:
             return image
 
         try:
@@ -83,7 +98,7 @@ class PillowPicture(Picture):
                 image,
                 source_profile,
                 srgb_profile,
-                outputMode="RGB",
+                outputMode=output_mode,
             )
         except Exception:
             sanitized = image.copy()
@@ -145,8 +160,7 @@ class PillowPicture(Picture):
         with io.BytesIO() as file_buffer:
             img = self.process(image)
             img = self._normalize_color_profile(img)
-            if (self.file_type in RGB_FORMATS) and (img.mode != "RGB"):
-                img = img.convert("RGB")
+            img = self._coerce_output_mode(img)
             img.save(file_buffer, format=self.file_type)
             self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))

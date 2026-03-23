@@ -110,6 +110,52 @@ class TestPillowPicture:
 
         assert image.size == (800, 800), "Image was mutated."
 
+    def test_get_output_mode(self):
+        assert (
+            self.picture_with_ratio._get_output_mode(Image.new("RGB", (10, 10)))
+            == "RGB"
+        )
+        assert (
+            PillowPicture(
+                parent_name="testapp/simplemodel/image.png",
+                file_type="WEBP",
+                aspect_ratio=Fraction("4/3"),
+                storage=default_storage,
+                width=800,
+            )._get_output_mode(Image.new("RGBA", (10, 10)))
+            == "RGBA"
+        )
+        assert (
+            PillowPicture(
+                parent_name="testapp/simplemodel/image.png",
+                file_type="WEBP",
+                aspect_ratio=Fraction("4/3"),
+                storage=default_storage,
+                width=800,
+            )._get_output_mode(Image.new("RGB", (10, 10)))
+            == "RGB"
+        )
+        assert (
+            PillowPicture(
+                parent_name="testapp/simplemodel/image.png",
+                file_type="PNG",
+                aspect_ratio=Fraction("4/3"),
+                storage=default_storage,
+                width=800,
+            )._get_output_mode(Image.new("RGBA", (10, 10)))
+            == "RGBA"
+        )
+        assert (
+            PillowPicture(
+                parent_name="testapp/simplemodel/image.png",
+                file_type="GIF",
+                aspect_ratio=Fraction("4/3"),
+                storage=default_storage,
+                width=800,
+            )._get_output_mode(Image.new("RGB", (10, 10)))
+            == "RGB"
+        )
+
     def test_normalize_color_profile(self, monkeypatch):
         image = Image.new("CMYK", (10, 10))
         image.info["icc_profile"] = b"fake-icc-profile"
@@ -140,6 +186,42 @@ class TestPillowPicture:
             "source-profile",
             "srgb-profile",
             outputMode="RGB",
+        )
+
+    def test_normalize_color_profile__preserve_alpha(self, monkeypatch):
+        image = Image.new("RGBA", (10, 10))
+        image.info["icc_profile"] = b"fake-icc-profile"
+        converted = Image.new("RGBA", image.size)
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="WEBP",
+            aspect_ratio=Fraction("4/3"),
+            storage=default_storage,
+            width=800,
+        )
+
+        image_cms_profile = Mock(return_value="source-profile")
+        create_profile = Mock(return_value="srgb-profile")
+        profile_to_profile = Mock(return_value=converted)
+
+        monkeypatch.setattr(
+            "pictures.models.ImageCms.ImageCmsProfile", image_cms_profile
+        )
+        monkeypatch.setattr("pictures.models.ImageCms.createProfile", create_profile)
+        monkeypatch.setattr(
+            "pictures.models.ImageCms.profileToProfile",
+            profile_to_profile,
+        )
+
+        result = picture._normalize_color_profile(image)
+
+        assert result is converted
+        assert result.mode == "RGBA"
+        profile_to_profile.assert_called_once_with(
+            image,
+            "source-profile",
+            "srgb-profile",
+            outputMode="RGBA",
         )
 
     def test_normalize_color_profile__strip_icc_profile_on_error(self, monkeypatch):
