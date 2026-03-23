@@ -119,7 +119,9 @@ class TestPillowPicture:
         create_profile = Mock(return_value="srgb-profile")
         profile_to_profile = Mock(return_value=converted)
 
-        monkeypatch.setattr("pictures.models.ImageCms.ImageCmsProfile", image_cms_profile)
+        monkeypatch.setattr(
+            "pictures.models.ImageCms.ImageCmsProfile", image_cms_profile
+        )
         monkeypatch.setattr("pictures.models.ImageCms.createProfile", create_profile)
         monkeypatch.setattr(
             "pictures.models.ImageCms.profileToProfile",
