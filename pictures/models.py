@@ -119,7 +119,6 @@ class PillowPicture(Picture):
             }
             return sanitized
 
-        converted.info["icc_profile"] = converted.info.get("icc_profile", b"")
         return converted
 
     @property
