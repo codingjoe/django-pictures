@@ -239,7 +239,7 @@ class TestPillowPicture:
 
         assert result is converted
         assert result.mode == "RGB"
-        assert result.info["icc_profile"] == b""
+        assert "icc_profile" not in result.info
         image_cms_profile.assert_called_once()
         create_profile.assert_called_once_with("sRGB")
         profile_to_profile.assert_called_once_with(
