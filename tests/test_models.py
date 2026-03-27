@@ -155,6 +155,33 @@ class TestPillowPicture:
             )._get_output_mode(Image.new("RGB", (10, 10)))
             == "RGB"
         )
+        assert (
+            PillowPicture(
+                parent_name="testapp/simplemodel/image.png",
+                file_type="TIFF",
+                aspect_ratio=Fraction("4/3"),
+                storage=default_storage,
+                width=800,
+            )._get_output_mode(Image.new("RGB", (10, 10)))
+            is None
+        )
+
+    def test_coerce_output_mode__leave_unsupported_format_unchanged(self, monkeypatch):
+        image = Image.new("CMYK", (10, 10))
+        convert = Mock()
+        monkeypatch.setattr(image, "convert", convert)
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="TIFF",
+            aspect_ratio=Fraction("4/3"),
+            storage=default_storage,
+            width=800,
+        )
+
+        result = picture._coerce_output_mode(image)
+
+        assert result is image
+        convert.assert_not_called()
 
     def test_strip_color_profile(self):
         image = Image.new("RGB", (10, 10))
@@ -300,6 +327,88 @@ class TestPillowPicture:
         assert result.mode == "CMYK"
         assert "icc_profile" not in result.info
         assert image.info["icc_profile"] == b"fake-icc-profile"
+
+    def test_normalize_color_profile__leave_unsupported_format_unchanged(
+        self, monkeypatch
+    ):
+        image = Image.new("CMYK", (10, 10))
+        image.info["icc_profile"] = b"fake-icc-profile"
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="TIFF",
+            aspect_ratio=Fraction("4/3"),
+            storage=default_storage,
+            width=800,
+        )
+
+        image_cms_profile = Mock()
+        monkeypatch.setattr(
+            "pictures.models.ImageCms.ImageCmsProfile", image_cms_profile
+        )
+
+        result = picture._normalize_color_profile(image)
+
+        assert result is image
+        image_cms_profile.assert_not_called()
+
+    def test_save__runs_processing_steps_in_order(self, monkeypatch):
+        image = Image.new("RGB", (10, 10))
+        processed = Image.new("RGB", (10, 10))
+        normalized = Image.new("RGB", (10, 10))
+        coerced = Image.new("RGB", (10, 10))
+        stripped = Image.new("RGB", (10, 10))
+        calls = []
+
+        monkeypatch.setattr(
+            self.picture_with_ratio,
+            "process",
+            Mock(
+                side_effect=lambda value: calls.append("process") or processed,
+            ),
+        )
+        monkeypatch.setattr(
+            self.picture_with_ratio,
+            "_normalize_color_profile",
+            Mock(
+                side_effect=lambda value: (
+                    calls.append(("normalize", value is processed)) or normalized
+                ),
+            ),
+        )
+        monkeypatch.setattr(
+            self.picture_with_ratio,
+            "_coerce_output_mode",
+            Mock(
+                side_effect=lambda value: (
+                    calls.append(("coerce", value is normalized)) or coerced
+                ),
+            ),
+        )
+        monkeypatch.setattr(
+            self.picture_with_ratio,
+            "_strip_color_profile",
+            Mock(
+                side_effect=lambda value: (
+                    calls.append(("strip", value is coerced)) or stripped
+                ),
+            ),
+        )
+
+        def fake_save(self, fp, format=None, **kwargs):
+            calls.append(("save", self is stripped, format))
+            fp.write(b"image-bytes")
+
+        monkeypatch.setattr("PIL.Image.Image.save", fake_save)
+
+        self.picture_with_ratio.save(image)
+
+        assert calls == [
+            "process",
+            ("normalize", True),
+            ("coerce", True),
+            ("strip", True),
+            ("save", True, "AVIF"),
+        ]
 
 
 class TestPictureFieldFile:
