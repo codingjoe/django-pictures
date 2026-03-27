@@ -10,7 +10,7 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image, ImageCms, ImageDraw
 
-from pictures.models import PictureField, PillowPicture, RGBA_FORMATS, RGB_FORMATS
+from pictures.models import RGB_FORMATS, RGBA_FORMATS, PictureField, PillowPicture
 from tests.testapp.models import JPEGModel, Profile, SimpleModel
 
 
