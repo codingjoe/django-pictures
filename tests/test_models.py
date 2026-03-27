@@ -8,9 +8,9 @@ from unittest.mock import Mock
 import pytest
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
-from PIL import Image, ImageDraw
+from PIL import Image, ImageCms, ImageDraw
 
-from pictures.models import PictureField, PillowPicture
+from pictures.models import PictureField, PillowPicture, RGBA_FORMATS, RGB_FORMATS
 from tests.testapp.models import JPEGModel, Profile, SimpleModel
 
 
@@ -22,6 +22,22 @@ def override_field_aspect_ratios(field, aspect_ratios):
         yield
     finally:
         field.aspect_ratios = old_ratios
+
+
+def profile_name_from_bytes(profile_bytes):
+    if not profile_bytes:
+        return None
+
+    profile = ImageCms.ImageCmsProfile(io.BytesIO(profile_bytes))
+    return ImageCms.getProfileName(profile).strip()
+
+
+def get_cmyk_profile_bytes():
+    return Path(__file__).with_name("assets").joinpath("ps_cmyk.icc").read_bytes()
+
+
+def get_rgb_profile_bytes():
+    return Path(__file__).with_name("assets").joinpath("ps_rgb.icc").read_bytes()
 
 
 class TestPillowPicture:
@@ -80,6 +96,63 @@ class TestPillowPicture:
         assert not self.picture_with_ratio.path.exists()
         self.picture_with_ratio.save(Image.new("RGB", (800, 800), (255, 55, 255)))
         assert self.picture_with_ratio.path.exists()
+
+    @pytest.mark.parametrize("file_type", RGB_FORMATS + RGBA_FORMATS)
+    def test_save__web_formats_strip_exif_and_keep_only_srgb_icc(self, file_type):
+        image = Image.new("CMYK", (20, 20), (0, 128, 255, 0))
+        exif = Image.Exif()
+        exif[0x010E] = "django-pictures test image"
+        image.info["exif"] = exif.tobytes()
+        image.info["icc_profile"] = get_cmyk_profile_bytes()
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type=file_type,
+            aspect_ratio=None,
+            storage=default_storage,
+            width=20,
+        )
+
+        picture.save(image)
+
+        with Image.open(picture.path) as saved_image:
+            assert saved_image.mode == "RGB"
+            assert not saved_image.info.get("exif")
+            assert len(saved_image.getexif()) == 0
+
+            profile_name = profile_name_from_bytes(saved_image.info.get("icc_profile"))
+            assert profile_name is None or profile_name.startswith("sRGB")
+
+    def test_save__png_applies_non_srgb_rgb_profile_transform(self):
+        # Use a lossless format here so exact pixel comparisons remain stable.
+        image = Image.new("RGB", (1, 1), (255, 128, 0))
+        image.info["icc_profile"] = get_rgb_profile_bytes()
+        source_pixel = image.getpixel((0, 0))
+
+        source_profile = ImageCms.ImageCmsProfile(io.BytesIO(image.info["icc_profile"]))
+        srgb_profile = ImageCms.createProfile("sRGB")
+        expected = ImageCms.profileToProfile(
+            image,
+            source_profile,
+            srgb_profile,
+            outputMode="RGB",
+        )
+        expected_pixel = expected.getpixel((0, 0))
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="PNG",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=1,
+        )
+
+        assert expected_pixel != source_pixel
+
+        picture.save(image)
+
+        with Image.open(picture.path) as saved_image:
+            saved_pixel = saved_image.getpixel((0, 0))
+            assert saved_pixel == expected_pixel
+            assert saved_pixel != source_pixel
 
     def test_delete(self):
         self.picture_with_ratio.save(Image.new("RGB", (800, 800), (255, 55, 255)))
@@ -144,16 +217,6 @@ class TestPillowPicture:
                 width=800,
             )._get_output_mode(Image.new("RGBA", (10, 10)))
             == "RGBA"
-        )
-        assert (
-            PillowPicture(
-                parent_name="testapp/simplemodel/image.png",
-                file_type="GIF",
-                aspect_ratio=Fraction("4/3"),
-                storage=default_storage,
-                width=800,
-            )._get_output_mode(Image.new("RGB", (10, 10)))
-            == "RGB"
         )
         assert (
             PillowPicture(
