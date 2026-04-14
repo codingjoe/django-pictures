@@ -161,10 +161,11 @@ class TestPillowPicture:
         assert len(resized_image.getexif()) == 0
         assert not resized_image.info.get("icc_profile")
 
-    def test_resize__strip_exif(self):
+    def test_save__strip_exif(self):
         image = Image.new("RGB", (20, 20), (255, 0, 0))
         exif = image.getexif()
         exif[0x010E] = "reproduction"
+        image.info["exif"] = exif.tobytes()
         picture = PillowPicture(
             parent_name="testapp/simplemodel/image.png",
             file_type="JPEG",
@@ -173,8 +174,9 @@ class TestPillowPicture:
             width=20,
         )
         image = picture.pre_process(image)
-        resized_image = picture.resize(image)
-        assert not resized_image.getexif()
+        picture.save(image)
+        with Image.open(picture.path) as saved_image:
+            assert not saved_image.getexif()
 
     def test_save__strip_icc_profile(self):
         image = Image.new("RGB", (20, 20), (255, 0, 0))
