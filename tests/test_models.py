@@ -119,8 +119,21 @@ class TestPillowPicture:
 
         assert image.size == (800, 800), "Image was mutated."
 
+    def test_resize__do_not_introduce_extra_alpha_channel(self):
+        image = Image.new("RGB", (1, 1), (255, 255, 255))
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="PNG",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=20,
+        )
+        image = picture.pre_process(image)
+        image = picture.resize(image)
+        assert image.mode == "RGB", "Alpha channel was introduced during resize."
+
     @pytest.mark.parametrize("file_type", ["AVIF", "WEBP", "PNG", "GIF", "JPEG"])
-    def test_save__web_formats_strip_exif_and_keep_only_srgb_icc(self, file_type):
+    def test_save__web_formats_strip_exif_and_icc_profiles(self, file_type):
         image = Image.new("CMYK", (20, 20), (0, 128, 255, 0))
         exif = Image.Exif()
         exif[0x010E] = "django-pictures test image"
@@ -135,15 +148,14 @@ class TestPillowPicture:
         )
 
         image = picture.pre_process(image)
-        picture.save(image)
+        resized_image = picture.resize(image)
 
-        with Image.open(picture.path) as saved_image:
-            assert saved_image.mode in ["RGB", "RGBA", "P"]
-            assert not saved_image.info.get("exif")
-            assert len(saved_image.getexif()) == 0
+        assert resized_image.mode in ["RGB", "RGBA", "P"]
+        assert not resized_image.info.get("exif")
+        assert len(resized_image.getexif()) == 0
 
-            profile_name = profile_name_from_bytes(saved_image.info.get("icc_profile"))
-            assert profile_name is None
+        with pytest.raises(KeyError):
+            resized_image.info["icc_profile"]
 
     def test_save__strip_exif(self):
         image = Image.new("RGB", (20, 20), (255, 0, 0))
