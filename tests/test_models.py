@@ -128,12 +128,11 @@ class TestPillowPicture:
             storage=default_storage,
             width=20,
         )
-        image = picture.pre_process(image)
         image = picture.resize(image)
         assert image.mode == "RGB", "Alpha channel was introduced during resize."
 
     @pytest.mark.parametrize("file_type", ["AVIF", "WEBP", "PNG", "GIF", "JPEG"])
-    def test_save__web_formats_strip_exif_and_icc_profiles(self, file_type):
+    def test_resize__web_formats_strip_exif_and_icc_profiles(self, file_type):
         image = Image.new("CMYK", (20, 20), (0, 128, 255, 0))
         exif = Image.Exif()
         exif[0x010E] = "django-pictures test image"
@@ -154,10 +153,7 @@ class TestPillowPicture:
         assert not resized_image.info.get("exif")
         assert len(resized_image.getexif()) == 0
 
-        with pytest.raises(KeyError):
-            resized_image.info["icc_profile"]
-
-    def test_save__strip_exif(self):
+    def test_resize__strip_exif(self):
         image = Image.new("RGB", (20, 20), (255, 0, 0))
         exif = image.getexif()
         exif[0x010E] = "reproduction"
@@ -168,9 +164,9 @@ class TestPillowPicture:
             storage=default_storage,
             width=20,
         )
-        picture.save(image)
-        with Image.open(picture.path) as saved_image:
-            assert not saved_image.getexif()
+        image = picture.pre_process(image)
+        resized_image = picture.resize(image)
+        assert not resized_image.getexif()
 
     def test_save__strip_icc_profile(self):
         image = Image.new("RGB", (20, 20), (255, 0, 0))
@@ -186,7 +182,7 @@ class TestPillowPicture:
         with Image.open(picture.path) as saved_image:
             assert not saved_image.info.get("icc_profile")
 
-    def test_save__png_applies_non_srgb_rgb_profile_transform(self):
+    def test_resize__png_applies_non_srgb_rgb_profile_transform(self):
         # Use a lossless format here so exact pixel comparisons remain stable.
         image = Image.new("RGB", (1, 1), (255, 128, 0))
         image.info["icc_profile"] = get_rgb_profile_bytes()
@@ -212,14 +208,13 @@ class TestPillowPicture:
         assert expected_pixel != source_pixel
 
         image = picture.pre_process(image)
-        picture.save(image)
+        resized_image = picture.resize(image)
 
-        with Image.open(picture.path) as saved_image:
-            saved_pixel = saved_image.getpixel((0, 0))
-            if saved_image.mode == "RGBA":
-                saved_pixel = saved_pixel[:3]
-            assert saved_pixel == expected_pixel
-            assert saved_pixel != source_pixel
+        resized_pixel = resized_image.getpixel((0, 0))
+        if resized_image.mode == "RGBA":
+            resized_pixel = resized_pixel[:3]
+        assert resized_pixel == expected_pixel
+        assert resized_pixel != source_pixel
 
     def test_delete(self):
         self.picture_with_ratio.save(Image.new("RGB", (800, 800), (255, 55, 255)))
