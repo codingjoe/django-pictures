@@ -266,7 +266,7 @@ class TestPillowPicture:
         image.info["icc_profile"] = b"broken profile"
 
         with pytest.raises(OSError):
-            image = self.picture_with_ratio.pre_process(image)
+            self.picture_with_ratio.pre_process(image)
 
 
 class TestPictureFieldFile:
