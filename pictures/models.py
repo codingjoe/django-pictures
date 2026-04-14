@@ -21,9 +21,6 @@ from pictures import conf, utils
 
 __all__ = ["PictureField", "PictureFieldFile", "Picture"]
 
-RGB_FORMATS = ["JPEG"]
-RGBA_FORMATS = ["AVIF", "PNG", "WEBP"]
-
 
 @dataclasses.dataclass
 class Picture(abc.ABC):

@@ -10,7 +10,7 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image, ImageCms, ImageDraw
 
-from pictures.models import RGB_FORMATS, RGBA_FORMATS, PictureField, PillowPicture
+from pictures.models import PictureField, PillowPicture
 from tests.testapp.models import JPEGModel, Profile, SimpleModel
 
 
@@ -97,7 +97,7 @@ class TestPillowPicture:
         self.picture_with_ratio.save(Image.new("RGB", (800, 800), (255, 55, 255)))
         assert self.picture_with_ratio.path.exists()
 
-    @pytest.mark.parametrize("file_type", RGB_FORMATS + RGBA_FORMATS)
+    @pytest.mark.parametrize("file_type", ["AVIF", "WEBP", "PNG", "GIF", "JPEG"])
     def test_save__web_formats_strip_exif_and_keep_only_srgb_icc(self, file_type):
         image = Image.new("CMYK", (20, 20), (0, 128, 255, 0))
         exif = Image.Exif()
@@ -115,7 +115,7 @@ class TestPillowPicture:
         picture.save(image)
 
         with Image.open(picture.path) as saved_image:
-            assert saved_image.mode == "RGB"
+            assert saved_image.mode in ["RGB", "P"]
             assert not saved_image.info.get("exif")
             assert len(saved_image.getexif()) == 0
 
