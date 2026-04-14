@@ -3,6 +3,7 @@ import copy
 import io
 from fractions import Fraction
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 from django.core.files.storage import default_storage
@@ -96,7 +97,13 @@ class TestPillowPicture:
         self.picture_with_ratio.save(Image.new("RGB", (800, 800), (255, 55, 255)))
         assert self.picture_with_ratio.path.exists()
 
-    def test_process__copy(self):
+    def test_delete(self):
+        self.picture_with_ratio.save(Image.new("RGB", (800, 800), (255, 55, 255)))
+        assert self.picture_with_ratio.path.exists()
+        self.picture_with_ratio.delete()
+        assert not self.picture_with_ratio.path.exists()
+
+    def test_resize__copy(self):
         """Do not mutate input image."""
         image = Image.new("RGB", (800, 800), (255, 55, 255))
         assert PillowPicture(
@@ -216,12 +223,6 @@ class TestPillowPicture:
         assert resized_pixel == expected_pixel
         assert resized_pixel != source_pixel
 
-    def test_delete(self):
-        self.picture_with_ratio.save(Image.new("RGB", (800, 800), (255, 55, 255)))
-        assert self.picture_with_ratio.path.exists()
-        self.picture_with_ratio.delete()
-        assert not self.picture_with_ratio.path.exists()
-
     @pytest.mark.parametrize(
         ("file_type", "image_mode", "expected_mode"),
         [
@@ -233,7 +234,7 @@ class TestPillowPicture:
             ("JPEG", "RGBA", "RGB"),
         ],
     )
-    def test_process__convert_to_expected_mode(
+    def test_resize__convert_to_expected_mode(
         self, file_type, image_mode, expected_mode
     ):
         image = Image.new(image_mode, (10, 10))
@@ -251,7 +252,7 @@ class TestPillowPicture:
 
         assert result.mode == expected_mode
 
-    def test_process__normalize_color_profile__preserve_alpha(self):
+    def test_resize__normalize_color_profile__preserve_alpha(self):
         image = Image.new("RGBA", (10, 10))
         image.info["icc_profile"] = get_rgb_profile_bytes()
         picture = PillowPicture(
@@ -268,7 +269,7 @@ class TestPillowPicture:
         assert result.mode == "RGBA"
         assert "A" in result.getbands(), "Alpha channel was not preserved."
 
-    def test_process__raise_os_error_on_broken_color_profile(self):
+    def test_resize__raise_os_error_on_broken_color_profile(self):
         image = Image.new("CMYK", (10, 10))
         image.info["icc_profile"] = b"broken profile"
 
@@ -727,10 +728,12 @@ class TestPictureFieldFile:
             assert pixels[0, 0][1] == 0  # blue is on the top, always blue!
 
     @pytest.mark.django_db
-    def test_save__is_blank(self):
+    def test_save__is_blank(self, monkeypatch):
         obj = SimpleModel()
+        save_all = Mock()
+        monkeypatch.setattr("pictures.models.PictureFieldFile.save_all", save_all)
         obj.save()
-        assert not obj.picture
+        assert not save_all.called
 
     @pytest.mark.django_db
     def test_delete(self, stub_worker, image_upload_file):
