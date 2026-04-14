@@ -159,6 +159,7 @@ class TestPillowPicture:
         assert resized_image.mode in ["RGB", "RGBA", "P"]
         assert not resized_image.info.get("exif")
         assert len(resized_image.getexif()) == 0
+        assert not resized_image.info.get("icc_profile")
 
     def test_resize__strip_exif(self):
         image = Image.new("RGB", (20, 20), (255, 0, 0))
