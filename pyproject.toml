@@ -84,6 +84,7 @@ source = ["pictures"]
 
 [tool.coverage.report]
 show_missing = true
+skip_covered = true
 
 [tool.isort]
 atomic = true

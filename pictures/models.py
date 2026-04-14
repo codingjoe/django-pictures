@@ -72,55 +72,6 @@ class Picture(abc.ABC):
 class PillowPicture(Picture):
     """Use the Pillow library to process images."""
 
-    def _get_output_mode(self, image: Image.Image) -> str | None:
-        if self.file_type in RGB_FORMATS:
-            return "RGB"
-        if self.file_type in RGBA_FORMATS:
-            return "RGBA" if "A" in image.getbands() else "RGB"
-        return None
-
-    def _coerce_output_mode(self, image: Image.Image) -> Image.Image:
-        if output_mode := self._get_output_mode(image):
-            if image.mode != output_mode:
-                return image.convert(output_mode)
-        return image
-
-    def _strip_color_profile(self, image: Image.Image) -> Image.Image:
-        if self.file_type not in RGB_FORMATS + RGBA_FORMATS:
-            return image
-        if "icc_profile" not in image.info:
-            return image
-
-        sanitized = image.copy()
-        sanitized.info = {
-            key: value for key, value in image.info.items() if key != "icc_profile"
-        }
-        return sanitized
-
-    def _normalize_color_profile(self, image: Image.Image) -> Image.Image:
-        icc_profile = image.info.get("icc_profile")
-        output_mode = self._get_output_mode(image)
-        if not icc_profile or not output_mode:
-            return image
-
-        try:
-            source_profile = ImageCms.ImageCmsProfile(io.BytesIO(icc_profile))
-            srgb_profile = ImageCms.createProfile("sRGB")
-            converted = ImageCms.profileToProfile(
-                image,
-                source_profile,
-                srgb_profile,
-                outputMode=output_mode,
-            )
-        except Exception:
-            sanitized = image.copy()
-            sanitized.info = {
-                key: value for key, value in image.info.items() if key != "icc_profile"
-            }
-            return sanitized
-
-        return converted
-
     @property
     def url(self) -> str:
         if conf.app_settings.USE_PLACEHOLDERS:
@@ -156,8 +107,27 @@ class PillowPicture(Picture):
     def path(self) -> Path:
         return Path(self.storage.path(self.name))
 
-    def process(self, image) -> Image.Image:
-        image = ImageOps.exif_transpose(image)  # crates a copy
+    def process(self, image: Image.Image) -> Image.Image:
+        target_mode = (
+            "RGBA" if self.file_type != "JPEG" and "A" in image.getbands() else "RGB"
+        )
+        try:
+            icc_profile = image.info["icc_profile"]
+        except KeyError:
+            image = image.convert(mode=target_mode)
+        else:
+            with io.BytesIO() as buffer:
+                buffer.write(icc_profile)
+                buffer.seek(0)
+                source_profile = ImageCms.ImageCmsProfile(buffer)
+            srgb_profile = ImageCms.createProfile("sRGB")
+            image = ImageCms.profileToProfile(
+                image,
+                source_profile,
+                srgb_profile,
+                outputMode=target_mode,
+            )
+
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
 
@@ -170,9 +140,6 @@ class PillowPicture(Picture):
     def save(self, image):
         with io.BytesIO() as file_buffer:
             img = self.process(image)
-            img = self._normalize_color_profile(img)
-            img = self._coerce_output_mode(img)
-            img = self._strip_color_profile(img)
             img.save(file_buffer, format=self.file_type)
             self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))
