@@ -130,3 +130,6 @@ dmypy.json
 
 # flit
 pictures/_version.py
+
+# uv
+uv.lock

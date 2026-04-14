@@ -37,7 +37,7 @@ jobs:
           python-version: "3.x"
       - run: python -m pip install .[test]
       - run: python -m pytest
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           flags: ${{ matrix.os }}
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -63,7 +63,7 @@ jobs:
       - run: python -m pip install .[test]
       - run: python -m pip install django~=${{ matrix.django-version }}.0
       - run: python -m pytest
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           flags: py${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -75,7 +75,6 @@ jobs:
           - "3.12"
         django-version:
           # LTS gets tested on all OS
-          - "4.2"
           - "6.0"
     runs-on: ubuntu-latest
     steps:
@@ -87,7 +86,7 @@ jobs:
       - run: python -m pip install .[test]
       - run: python -m pip install django~=${{ matrix.django-version }}.0
       - run: python -m pytest
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           flags: dj${{ matrix.django-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -116,7 +115,7 @@ jobs:
       - run: python -m pip install .[test,${{ matrix.extras }}]
       - run: python -m pip install django~=${{ matrix.django-version }}.0
       - run: python -m pytest
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           flags: ${{ matrix.extras }}
           token: ${{ secrets.CODECOV_TOKEN }}
