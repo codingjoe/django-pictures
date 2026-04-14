@@ -5,10 +5,11 @@ from typing import Protocol
 
 import django
 from django.db import transaction
-from PIL import Image, ImageOps
+from PIL import Image
 
 from pictures import conf, utils
 from pictures.conf import app_settings
+from pictures.models import PillowPicture
 
 
 def noop(*args, **kwargs) -> None:
@@ -36,7 +37,7 @@ def _process_picture(
     storage = utils.reconstruct(*storage)
     if new:
         with storage.open(file_name) as fs, Image.open(fs) as img:
-            img = ImageOps.exif_transpose(img)  # crates a copy
+            img = PillowPicture.pre_process(img)
             for picture in new:
                 picture = utils.reconstruct(*picture)
                 picture.save(img)

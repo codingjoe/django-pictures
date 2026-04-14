@@ -104,14 +104,13 @@ class PillowPicture(Picture):
     def path(self) -> Path:
         return Path(self.storage.path(self.name))
 
-    def process(self, image: Image.Image) -> Image.Image:
-        target_mode = (
-            "RGBA" if self.file_type != "JPEG" and "A" in image.getbands() else "RGB"
-        )
+    @staticmethod
+    def pre_process(image: Image.Image) -> Image.Image:
+        image = ImageOps.exif_transpose(image)
         try:
             icc_profile = image.info["icc_profile"]
         except KeyError:
-            image = image.convert(mode=target_mode)
+            image = image.convert(mode="RGBA")
         else:
             with io.BytesIO() as buffer:
                 buffer.write(icc_profile)
@@ -122,8 +121,14 @@ class PillowPicture(Picture):
                 image,
                 source_profile,
                 srgb_profile,
-                outputMode=target_mode,
+                outputMode="RGBA",
             )
+        return image
+
+    def resize(self, image: Image.Image) -> Image.Image:
+        image.copy()  # avoid modifying the original image
+        if self.file_type == "JPEG":
+            image = image.convert("RGB")
 
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
@@ -136,7 +141,7 @@ class PillowPicture(Picture):
 
     def save(self, image):
         with io.BytesIO() as file_buffer:
-            img = self.process(image)
+            img = self.resize(image)
             img.save(file_buffer, format=self.file_type, exif=b"", icc_profile=b"")
             self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))

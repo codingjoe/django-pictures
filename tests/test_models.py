@@ -215,7 +215,7 @@ class TestPillowPicture:
             width=10,
         )
 
-        result = picture.process(image)
+        result = picture.resize(image)
 
         convert.assert_called_once_with(mode=expected_mode)
         assert result.mode == expected_mode
@@ -245,7 +245,7 @@ class TestPillowPicture:
             profile_to_profile,
         )
 
-        result = picture.process(image)
+        result = picture.resize(image)
 
         assert "A" in result.getbands(), "Alpha channel was not preserved."
         profile_to_profile.assert_called_once_with(
@@ -265,7 +265,7 @@ class TestPillowPicture:
         )
 
         with pytest.raises(OSError, match="broken profile"):
-            self.picture_with_ratio.process(image)
+            self.picture_with_ratio.resize(image)
 
 
 class TestPictureFieldFile:
