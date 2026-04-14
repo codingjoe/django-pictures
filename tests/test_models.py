@@ -154,12 +154,12 @@ class TestPillowPicture:
         )
 
         image = picture.pre_process(image)
-        resized_image = picture.resize(image)
-
-        assert resized_image.mode in ["RGB", "RGBA", "P"]
-        assert not resized_image.info.get("exif")
-        assert len(resized_image.getexif()) == 0
-        assert not resized_image.info.get("icc_profile")
+        picture.save(image)
+        with Image.open(picture.path) as saved_image:
+            assert saved_image.mode in ["RGB", "RGBA", "P"]
+            assert not saved_image.info.get("exif")
+            assert len(saved_image.getexif()) == 0
+            assert not saved_image.info.get("icc_profile")
 
     def test_save__strip_exif(self):
         image = Image.new("RGB", (20, 20), (255, 0, 0))
