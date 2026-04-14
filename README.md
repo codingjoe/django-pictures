@@ -243,7 +243,7 @@ from pictures.signals import picture_processed
 class Profile(models.Model):
     title = models.CharField(max_length=255)
     picture = PictureField(upload_to="avatars")
-    picture_processed = models.BooleanField(editable=False, null=True)
+    picture_processed = models.BooleanField(editable=False, default=False)
 
 
 
