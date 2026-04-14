@@ -229,14 +229,15 @@ processor, should you need to do some custom processing.
 
 ### Signals
 
-The async image processing emits a signal when the task is complete.
-You can use that to store when the pictures have been processed,
-so that a placeholder could be rendered in the meantime.
+Image processing emits a `picture_processed` signal after successfull completion.
+The signal can be used to persissed the processing state or to trigger other events.
 
 ```python
 # models.py
 from django.db import models
+from django.dispatch import receiver
 from pictures.models import PictureField
+from pictures.signals import picture_processed
 
 
 class Profile(models.Model):
@@ -245,15 +246,11 @@ class Profile(models.Model):
     picture_processed = models.BooleanField(editable=False, null=True)
 
 
-# signals.py
-from django.dispatch import receiver
-from pictures import signals
-
-from .models import Profile
 
 
-@receiver(signals.picture_processed, sender=Profile._meta.get_field("picture"))
-def picture_processed_handler(*, sender, file_name, **__):
+
+@receiver(picture_processed, sender=Profile._meta.get_field("picture"))
+def picture_processed_handler(sender, file_name, **kwargs):
     sender.model.objects.filter(**{sender.name: file_name}).update(
         picture_processed=True
     )
