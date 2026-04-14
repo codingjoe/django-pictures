@@ -126,7 +126,7 @@ class PillowPicture(Picture):
         return image
 
     def resize(self, image: Image.Image) -> Image.Image:
-        image.copy()  # avoid modifying the original image
+        image = image.copy()  # avoid modifying the original image
         if self.file_type == "JPEG":
             image = image.convert("RGB")
 

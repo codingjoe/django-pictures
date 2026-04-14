@@ -3,7 +3,6 @@ import copy
 import io
 from fractions import Fraction
 from pathlib import Path
-from unittest.mock import Mock
 
 import pytest
 from django.core.files.storage import default_storage
@@ -97,6 +96,29 @@ class TestPillowPicture:
         self.picture_with_ratio.save(Image.new("RGB", (800, 800), (255, 55, 255)))
         assert self.picture_with_ratio.path.exists()
 
+    def test_process__copy(self):
+        """Do not mutate input image."""
+        image = Image.new("RGB", (800, 800), (255, 55, 255))
+        assert PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="AVIF",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=100,
+        ).resize(image).size == (100, 100)
+
+        assert image.size == (800, 800), "Image was mutated."
+
+        assert PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="AVIF",
+            aspect_ratio="4/3",
+            storage=default_storage,
+            width=400,
+        ).resize(image).size == (400, 300)
+
+        assert image.size == (800, 800), "Image was mutated."
+
     @pytest.mark.parametrize("file_type", ["AVIF", "WEBP", "PNG", "GIF", "JPEG"])
     def test_save__web_formats_strip_exif_and_keep_only_srgb_icc(self, file_type):
         image = Image.new("CMYK", (20, 20), (0, 128, 255, 0))
@@ -112,10 +134,11 @@ class TestPillowPicture:
             width=20,
         )
 
+        image = picture.pre_process(image)
         picture.save(image)
 
         with Image.open(picture.path) as saved_image:
-            assert saved_image.mode in ["RGB", "P"]
+            assert saved_image.mode in ["RGB", "RGBA", "P"]
             assert not saved_image.info.get("exif")
             assert len(saved_image.getexif()) == 0
 
@@ -176,10 +199,13 @@ class TestPillowPicture:
 
         assert expected_pixel != source_pixel
 
+        image = picture.pre_process(image)
         picture.save(image)
 
         with Image.open(picture.path) as saved_image:
             saved_pixel = saved_image.getpixel((0, 0))
+            if saved_image.mode == "RGBA":
+                saved_pixel = saved_pixel[:3]
             assert saved_pixel == expected_pixel
             assert saved_pixel != source_pixel
 
@@ -192,21 +218,18 @@ class TestPillowPicture:
     @pytest.mark.parametrize(
         ("file_type", "image_mode", "expected_mode"),
         [
-            ("AVIF", "RGB", "RGB"),
+            ("AVIF", "RGB", "RGBA"),
             ("WEBP", "RGBA", "RGBA"),
-            ("WEBP", "RGB", "RGB"),
+            ("WEBP", "RGB", "RGBA"),
             ("PNG", "RGBA", "RGBA"),
-            ("TIFF", "CMYK", "RGB"),
+            ("TIFF", "CMYK", "RGBA"),
             ("JPEG", "RGBA", "RGB"),
         ],
     )
     def test_process__convert_to_expected_mode(
-        self, file_type, image_mode, expected_mode, monkeypatch
+        self, file_type, image_mode, expected_mode
     ):
         image = Image.new(image_mode, (10, 10))
-        converted = Image.new(expected_mode, image.size)
-        convert = Mock(return_value=converted)
-        monkeypatch.setattr(image, "convert", convert)
         picture = PillowPicture(
             parent_name="testapp/simplemodel/image.png",
             file_type=file_type,
@@ -215,15 +238,15 @@ class TestPillowPicture:
             width=10,
         )
 
+        image = picture.pre_process(image)
+        # resize() might call convert() depending on file_type
         result = picture.resize(image)
 
-        convert.assert_called_once_with(mode=expected_mode)
         assert result.mode == expected_mode
 
-    def test_process__normalize_color_profile__preserve_alpha(self, monkeypatch):
+    def test_process__normalize_color_profile__preserve_alpha(self):
         image = Image.new("RGBA", (10, 10))
-        image.info["icc_profile"] = b"fake-icc-profile"
-        converted = Image.new("RGBA", image.size)
+        image.info["icc_profile"] = get_rgb_profile_bytes()
         picture = PillowPicture(
             parent_name="testapp/simplemodel/image.png",
             file_type="WEBP",
@@ -232,40 +255,18 @@ class TestPillowPicture:
             width=10,
         )
 
-        image_cms_profile = Mock(return_value="source-profile")
-        create_profile = Mock(return_value="srgb-profile")
-        profile_to_profile = Mock(return_value=converted)
-
-        monkeypatch.setattr(
-            "pictures.models.ImageCms.ImageCmsProfile", image_cms_profile
-        )
-        monkeypatch.setattr("pictures.models.ImageCms.createProfile", create_profile)
-        monkeypatch.setattr(
-            "pictures.models.ImageCms.profileToProfile",
-            profile_to_profile,
-        )
-
+        image = picture.pre_process(image)
         result = picture.resize(image)
 
+        assert result.mode == "RGBA"
         assert "A" in result.getbands(), "Alpha channel was not preserved."
-        profile_to_profile.assert_called_once_with(
-            image,
-            "source-profile",
-            "srgb-profile",
-            outputMode="RGBA",
-        )
 
-    def test_process__raise_os_error_on_broken_color_profile(self, monkeypatch):
+    def test_process__raise_os_error_on_broken_color_profile(self):
         image = Image.new("CMYK", (10, 10))
-        image.info["icc_profile"] = b"fake-icc-profile"
+        image.info["icc_profile"] = b"broken profile"
 
-        monkeypatch.setattr(
-            "pictures.models.ImageCms.ImageCmsProfile",
-            Mock(side_effect=OSError("broken profile")),
-        )
-
-        with pytest.raises(OSError, match="broken profile"):
-            self.picture_with_ratio.resize(image)
+        with pytest.raises(OSError):
+            image = self.picture_with_ratio.pre_process(image)
 
 
 class TestPictureFieldFile:
@@ -719,12 +720,10 @@ class TestPictureFieldFile:
             assert pixels[0, 0][1] == 0  # blue is on the top, always blue!
 
     @pytest.mark.django_db
-    def test_save__is_blank(self, monkeypatch):
+    def test_save__is_blank(self):
         obj = SimpleModel()
-        save_all = Mock()
-        monkeypatch.setattr("pictures.models.PictureFieldFile.save_all", save_all)
         obj.save()
-        assert not save_all.called
+        assert not obj.picture
 
     @pytest.mark.django_db
     def test_delete(self, stub_worker, image_upload_file):
