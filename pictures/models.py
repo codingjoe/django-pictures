@@ -137,7 +137,7 @@ class PillowPicture(Picture):
     def save(self, image):
         with io.BytesIO() as file_buffer:
             img = self.process(image)
-            img.save(file_buffer, format=self.file_type, exif=b"")
+            img.save(file_buffer, format=self.file_type, exif=b"", icc_profile=b"")
             self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))
 

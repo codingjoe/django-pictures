@@ -120,7 +120,7 @@ class TestPillowPicture:
             assert len(saved_image.getexif()) == 0
 
             profile_name = profile_name_from_bytes(saved_image.info.get("icc_profile"))
-            assert profile_name is None or profile_name.startswith("sRGB")
+            assert profile_name is None
 
     def test_save__strip_exif(self):
         image = Image.new("RGB", (20, 20), (255, 0, 0))
@@ -136,6 +136,20 @@ class TestPillowPicture:
         picture.save(image)
         with Image.open(picture.path) as saved_image:
             assert not saved_image.getexif()
+
+    def test_save__strip_icc_profile(self):
+        image = Image.new("RGB", (20, 20), (255, 0, 0))
+        image.info["icc_profile"] = get_rgb_profile_bytes()
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="PNG",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=20,
+        )
+        picture.save(image)
+        with Image.open(picture.path) as saved_image:
+            assert not saved_image.info.get("icc_profile")
 
     def test_save__png_applies_non_srgb_rgb_profile_transform(self):
         # Use a lossless format here so exact pixel comparisons remain stable.
