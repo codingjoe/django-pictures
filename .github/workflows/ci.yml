@@ -125,6 +125,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'ci.yml',
+              name: 'PyTest Benchmark',
               branch: 'main',
               event: 'push',
             });
@@ -133,7 +134,7 @@ jobs:
         continue-on-error: true
         with:
           name: benchmarks
-          path: .benchmarks/
+          path: .benchmarks/Darwin-CPython-${{ matrix.python-version }}-64bit/
           github-token: ${{ github.token }}
           run-id: ${{ steps.get-run-id.outputs.result }}
           merge-multiple: true
@@ -141,33 +142,9 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
       - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m benchmark --benchmark-autosave --benchmark-min-rounds=100
         if: ${{ github.event_name != 'pull_request' }}
+      - run: ls -lah .benchmarks/Darwin-CPython-${{ matrix.python-version }}-64bit/
       - uses: actions/upload-artifact@v7
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           name: benchmarks
-          path: .benchmarks/
-  codeql:
-    name: CodeQL
-    needs: [dist, pytest-os, pytest-python, pytest-django, pytest-extras]
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [python]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: ${{ matrix.language }}
-          queries: +security-and-quality
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v4
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-        with:
-          category: "/language:${{ matrix.language }}"
+          path: .benchmarks/Darwin-CPython-${{ matrix.python-version }}-64bit/*
