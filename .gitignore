@@ -133,3 +133,6 @@ pictures/_version.py
 
 # uv
 uv.lock
+
+# pytest-benchmark
+benchmark.json

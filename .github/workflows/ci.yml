@@ -85,7 +85,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install .[test]
       - run: python -m pip install django~=${{ matrix.django-version }}.0
-      - run: python -m pytest
+      - run: python -m pytest -m "not benchmark"
       - uses: codecov/codecov-action@v6
         with:
           flags: dj${{ matrix.django-version }}
@@ -119,6 +119,28 @@ jobs:
         with:
           flags: ${{ matrix.extras }}
           token: ${{ secrets.CODECOV_TOKEN }}
+  pytest-benchmark:
+    name: PyTest Benchmark
+    strategy:
+      matrix:
+        python-version:
+          - "3.14"
+        django-version:
+          - "6.0"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install .[test,benchmark]
+      - run: python -m pip install django~=${{ matrix.django-version }}.0
+      - run: python -m pytest -m benchmark --benchmark-json benchmark.json
+      - uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'pytest'
+          output-file-path: benchmark.json
   codeql:
     name: CodeQL
     needs: [dist, pytest-os, pytest-python, pytest-django, pytest-extras]
