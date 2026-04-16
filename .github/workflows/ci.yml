@@ -137,7 +137,7 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ steps.get-run-id.outputs.result }}
           merge-multiple: true
-      - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m benchmark --benchmark-autosave --benchmark-compare --benchmark-compare-fail=mean:0.001
+      - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m benchmark --benchmark-autosave --benchmark-compare --benchmark-min-rounds=100 --benchmark-compare-fail=mean:0.001
       - uses: actions/upload-artifact@v7
         with:
           name: benchmarks
