@@ -38,6 +38,7 @@ dependencies = ["django>=5.2.0", "pillow>=11.3.0"]
 [project.optional-dependencies]
 test = [
   "pytest",
+  "pytest-benchmark",
   "pytest-cov",
   "pytest-django",
   "redis",
@@ -76,6 +77,8 @@ write_to = "pictures/_version.py"
 minversion = "6.0"
 addopts = "--cov --tb=short -rxs"
 testpaths = ["tests"]
+python_files = ["test_*.py", "bench_*.py"]
+python_functions = ["test_*", "bench_*"]
 DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
 
 [tool.coverage.run]
