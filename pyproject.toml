@@ -36,12 +36,6 @@ requires-python = ">=3.10"
 dependencies = ["django>=5.2.0", "pillow>=11.3.0"]
 
 [project.optional-dependencies]
-test = [
-  "pytest",
-  "pytest-cov",
-  "pytest-django",
-  "redis",
-]
 dramatiq = [
   "dramatiq",
   "django-dramatiq",
@@ -57,6 +51,18 @@ drf = [
 ]
 cleanup = [
   "django-cleanup",
+]
+
+[dependency-groups]
+dev = [
+  { include-group = "test" },
+]
+test = [
+  "pytest",
+  "pytest-benchmark",
+  "pytest-cov",
+  "pytest-django",
+  "redis",
 ]
 
 [project.urls]
@@ -76,6 +82,7 @@ write_to = "pictures/_version.py"
 minversion = "6.0"
 addopts = "--cov --tb=short -rxs"
 testpaths = ["tests"]
+markers = ["benchmark: mark test as a benchmark (deselect with -m 'not benchmark')"]
 DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
 
 [tool.coverage.run]

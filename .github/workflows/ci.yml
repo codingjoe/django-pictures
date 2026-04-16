@@ -9,14 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-      - run: sudo apt install gettext -y
-      - run: python -m pip install --upgrade pip build wheel twine
-      - run: make gettext
-      - run: python -m build --sdist --wheel
-      - run: python -m twine check dist/*
+      - uses: astral-sh/setup-uv@v7
+      - run: uvx --from build pyproject-build --sdist --wheel
+      - run: uvx twine check dist/*
       - uses: actions/upload-artifact@v7
         with:
           path: dist/*
@@ -31,12 +26,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-      - run: python -m pip install .[test]
-      - run: python -m pytest
+      - uses: astral-sh/setup-uv@v7
+      - run: uv run pytest -m "not benchmark"
       - uses: codecov/codecov-action@v6
         with:
           flags: ${{ matrix.os }}
@@ -56,13 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m pip install .[test]
-      - run: python -m pip install django~=${{ matrix.django-version }}.0
-      - run: python -m pytest
+      - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v6
         with:
           flags: py${{ matrix.python-version }}
@@ -79,13 +67,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m pip install .[test]
-      - run: python -m pip install django~=${{ matrix.django-version }}.0
-      - run: python -m pytest
+      - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v6
         with:
           flags: dj${{ matrix.django-version }}
@@ -105,20 +90,58 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-      - name: Install redis
+      - run: sudo apt update && sudo apt install -y redis-server
         if: matrix.extras == 'dramatiq' || matrix.extras == 'django-rq'
-        run: sudo apt install -y redis-server
-      - run: python -m pip install .[test,${{ matrix.extras }}]
-      - run: python -m pip install django~=${{ matrix.django-version }}.0
-      - run: python -m pytest
+      - uses: astral-sh/setup-uv@v7
+      - run: uv run --group=test --extra=${{ matrix.extras }} --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v6
         with:
           flags: ${{ matrix.extras }}
           token: ${{ secrets.CODECOV_TOKEN }}
+  pytest-benchmark:
+    name: PyTest Benchmark
+    strategy:
+      matrix:
+        python-version:
+          - "3.14"
+        django-version:
+          - "6.0"
+    permissions:
+      actions: read
+      contents: read
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/github-script@v7
+        id: get-run-id
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const runs = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              branch: 'main',
+              event: 'push',
+            });
+            return runs.data.workflow_runs[0].id;
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: benchmarks
+          path: .benchmarks/
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.get-run-id.outputs.result }}
+          merge-multiple: true
+      - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m benchmark --benchmark-autosave --benchmark-compare --benchmark-min-rounds=100 --benchmark-compare-fail=mean:0.001
+      - uses: actions/upload-artifact@v7
+        with:
+          name: benchmarks
+          path: .benchmarks/
   codeql:
     name: CodeQL
     needs: [dist, pytest-os, pytest-python, pytest-django, pytest-extras]

@@ -8,7 +8,7 @@ from PIL import Image
 from pictures import conf
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def image_upload_file():
     img = Image.new("RGBA", (800, 800), (255, 55, 255, 1))
 
@@ -17,7 +17,7 @@ def image_upload_file():
         return SimpleUploadedFile("image.png", output.getvalue())
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def tiny_image_upload_file():
     img = Image.new("RGBA", (1, 1), (255, 55, 255, 1))
 
@@ -26,7 +26,7 @@ def tiny_image_upload_file():
         return SimpleUploadedFile("image.png", output.getvalue())
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def large_image_upload_file():
     img = Image.new("RGBA", (1000, 1000), (255, 55, 255, 1))
 
