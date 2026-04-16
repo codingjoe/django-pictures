@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import io
 
-import django
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
@@ -14,31 +13,6 @@ from pictures import migrations
 from pictures.models import PictureField
 from pictures.tasks import _process_picture
 from tests.testapp.models import Profile, SimpleModel
-
-try:
-    import celery
-except ImportError:
-    celery = None
-
-try:
-    import django_rq
-except ImportError:
-    django_rq = None
-
-try:
-    import dramatiq
-except ImportError:
-    dramatiq = None
-
-skip_dramatiq = pytest.mark.skipif(
-    not all(x is None for x in [dramatiq, celery, django_rq]),
-    reason="dramatiq, celery and django-rq are installed",
-)
-
-requires_django_tasks = pytest.mark.skipif(
-    django.VERSION < (6, 0),
-    reason="Django tasks require Django 6.0+",
-)
 
 
 def _make_upload_file() -> SimpleUploadedFile:
@@ -50,14 +24,13 @@ def _make_upload_file() -> SimpleUploadedFile:
 
 
 @pytest.mark.benchmark
-@skip_dramatiq
-@requires_django_tasks
 @pytest.mark.django_db
 class TestProcessPicture:
     """Benchmark the end-to-end image processing pipeline."""
 
     def test_process_picture(self, benchmark, large_image_upload_file):
         """Benchmark processing all picture sizes through the full pipeline."""
+        pytest.importorskip("django", minversion="6.0")
         obj = SimpleModel.objects.create(picture=large_image_upload_file)
         pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
         benchmark(
@@ -69,14 +42,13 @@ class TestProcessPicture:
 
 
 @pytest.mark.benchmark
-@skip_dramatiq
-@requires_django_tasks
 @pytest.mark.django_db
 class TestAlterPictureField:
     """Benchmark the AlterPictureField migration operation."""
 
     def test_update_pictures(self, request, benchmark):
         """Benchmark update_pictures migration operation across multiple objects."""
+        pytest.importorskip("django", minversion="6.0")
 
         class ToModel(models.Model):
             name = models.CharField(max_length=100)

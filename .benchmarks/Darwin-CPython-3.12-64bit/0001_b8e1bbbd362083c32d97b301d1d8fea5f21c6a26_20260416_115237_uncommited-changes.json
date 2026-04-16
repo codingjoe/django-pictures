@@ -1,0 +1,113 @@
+{
+    "machine_info": {
+        "node": "Mac.lan",
+        "processor": "arm",
+        "machine": "arm64",
+        "python_compiler": "Clang 20.1.4 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.12.11",
+        "python_version": "3.12.11",
+        "python_build": [
+            "main",
+            "Jun 12 2025 12:22:42"
+        ],
+        "release": "25.4.0",
+        "system": "Darwin",
+        "cpu": {
+            "python_version": "3.12.11.final.0 (64 bit)",
+            "cpuinfo_version": [
+                9,
+                0,
+                0
+            ],
+            "cpuinfo_version_string": "9.0.0",
+            "arch": "ARM_8",
+            "bits": 64,
+            "count": 14,
+            "arch_string_raw": "arm64",
+            "brand_raw": "Apple M4 Pro"
+        }
+    },
+    "commit_info": {
+        "id": "b8e1bbbd362083c32d97b301d1d8fea5f21c6a26",
+        "time": "2026-04-16T10:59:34Z",
+        "author_time": "2026-04-16T10:59:34Z",
+        "dirty": true,
+        "project": "django-pictures",
+        "branch": "copilot/add-benchmark-tests-image-processing"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_process_picture",
+            "fullname": "tests/test_benchmarks.py::TestProcessPicture::test_process_picture",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.2857585830024618,
+                "max": 0.36571762499806937,
+                "mean": 0.31387792480018106,
+                "stddev": 0.03790431126952289,
+                "rounds": 5,
+                "median": 0.28882133300066926,
+                "iqr": 0.06294544724642037,
+                "q1": 0.28587133350174554,
+                "q3": 0.3488167807481659,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.2857585830024618,
+                "hd15iqr": 0.36571762499806937,
+                "ops": 3.1859519927583744,
+                "total": 1.5693896240009053,
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_update_pictures",
+            "fullname": "tests/test_benchmarks.py::TestAlterPictureField::test_update_pictures",
+            "params": null,
+            "param": null,
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.17185883400088642,
+                "max": 0.22705533300177194,
+                "mean": 0.18400656660014647,
+                "stddev": 0.024107373605703912,
+                "rounds": 5,
+                "median": 0.17403845800072304,
+                "iqr": 0.016273280249151867,
+                "q1": 0.17188270874976297,
+                "q3": 0.18815598899891484,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.17185883400088642,
+                "hd15iqr": 0.22705533300177194,
+                "ops": 5.434588658854983,
+                "total": 0.9200328330007324,
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-04-16T11:52:54.835332+00:00",
+    "version": "5.2.3"
+}
