@@ -135,4 +135,4 @@ pictures/_version.py
 uv.lock
 
 # pytest-benchmark
-./.benchmarks
+.benchmarks/
