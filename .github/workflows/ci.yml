@@ -152,13 +152,13 @@ jobs:
             });
             return runs.data.workflow_runs[0].id;
       - uses: actions/download-artifact@v8
+        continue-on-error: true
         with:
           name: benchmarks
           path: .benchmarks/
           github-token: ${{ github.token }}
           run-id: ${{ steps.get-run-id.outputs.result }}
           merge-multiple: true
-          digest-mismatch: 'warn'
       - run: python -m pytest -m benchmark --benchmark-autosave --benchmark-compare --benchmark-compare-fail=mean:0.001
       - uses: actions/upload-artifact@v7
         with:
