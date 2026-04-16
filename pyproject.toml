@@ -77,8 +77,7 @@ write_to = "pictures/_version.py"
 minversion = "6.0"
 addopts = "--cov --tb=short -rxs"
 testpaths = ["tests"]
-python_files = ["test_*.py", "bench_*.py"]
-python_functions = ["test_*", "bench_*"]
+markers = ["benchmark: mark test as a benchmark (deselect with -m 'not benchmark')"]
 DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
 
 [tool.coverage.run]
