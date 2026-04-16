@@ -31,7 +31,7 @@ class ProfileSerializerWithInvalidData(serializers.ModelSerializer):
         fields = ["image_invalid"]
 
 
-class TestPicture(Picture):
+class SamplePicture(Picture):
     @property
     def url(self):
         return f"/media/{self.parent_name}"
@@ -41,7 +41,7 @@ def test_default(settings):
     settings.PICTURES["USE_PLACEHOLDERS"] = False
     assert (
         rest_framework.default(
-            obj=TestPicture(
+            obj=SamplePicture(
                 parent_name="testapp/simplemodel/image.jpg",
                 file_type="WEBP",
                 aspect_ratio=Fraction("4/3"),

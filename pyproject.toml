@@ -80,9 +80,8 @@ write_to = "pictures/_version.py"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov --tb=short -rxs"
+addopts = "--cov --tb=short -rxs  --benchmark-autosave --benchmark-group-by=fullname"
 testpaths = ["tests"]
-markers = ["benchmark: mark test as a benchmark (deselect with -m 'not benchmark')"]
 DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
 
 [tool.coverage.run]
