@@ -36,13 +36,6 @@ requires-python = ">=3.10"
 dependencies = ["django>=5.2.0", "pillow>=11.3.0"]
 
 [project.optional-dependencies]
-test = [
-  "pytest",
-  "pytest-benchmark",
-  "pytest-cov",
-  "pytest-django",
-  "redis",
-]
 dramatiq = [
   "dramatiq",
   "django-dramatiq",
@@ -58,6 +51,18 @@ drf = [
 ]
 cleanup = [
   "django-cleanup",
+]
+
+[dependency-groups]
+dev = [
+  { include-group = "test" },
+]
+test = [
+  "pytest",
+  "pytest-benchmark",
+  "pytest-cov",
+  "pytest-django",
+  "redis",
 ]
 
 [project.urls]
