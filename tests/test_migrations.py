@@ -401,3 +401,28 @@ class TestAlterPictureField:
     def test_database_backwards_forwards(self):
         call_command("migrate", "testapp", "0001")
         call_command("migrate", "testapp", "0002")
+
+    @pytest.mark.django_db
+    @pytest.mark.benchmark
+    def test_forward__performance(self, request, benchmark, large_image_upload_file):
+        """Benchmark update_pictures migration operation across multiple objects."""
+        pytest.importorskip("django", minversion="6.0")
+
+        class ToModel(models.Model):
+            name = models.CharField(max_length=100)
+            picture = PictureField(
+                upload_to="testapp/profile/", aspect_ratios=[None, "21/9"]
+            )
+
+            class Meta:
+                app_label = request.node.name
+                db_table = "testapp_profile"
+
+        for index in range(3):
+            Profile.objects.create(
+                name=f"Profile {index}", picture=large_image_upload_file
+            )
+
+        migration = migrations.AlterPictureField("profile", "picture", PictureField())
+        from_field = Profile._meta.get_field("picture")
+        benchmark(migration.update_pictures, from_field, ToModel)
