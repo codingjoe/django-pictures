@@ -5,6 +5,7 @@ import pytest
 from django.core.exceptions import ImproperlyConfigured
 
 from pictures import tasks
+from pictures.tasks import _process_picture
 from tests.testapp.models import SimpleModel
 
 
@@ -59,3 +60,18 @@ def test_django_tasks_misconfiguration__different_processor(settings):
     }
     settings.PICTURES = settings.PICTURES | {"PROCESSOR": "pictures.tasks.noop"}
     importlib.reload(tasks)
+
+
+@pytest.mark.django_db
+@pytest.mark.benchmark
+def test_process_picture__performance(benchmark, large_image_upload_file):
+    """Benchmark processing all picture sizes through the full pipeline."""
+    pytest.importorskip("django", minversion="6.0")
+    obj = SimpleModel.objects.create(picture=large_image_upload_file)
+    pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
+    benchmark(
+        _process_picture,
+        obj.picture.storage.deconstruct(),
+        obj.picture.name,
+        pictures,
+    )
