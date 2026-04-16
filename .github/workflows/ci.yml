@@ -147,8 +147,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'ci.yml',
-              branch: 'main',
-              event: 'push',
+              branch: context.ref.replace('refs/heads/', '') || 'main',
             });
             return runs.data.workflow_runs[0].id;
       - uses: actions/download-artifact@v8
