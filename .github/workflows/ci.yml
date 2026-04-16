@@ -141,6 +141,7 @@ jobs:
         with:
           tool: 'pytest'
           output-file-path: benchmark.json
+          skip-fetch-gh-pages: true
   codeql:
     name: CodeQL
     needs: [dist, pytest-os, pytest-python, pytest-django, pytest-extras]
