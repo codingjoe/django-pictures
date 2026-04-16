@@ -142,7 +142,6 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
       - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m benchmark --benchmark-min-rounds=100
         if: ${{ github.event_name != 'pull_request' }}
-      - run: ls -lah .benchmarks/Darwin-CPython-${{ matrix.python-version }}-64bit/
       - uses: actions/upload-artifact@v7
         if: ${{ github.event_name != 'pull_request' }}
         with:

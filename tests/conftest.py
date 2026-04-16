@@ -28,7 +28,7 @@ def tiny_image_upload_file():
 
 @pytest.fixture(scope="session")
 def large_image_upload_file():
-    img = Image.new("RGBA", (1000, 1000), (255, 55, 255, 1))
+    img = Image.new("RGBA", (2000, 3000), (255, 55, 255, 1))
     exif = img.getexif()
     exif[0x0112] = 8  # pretend to be rotated by 90 degrees
 
