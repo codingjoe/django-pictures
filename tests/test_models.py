@@ -8,7 +8,7 @@ from unittest.mock import Mock
 import pytest
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
-from PIL import Image, ImageDraw
+from PIL import Image, ImageCms, ImageDraw
 
 from pictures.models import PictureField, PillowPicture
 from tests.testapp.models import JPEGModel, Profile, SimpleModel
@@ -22,6 +22,22 @@ def override_field_aspect_ratios(field, aspect_ratios):
         yield
     finally:
         field.aspect_ratios = old_ratios
+
+
+def profile_name_from_bytes(profile_bytes):
+    if not profile_bytes:
+        return None
+
+    profile = ImageCms.ImageCmsProfile(io.BytesIO(profile_bytes))
+    return ImageCms.getProfileName(profile).strip()
+
+
+def get_cmyk_profile_bytes():
+    return Path(__file__).with_name("assets").joinpath("ps_cmyk.icc").read_bytes()
+
+
+def get_rgb_profile_bytes():
+    return Path(__file__).with_name("assets").joinpath("ps_rgb.icc").read_bytes()
 
 
 class TestPillowPicture:
@@ -87,7 +103,7 @@ class TestPillowPicture:
         self.picture_with_ratio.delete()
         assert not self.picture_with_ratio.path.exists()
 
-    def test_process__copy(self):
+    def test_resize__copy(self):
         """Do not mutate input image."""
         image = Image.new("RGB", (800, 800), (255, 55, 255))
         assert PillowPicture(
@@ -96,7 +112,7 @@ class TestPillowPicture:
             aspect_ratio=None,
             storage=default_storage,
             width=100,
-        ).process(image).size == (100, 100)
+        ).resize(image).size == (100, 100)
 
         assert image.size == (800, 800), "Image was mutated."
 
@@ -106,9 +122,162 @@ class TestPillowPicture:
             aspect_ratio="4/3",
             storage=default_storage,
             width=400,
-        ).process(image).size == (400, 300)
+        ).resize(image).size == (400, 300)
 
         assert image.size == (800, 800), "Image was mutated."
+
+    def test_resize__do_not_introduce_extra_alpha_channel(self):
+        image = Image.new("RGB", (1, 1), (255, 255, 255))
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="PNG",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=20,
+        )
+        image = picture.resize(image)
+        assert image.mode == "RGB", "Alpha channel was introduced during resize."
+
+    @pytest.mark.parametrize("file_type", ["AVIF", "WEBP", "PNG", "GIF", "JPEG"])
+    def test_resize__web_formats_strip_exif_and_icc_profiles(self, file_type):
+        image = Image.new("CMYK", (20, 20), (0, 128, 255, 0))
+        exif = Image.Exif()
+        exif[0x010E] = "django-pictures test image"
+        image.info["exif"] = exif.tobytes()
+        image.info["icc_profile"] = get_cmyk_profile_bytes()
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type=file_type,
+            aspect_ratio=None,
+            storage=default_storage,
+            width=20,
+        )
+
+        image = picture.pre_process(image)
+        picture.save(image)
+        with Image.open(picture.path) as saved_image:
+            assert saved_image.mode in ["RGB", "RGBA", "P"]
+            assert not saved_image.info.get("exif")
+            assert len(saved_image.getexif()) == 0
+            assert not saved_image.info.get("icc_profile")
+
+    def test_save__strip_exif(self):
+        image = Image.new("RGB", (20, 20), (255, 0, 0))
+        exif = image.getexif()
+        exif[0x010E] = "reproduction"
+        image.info["exif"] = exif.tobytes()
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="JPEG",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=20,
+        )
+        image = picture.pre_process(image)
+        picture.save(image)
+        with Image.open(picture.path) as saved_image:
+            assert not saved_image.getexif()
+
+    def test_save__strip_icc_profile(self):
+        image = Image.new("RGB", (20, 20), (255, 0, 0))
+        image.info["icc_profile"] = get_rgb_profile_bytes()
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="PNG",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=20,
+        )
+        picture.save(image)
+        with Image.open(picture.path) as saved_image:
+            assert not saved_image.info.get("icc_profile")
+
+    def test_resize__png_applies_non_srgb_rgb_profile_transform(self):
+        # Use a lossless format here so exact pixel comparisons remain stable.
+        image = Image.new("RGB", (1, 1), (255, 128, 0))
+        image.info["icc_profile"] = get_rgb_profile_bytes()
+        source_pixel = image.getpixel((0, 0))
+
+        source_profile = ImageCms.ImageCmsProfile(io.BytesIO(image.info["icc_profile"]))
+        srgb_profile = ImageCms.createProfile("sRGB")
+        expected = ImageCms.profileToProfile(
+            image,
+            source_profile,
+            srgb_profile,
+            outputMode="RGB",
+        )
+        expected_pixel = expected.getpixel((0, 0))
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="PNG",
+            aspect_ratio=None,
+            storage=default_storage,
+            width=1,
+        )
+
+        assert expected_pixel != source_pixel
+
+        image = picture.pre_process(image)
+        resized_image = picture.resize(image)
+
+        resized_pixel = resized_image.getpixel((0, 0))
+        if resized_image.mode == "RGBA":
+            resized_pixel = resized_pixel[:3]
+        assert resized_pixel == expected_pixel
+        assert resized_pixel != source_pixel
+
+    @pytest.mark.parametrize(
+        ("file_type", "image_mode", "expected_mode"),
+        [
+            ("AVIF", "RGB", "RGBA"),
+            ("WEBP", "RGBA", "RGBA"),
+            ("WEBP", "RGB", "RGBA"),
+            ("PNG", "RGBA", "RGBA"),
+            ("TIFF", "CMYK", "RGBA"),
+            ("JPEG", "RGBA", "RGB"),
+        ],
+    )
+    def test_resize__convert_to_expected_mode(
+        self, file_type, image_mode, expected_mode
+    ):
+        image = Image.new(image_mode, (10, 10))
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type=file_type,
+            aspect_ratio=None,
+            storage=default_storage,
+            width=10,
+        )
+
+        image = picture.pre_process(image)
+        # resize() might call convert() depending on file_type
+        result = picture.resize(image)
+
+        assert result.mode == expected_mode
+
+    def test_resize__normalize_color_profile__preserve_alpha(self):
+        image = Image.new("RGBA", (10, 10))
+        image.info["icc_profile"] = get_rgb_profile_bytes()
+        picture = PillowPicture(
+            parent_name="testapp/simplemodel/image.png",
+            file_type="WEBP",
+            aspect_ratio=Fraction("4/3"),
+            storage=default_storage,
+            width=10,
+        )
+
+        image = picture.pre_process(image)
+        result = picture.resize(image)
+
+        assert result.mode == "RGBA"
+        assert "A" in result.getbands(), "Alpha channel was not preserved."
+
+    def test_resize__raise_os_error_on_broken_color_profile(self):
+        image = Image.new("CMYK", (10, 10))
+        image.info["icc_profile"] = b"broken profile"
+
+        with pytest.raises(OSError):
+            self.picture_with_ratio.pre_process(image)
 
 
 class TestPictureFieldFile:

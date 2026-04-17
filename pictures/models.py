@@ -15,13 +15,11 @@ from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
 from django.urls import reverse
 from django.utils.module_loading import import_string
-from PIL import Image, ImageOps
+from PIL import Image, ImageCms, ImageOps
 
 from pictures import conf, utils
 
 __all__ = ["PictureField", "PictureFieldFile", "Picture"]
-
-RGB_FORMATS = ["JPEG"]
 
 
 @dataclasses.dataclass
@@ -106,8 +104,32 @@ class PillowPicture(Picture):
     def path(self) -> Path:
         return Path(self.storage.path(self.name))
 
-    def process(self, image) -> Image.Image:
-        image = ImageOps.exif_transpose(image)  # crates a copy
+    @staticmethod
+    def pre_process(image: Image.Image) -> Image.Image:
+        image = ImageOps.exif_transpose(image)
+        try:
+            icc_profile = image.info["icc_profile"]
+        except KeyError:
+            image = image.convert(mode="RGBA")
+        else:
+            with io.BytesIO() as buffer:
+                buffer.write(icc_profile)
+                buffer.seek(0)
+                source_profile = ImageCms.ImageCmsProfile(buffer)
+            srgb_profile = ImageCms.createProfile("sRGB")
+            image = ImageCms.profileToProfile(
+                image,
+                source_profile,
+                srgb_profile,
+                outputMode="RGBA",
+            )
+        return image
+
+    def resize(self, image: Image.Image) -> Image.Image:
+        image = image.copy()  # avoid modifying the original image
+        if self.file_type == "JPEG":
+            image = image.convert("RGB")
+
         height = self.height or self.width / Fraction(*image.size)
         size = math.floor(self.width), math.floor(height)
 
@@ -119,10 +141,8 @@ class PillowPicture(Picture):
 
     def save(self, image):
         with io.BytesIO() as file_buffer:
-            img = self.process(image)
-            if (self.file_type in RGB_FORMATS) and (img.mode != "RGB"):
-                img = img.convert("RGB")
-            img.save(file_buffer, format=self.file_type)
+            img = self.resize(image)
+            img.save(file_buffer, format=self.file_type, exif=b"", icc_profile=b"")
             self.storage.delete(self.name)  # avoid any filename collisions
             self.storage.save(self.name, ContentFile(file_buffer.getvalue()))
 
