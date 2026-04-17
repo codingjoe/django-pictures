@@ -28,13 +28,13 @@ def tiny_image_upload_file():
 
 @pytest.fixture(scope="session")
 def large_image_upload_file():
-    img = Image.new("RGBA", (2000, 3000), (255, 55, 255, 1))
+    img = Image.new("RGB", (2000, 3000), (255, 55, 255))
     exif = img.getexif()
     exif[0x0112] = 8  # pretend to be rotated by 90 degrees
 
     with io.BytesIO() as output:
-        img.save(output, format="PNG", exif=exif)
-        return SimpleUploadedFile("image.png", output.getvalue())
+        img.save(output, format="JPEG", exif=exif, jpeg_quality=95)
+        return SimpleUploadedFile("image.jpeg", output.getvalue())
 
 
 @pytest.fixture(autouse=True)

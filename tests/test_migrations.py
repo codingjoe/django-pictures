@@ -411,7 +411,9 @@ class TestAlterPictureField:
         class ToModel(models.Model):
             name = models.CharField(max_length=100)
             picture = PictureField(
-                upload_to="testapp/profile/", aspect_ratios=[None, "21/9"]
+                upload_to="testapp/profile/",
+                aspect_ratios=[None, "21/9"],
+                file_types=["AVIF", "WEBP", "JPEG"],
             )
 
             class Meta:

@@ -80,7 +80,7 @@ write_to = "pictures/_version.py"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov --tb=short -rxs  --benchmark-autosave --benchmark-group-by=fullname"
+addopts = "--cov --tb=short -rxs  --benchmark-autosave --benchmark-group-by=fullname --benchmark-min-rounds=10"
 testpaths = ["tests"]
 DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
 

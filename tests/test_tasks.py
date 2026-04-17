@@ -68,6 +68,7 @@ def test_process_picture__performance(benchmark, large_image_upload_file):
     """Benchmark processing all picture sizes through the full pipeline."""
     pytest.importorskip("django", minversion="6.0")
     obj = SimpleModel.objects.create(picture=large_image_upload_file)
+    obj.picture.field.file_types = ["AVIF", "WEBP", "JPEG"]
     pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
     benchmark(
         _process_picture,
