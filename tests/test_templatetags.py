@@ -17,7 +17,7 @@ picture_html_large = b"""
   <source type="image/avif"
           srcset="/media/testapp/profile/image/800w.avif 800w, /media/testapp/profile/image/1600w.avif 1600w, /media/testapp/profile/image/100w.avif 100w, /media/testapp/profile/image/1400w.avif 1400w, /media/testapp/profile/image/900w.avif 900w, /media/testapp/profile/image/200w.avif 200w, /media/testapp/profile/image/1000w.avif 1000w, /media/testapp/profile/image/1800w.avif 1800w, /media/testapp/profile/image/300w.avif 300w, /media/testapp/profile/image/1100w.avif 1100w, /media/testapp/profile/image/400w.avif 400w, /media/testapp/profile/image/1200w.avif 1200w, /media/testapp/profile/image/2000w.avif 2000w, /media/testapp/profile/image/500w.avif 500w, /media/testapp/profile/image/600w.avif 600w, /media/testapp/profile/image/700w.avif 700w"
           sizes="(min-width: 0px) and (max-width: 991px) 100vw, (min-width: 992px) and (max-width: 1199px) 33vw, 600px">
-  <img src="/media/testapp/profile/image.png" alt="Spiderman" width="2000" height="3000">
+  <img src="/media/testapp/profile/image.jpeg" alt="Spiderman" width="2000" height="3000">
 </picture>
 """
 
