@@ -790,6 +790,26 @@ class TestPictureFieldFile:
         assert obj.picture.height == 800
 
     @pytest.mark.django_db
+    def test_width_height__exif_rotated(self, stub_worker, large_image_upload_file):
+        # fixture invariants: raw bytes are 2000x3000 with EXIF orientation 8.
+        large_image_upload_file.seek(0)
+        with Image.open(large_image_upload_file) as _img:
+            assert _img.size == (2000, 3000)
+            assert _img.getexif().get(0x0112) == 8
+        large_image_upload_file.seek(0)
+
+        obj = JPEGModel(picture=large_image_upload_file)
+        obj.save()
+        obj.picture_width = None
+        obj.picture_height = None
+        with contextlib.suppress(AttributeError):
+            del obj.picture._dimensions_cache
+
+        # orientation 8 swaps width and height.
+        assert obj.picture.width == 3000
+        assert obj.picture.height == 2000
+
+    @pytest.mark.django_db
     def test_update_all__empty(self, stub_worker, image_upload_file):
         obj = SimpleModel()
         obj.save()

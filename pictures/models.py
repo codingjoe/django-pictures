@@ -10,6 +10,7 @@ from types import NotImplementedType
 
 from django.core import checks
 from django.core.files.base import ContentFile
+from django.core.files.images import get_image_dimensions
 from django.core.files.storage import Storage
 from django.db.models import ImageField
 from django.db.models.fields.files import ImageFieldFile
@@ -193,6 +194,25 @@ class PictureFieldFile(ImageFieldFile):
                 [i.deconstruct() for i in new],
                 [i.deconstruct() for i in old],
             )
+
+    def _get_image_dimensions(self):
+        if not hasattr(self, "_dimensions_cache"):
+            close = self.closed
+            self.open()
+            try:
+                self.seek(0)
+                width, height = get_image_dimensions(self)
+                self.seek(0)
+                # EXIF tag 0x0112 (Orientation); values 5-8 indicate the stored
+                # image is rotated 90 or 270 degrees, so width and height swap.
+                orientation = Image.open(self).getexif().get(0x0112, 1)
+                if orientation in (5, 6, 7, 8):
+                    width, height = height, width
+            finally:
+                if close:
+                    self.close()
+            self._dimensions_cache = (width, height)
+        return self._dimensions_cache
 
     @property
     def width(self):
