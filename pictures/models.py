@@ -202,17 +202,16 @@ class PictureFieldFile(ImageFieldFile):
             try:
                 self.seek(0)
                 img = Image.open(self)
-                width, height = img.size
+                self._dimensions_cache = img.size
                 if img.getexif().get(0x0112, 1) in (5, 6, 7, 8):
                     # EXIF tag 0x0112 (Orientation); values 5-8 indicate the stored
                     # image is rotated 90 or 270 degrees, so width and height swap.
-                    width, height = height, width
+                    self._dimensions_cache = self._dimensions_cache[::-1]
             finally:
                 if close:
                     self.close()
                 else:
                     self.seek(file_pos)
-            self._dimensions_cache = (width, height)
         return self._dimensions_cache
 
     @property
