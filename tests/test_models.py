@@ -8,6 +8,7 @@ from unittest.mock import Mock
 import pytest
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.models.fields.files import ImageFieldFile
 from PIL import Image, ImageCms, ImageDraw
 
 from pictures.models import PictureField, PillowPicture
@@ -790,6 +791,26 @@ class TestPictureFieldFile:
         assert obj.picture.height == 800
 
     @pytest.mark.django_db
+    def test_width_height__exif_rotated(self, stub_worker, large_image_upload_file):
+        # fixture invariants: raw bytes are 2000x3000 with EXIF orientation 8.
+        large_image_upload_file.seek(0)
+        with Image.open(large_image_upload_file) as _img:
+            assert _img.size == (2000, 3000)
+            assert _img.getexif().get(0x0112) == 8
+        large_image_upload_file.seek(0)
+
+        obj = JPEGModel(picture=large_image_upload_file)
+        obj.save()
+        obj.picture_width = None
+        obj.picture_height = None
+        with contextlib.suppress(AttributeError):
+            del obj.picture._dimensions_cache
+
+        # orientation 8 swaps width and height.
+        assert obj.picture.width == 3000
+        assert obj.picture.height == 2000
+
+    @pytest.mark.django_db
     def test_update_all__empty(self, stub_worker, image_upload_file):
         obj = SimpleModel()
         obj.save()
@@ -799,6 +820,109 @@ class TestPictureFieldFile:
     def test_delete_all__empty(self):
         obj = SimpleModel()
         obj.picture.delete_all()
+
+    @pytest.mark.django_db
+    def test__get_image_dimensions__closed_file_stays_closed(self, image_upload_file):
+        """Leave a closed file closed after reading dimensions."""
+        obj = SimpleModel.objects.create(picture=image_upload_file)
+        with contextlib.suppress(AttributeError):
+            del obj.picture._dimensions_cache
+        assert obj.picture.closed
+        obj.picture._get_image_dimensions()
+        assert obj.picture.closed
+
+    @pytest.mark.django_db
+    def test__get_image_dimensions__open_file_stays_open(self, image_upload_file):
+        """Leave an open file open after reading dimensions."""
+        obj = SimpleModel.objects.create(picture=image_upload_file)
+        with contextlib.suppress(AttributeError):
+            del obj.picture._dimensions_cache
+        obj.picture.open()
+        try:
+            obj.picture._get_image_dimensions()
+            assert not obj.picture.closed
+        finally:
+            obj.picture.close()
+
+    @pytest.mark.django_db
+    def test__get_image_dimensions__restores_cursor_position(self, image_upload_file):
+        """Restore the cursor position after reading dimensions from an open file."""
+        obj = SimpleModel.objects.create(picture=image_upload_file)
+        with contextlib.suppress(AttributeError):
+            del obj.picture._dimensions_cache
+        obj.picture.open()
+        try:
+            obj.picture.seek(42)
+            obj.picture._get_image_dimensions()
+            assert obj.picture.tell() == 42
+        finally:
+            obj.picture.close()
+
+    @pytest.mark.django_db
+    def test__get_image_dimensions__opens_and_closes_closed_file_once(
+        self, image_upload_file, monkeypatch
+    ):
+        """Open and close a closed file exactly once."""
+        obj = SimpleModel.objects.create(picture=image_upload_file)
+        with contextlib.suppress(AttributeError):
+            del obj.picture._dimensions_cache
+        open_spy = Mock(wraps=obj.picture.open)
+        close_spy = Mock(wraps=obj.picture.close)
+        monkeypatch.setattr(obj.picture, "open", open_spy)
+        monkeypatch.setattr(obj.picture, "close", close_spy)
+        obj.picture._get_image_dimensions()
+        open_spy.assert_called_once()
+        close_spy.assert_called_once()
+
+    @pytest.mark.django_db
+    def test__get_image_dimensions__does_not_open_or_close_open_file(
+        self, image_upload_file, monkeypatch
+    ):
+        """Skip open() and close() when the file is already open."""
+        obj = SimpleModel.objects.create(picture=image_upload_file)
+        with contextlib.suppress(AttributeError):
+            del obj.picture._dimensions_cache
+        obj.picture.open()
+        open_spy = Mock(wraps=obj.picture.open)
+        close_spy = Mock(wraps=obj.picture.close)
+        monkeypatch.setattr(obj.picture, "open", open_spy)
+        monkeypatch.setattr(obj.picture, "close", close_spy)
+        try:
+            obj.picture._get_image_dimensions()
+            open_spy.assert_not_called()
+            close_spy.assert_not_called()
+        finally:
+            obj.picture.close()
+
+    @pytest.mark.django_db
+    @pytest.mark.benchmark(group="pictures.models.SimpleModel._get_image_dimensions")
+    def test__get_image_dimensions__performance(
+        self, benchmark, large_image_upload_file
+    ):
+        """Benchmark image dimension reading including file open and close."""
+        obj = SimpleModel.objects.create(picture=large_image_upload_file)
+
+        def setup():
+            with contextlib.suppress(AttributeError):
+                del obj.picture._dimensions_cache
+
+        benchmark.pedantic(obj.picture._get_image_dimensions, setup=setup)
+
+    @pytest.mark.django_db
+    @pytest.mark.benchmark(group="pictures.models.SimpleModel._get_image_dimensions")
+    def test__get_image_dimensions__performance__org(
+        self, benchmark, large_image_upload_file
+    ):
+        """Benchmark image dimension reading including file open and close."""
+        obj = SimpleModel.objects.create(picture=large_image_upload_file)
+
+        def setup():
+            with contextlib.suppress(AttributeError):
+                del obj.picture._dimensions_cache
+
+        benchmark.pedantic(
+            lambda: ImageFieldFile._get_image_dimensions(obj.picture), setup=setup
+        )
 
 
 class TestPictureField:

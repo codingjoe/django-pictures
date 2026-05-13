@@ -403,7 +403,7 @@ class TestAlterPictureField:
         call_command("migrate", "testapp", "0002")
 
     @pytest.mark.django_db
-    @pytest.mark.benchmark
+    @pytest.mark.benchmark(group="AlterPictureField.forward")
     def test_forward__performance(self, request, benchmark, large_image_upload_file):
         """Benchmark update_pictures migration operation across multiple objects."""
         pytest.importorskip("django", minversion="6.0")

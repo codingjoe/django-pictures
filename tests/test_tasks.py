@@ -63,7 +63,7 @@ def test_django_tasks_misconfiguration__different_processor(settings):
 
 
 @pytest.mark.django_db
-@pytest.mark.benchmark
+@pytest.mark.benchmark(group="pictures.tasks._process_picture")
 def test_process_picture__performance(benchmark, large_image_upload_file):
     """Benchmark processing all picture sizes through the full pipeline."""
     pytest.importorskip("django", minversion="6.0")
