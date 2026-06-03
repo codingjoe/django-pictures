@@ -16,6 +16,10 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 [![Test Coverage](https://codecov.io/gh/codingjoe/django-pictures/branch/main/graph/badge.svg)](https://codecov.io/gh/codingjoe/django-pictures)
 [![GitHub License](https://img.shields.io/github/license/codingjoe/django-pictures)](https://raw.githubusercontent.com/codingjoe/django-pictures/master/LICENSE)
 
+## Sponsors
+
+[![Sponsors](https://django.the-box.sh/sponsors/codingjoe/django-pictures.svg)](https://github.com/sponsors/codingjoe)
+
 ## Usage
 
 Before you start, it can be a good idea to understand the fundamentals of
