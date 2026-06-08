@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
       - run: uv run pytest -m "not benchmark"
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         with:
           flags: ${{ matrix.os }}
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -51,7 +51,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         with:
           flags: py${{ matrix.python-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -71,7 +71,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         with:
           flags: dj${{ matrix.django-version }}
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -94,7 +94,7 @@ jobs:
         if: matrix.extras == 'dramatiq' || matrix.extras == 'django-rq'
       - uses: astral-sh/setup-uv@v7
       - run: uv run --group=test --extra=${{ matrix.extras }} --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
-      - uses: codecov/codecov-action@v6
+      - uses: codecov/codecov-action@v7
         with:
           flags: ${{ matrix.extras }}
           token: ${{ secrets.CODECOV_TOKEN }}
