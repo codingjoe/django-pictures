@@ -18,7 +18,7 @@ Responsive cross-browser image library using modern codes like AVIF & WebP.
 
 ## Sponsors
 
-[![Sponsors](https://django.the-box.sh/sponsors/codingjoe/django-pictures.svg)](https://github.com/sponsors/codingjoe)
+[![Sponsors](https://sponsor.pics/codingjoe/django-pictures.svg)](https://github.com/sponsors/codingjoe)
 
 ## Usage
 
