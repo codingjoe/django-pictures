@@ -8,7 +8,7 @@ jobs:
   dist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
       - run: uvx --from build pyproject-build --sdist --wheel
       - run: uvx twine check dist/*
@@ -25,7 +25,7 @@ jobs:
           - "windows-latest"
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
       - run: uv run pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
@@ -46,7 +46,7 @@ jobs:
           - "5.2" # LTS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
@@ -66,7 +66,7 @@ jobs:
           - "6.0"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
@@ -89,7 +89,7 @@ jobs:
           - "cleanup"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: sudo apt update && sudo apt install -y redis-server
         if: matrix.extras == 'dramatiq' || matrix.extras == 'django-rq'
       - uses: astral-sh/setup-uv@v7
