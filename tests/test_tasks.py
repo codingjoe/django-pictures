@@ -19,8 +19,9 @@ def test_process_picture__file_cannot_be_reopened(image_upload_file):
         Mock(side_effect=ValueError("The file cannot be reopened.")),
     )
     tasks._process_picture(
-        obj.picture.storage.deconstruct(),
-        obj.picture.name,
+        storage=obj.picture.storage.deconstruct(),
+        file_name=obj.picture.name,
+        sender=obj.picture.sender,
         new=[i.deconstruct() for i in obj.picture.get_picture_files_list()],
     )
 
@@ -72,7 +73,8 @@ def test_process_picture__performance(benchmark, large_image_upload_file):
     pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
     benchmark(
         _process_picture,
-        obj.picture.storage.deconstruct(),
-        obj.picture.name,
-        pictures,
+        storage=obj.picture.storage.deconstruct(),
+        file_name=obj.picture.name,
+        sender=obj.picture.sender,
+        new=pictures,
     )

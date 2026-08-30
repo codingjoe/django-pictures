@@ -278,9 +278,47 @@ image processing. You will need workers to listen to the `pictures` queue.
 You can override the queue name, via the `PICTURES["QUEUE_NAME"]` setting.
 
 You can also override the processor, via the `PICTURES["PROCESSOR"]` setting.
-The default processor is `pictures.tasks.process_picture`. It takes a single
-argument, the `PictureFileFile` instance. You can use this to override the
-processor, should you need to do some custom processing.
+The default processor is `pictures.tasks.process_picture`. It is called with the
+`storage`, `file_name`, `sender`, `new` and `old` keyword arguments.
+
+### Signals
+
+Image processing emits a `picture_processed` signal after successful completion.
+The signal can be used to persist the processing state or to trigger other events.
+
+The signal is sent by the processor.
+Task queue processors send it after the model instance was saved.
+The default synchronous processor sends it while the model instance is saved.
+A handler that queries the database must be prepared for both cases.
+
+The sender is the `PictureField` instance the processed picture belongs to.
+The signal provides the `file_name`, `new` and `old` arguments:
+
+- `file_name`: the file name of the processed source image.
+- `new`: the newly rendered picture files.
+- `old`: the deleted obsolete picture files.
+
+```python
+# models.py
+from django.db import models
+from django.dispatch import receiver
+from pictures.models import PictureField
+from pictures.signals import picture_processed
+
+
+class Profile(models.Model):
+    title = models.CharField(max_length=255)
+    # the file name index speeds up the lookup in the signal handler below
+    picture = PictureField(upload_to="avatars", db_index=True)
+    picture_processed = models.BooleanField(editable=False, default=False)
+
+
+@receiver(picture_processed, sender=Profile._meta.get_field("picture"))
+def mark_picture_processed(sender, file_name, **kwargs):
+    sender.model.objects.filter(**{sender.name: file_name}).update(
+        picture_processed=True
+    )
+```
 
 ### Validators
 

@@ -4,10 +4,12 @@ import warnings
 from typing import Protocol
 
 import django
+from django.apps import apps
+from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
 from PIL import Image
 
-from pictures import conf, utils
+from pictures import conf, signals, utils
 from pictures.conf import app_settings
 from pictures.models import PillowPicture
 
@@ -19,16 +21,20 @@ def noop(*args, **kwargs) -> None:
 class PictureProcessor(Protocol):
     def __call__(
         self,
+        *,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None: ...
 
 
 def _process_picture(
+    *,
     storage: tuple[str, list, dict],
     file_name: str,
+    sender: tuple[str, str, str] | None,
     new: list[tuple[str, list, dict]] | None = None,
     old: list[tuple[str, list, dict]] | None = None,
 ) -> None:
@@ -46,6 +52,24 @@ def _process_picture(
         picture = utils.reconstruct(*picture)
         picture.delete()
 
+    if sender is not None:
+        try:
+            app_label, model_name, field_name = sender
+            field = apps.get_registered_model(app_label, model_name)._meta.get_field(
+                field_name
+            )
+        except (LookupError, FieldDoesNotExist):
+            # the model may only exist in a historical migration state,
+            # e.g. while an AlterPictureField migration is applied
+            pass
+        else:
+            signals.picture_processed.send(
+                sender=field,
+                file_name=file_name,
+                new=new,
+                old=old,
+            )
+
 
 process_picture: PictureProcessor = _process_picture
 
@@ -58,16 +82,22 @@ else:
 
     @actor(queue_name=conf.app_settings.QUEUE_NAME)
     def process_picture_with_dramatiq(
+        *,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str] | None = None,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(
+            storage=storage, file_name=file_name, sender=sender, new=new, old=old
+        )
 
     def dramatiq_process_picture(  # noqa: F811
+        *,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
@@ -82,6 +112,7 @@ else:
             lambda: process_picture_with_dramatiq.send(
                 storage=storage,
                 file_name=file_name,
+                sender=sender,
                 new=new,
                 old=old,
             )
@@ -101,16 +132,22 @@ else:
         retry_backoff=True,
     )
     def process_picture_with_celery(
+        *,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str] | None = None,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(
+            storage=storage, file_name=file_name, sender=sender, new=new, old=old
+        )
 
     def celery_process_picture(  # noqa: F811
+        *,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
@@ -126,6 +163,7 @@ else:
                 kwargs=dict(
                     storage=storage,
                     file_name=file_name,
+                    sender=sender,
                     new=new,
                     old=old,
                 ),
@@ -144,16 +182,22 @@ else:
 
     @job(conf.app_settings.QUEUE_NAME)
     def process_picture_with_django_rq(
+        *,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str] | None = None,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        _process_picture(storage, file_name, new, old)
+        _process_picture(
+            storage=storage, file_name=file_name, sender=sender, new=new, old=old
+        )
 
     def rq_process_picture(  # noqa: F811
+        *,
         storage: tuple[str, list, dict],
         file_name: str,
+        sender: tuple[str, str, str],
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
@@ -168,6 +212,7 @@ else:
             lambda: process_picture_with_django_rq.delay(
                 storage=storage,
                 file_name=file_name,
+                sender=sender,
                 new=new,
                 old=old,
             )
@@ -188,16 +233,22 @@ else:
             queue_name=conf.app_settings.QUEUE_NAME,
         )
         def process_picture_with_django_tasks(
+            *,
             storage: tuple[str, list, dict],
             file_name: str,
+            sender: tuple[str, str, str] | None = None,
             new: list[tuple[str, list, dict]] | None = None,
             old: list[tuple[str, list, dict]] | None = None,
         ) -> None:
-            _process_picture(storage, file_name, new, old)
+            _process_picture(
+                storage=storage, file_name=file_name, sender=sender, new=new, old=old
+            )
 
         def process_picture(  # noqa: F811
+            *,
             storage: tuple[str, list, dict],
             file_name: str,
+            sender: tuple[str, str, str],
             new: list[tuple[str, list, dict]] | None = None,
             old: list[tuple[str, list, dict]] | None = None,
         ) -> None:
@@ -205,6 +256,7 @@ else:
                 lambda: process_picture_with_django_tasks.enqueue(
                     storage=storage,
                     file_name=file_name,
+                    sender=sender,
                     new=new,
                     old=old,
                 )
