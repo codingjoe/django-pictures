@@ -287,8 +287,8 @@ Image processing emits a `picture_processed` signal after successful completion.
 The sender is the `PictureField` instance the processed picture belongs to.
 Receivers get the `file_name` of the processed source image, plus the rendered
 `new` and obsolete `old` picture files.
-Task queue processors send it after the model instance is saved, while the
-default synchronous processor sends it during the save.
+The processor may run during the model save or later in a worker, so a handler
+cannot rely on the model instance being in the database yet.
 
 ```python
 # models.py
