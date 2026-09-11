@@ -284,19 +284,11 @@ The default processor is `pictures.tasks.process_picture`. It is called with the
 ### Signals
 
 Image processing emits a `picture_processed` signal after successful completion.
-The signal can be used to persist the processing state or to trigger other events.
-
-The signal is sent by the processor.
-Task queue processors send it after the model instance was saved.
-The default synchronous processor sends it while the model instance is saved.
-A handler that queries the database must be prepared for both cases.
-
 The sender is the `PictureField` instance the processed picture belongs to.
-The signal provides the `file_name`, `new` and `old` arguments:
-
-- `file_name`: the file name of the processed source image.
-- `new`: the newly rendered picture files.
-- `old`: the deleted obsolete picture files.
+Receivers get the `file_name` of the processed source image, plus the rendered
+`new` and obsolete `old` picture files.
+Task queue processors send it after the model instance is saved, while the
+default synchronous processor sends it during the save.
 
 ```python
 # models.py
