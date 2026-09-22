@@ -284,11 +284,8 @@ The default processor is `pictures.tasks.process_picture`. It is called with the
 ### Signals
 
 Image processing emits a `picture_processed` signal after successful completion.
-The sender is the `PictureField` instance the processed picture belongs to.
-Receivers get the `file_name` of the processed source image, plus the rendered
-`new` and obsolete `old` picture files.
-The processor may run during the model save or later in a worker, so a handler
-cannot rely on the model instance being in the database yet.
+The sender is the `PictureField` instance, and receivers get the processed
+`file_name` plus the rendered `new` and obsolete `old` picture files.
 
 ```python
 # models.py
@@ -307,6 +304,7 @@ class Profile(models.Model):
 
 @receiver(picture_processed, sender=Profile._meta.get_field("picture"))
 def mark_picture_processed(sender, file_name, **kwargs):
+    # the signal may fire before the row is inserted, so this may match nothing
     sender.model.objects.filter(**{sender.name: file_name}).update(
         picture_processed=True
     )

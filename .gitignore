@@ -104,7 +104,6 @@ celerybeat.pid
 # Environments
 .env
 .venv
-.venv-*
 env/
 venv/
 ENV/
@@ -137,6 +136,3 @@ uv.lock
 
 # pytest-benchmark
 .benchmarks/
-
-# test media, generated outside pytest's tmp MEDIA_ROOT
-tests/media/

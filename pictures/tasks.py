@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import warnings
 from typing import Protocol
 
@@ -12,6 +13,8 @@ from PIL import Image
 from pictures import conf, signals, utils
 from pictures.conf import app_settings
 from pictures.models import PillowPicture
+
+logger = logging.getLogger(__name__)
 
 
 def noop(*args, **kwargs) -> None:
@@ -34,6 +37,8 @@ def _process_picture(
     *,
     storage: tuple[str, list, dict],
     file_name: str,
+    # `None` is deprecated, it is only sent by task messages queued before
+    # the sender argument existed. Deletion is scheduled with the next major version.
     sender: tuple[str, str, str] | None,
     new: list[tuple[str, list, dict]] | None = None,
     old: list[tuple[str, list, dict]] | None = None,
@@ -59,9 +64,14 @@ def _process_picture(
                 field_name
             )
         except (LookupError, FieldDoesNotExist):
-            # the model may only exist in a historical migration state,
-            # e.g. while an AlterPictureField migration is applied
-            pass
+            logger.warning(
+                "Skipping the 'picture_processed' signal for sender '%s.%s.%s':"
+                " the model may only exist in a historical migration state,"
+                " e.g. while an AlterPictureField migration is applied",
+                app_label,
+                model_name,
+                field_name,
+            )
         else:
             signals.picture_processed.send(
                 sender=field,
@@ -85,6 +95,7 @@ else:
         *,
         storage: tuple[str, list, dict],
         file_name: str,
+        # None is deprecated, see _process_picture
         sender: tuple[str, str, str] | None = None,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
@@ -135,6 +146,7 @@ else:
         *,
         storage: tuple[str, list, dict],
         file_name: str,
+        # None is deprecated, see _process_picture
         sender: tuple[str, str, str] | None = None,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
@@ -185,6 +197,7 @@ else:
         *,
         storage: tuple[str, list, dict],
         file_name: str,
+        # None is deprecated, see _process_picture
         sender: tuple[str, str, str] | None = None,
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
@@ -236,6 +249,7 @@ else:
             *,
             storage: tuple[str, list, dict],
             file_name: str,
+            # None is deprecated, see _process_picture
             sender: tuple[str, str, str] | None = None,
             new: list[tuple[str, list, dict]] | None = None,
             old: list[tuple[str, list, dict]] | None = None,

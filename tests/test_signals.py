@@ -105,7 +105,10 @@ def test_process_picture__get_processed_object(image_upload_file):
 @pytest.mark.django_db
 @skip_dramatiq
 def test_process_picture__without_sender(image_upload_file):
-    """Process pictures of queued tasks that predate the sender argument."""
+    """Process pictures of queued tasks that predate the sender argument.
+
+    Removal is scheduled with the next major version, see _process_picture.
+    """
     obj = SimpleModel.objects.create(picture=image_upload_file)
     pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
     path = obj.picture.aspect_ratios["16/9"]["AVIF"][100].path
@@ -130,7 +133,7 @@ def test_process_picture__without_sender(image_upload_file):
 
 @pytest.mark.django_db
 @skip_dramatiq
-def test_process_picture__without_registered_model(image_upload_file):
+def test_process_picture__without_registered_model(image_upload_file, caplog):
     """Send no signal for models that only exist in a historical migration state."""
     obj = SimpleModel.objects.create(picture=image_upload_file)
     pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
@@ -150,3 +153,4 @@ def test_process_picture__without_registered_model(image_upload_file):
     # pictures are still processed, no error is raised
     assert obj.picture.aspect_ratios["16/9"]["AVIF"][100].path.exists()
     assert not handler.called
+    assert "testapp.unknown_model.picture" in caplog.text
