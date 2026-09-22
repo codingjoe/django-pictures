@@ -53,11 +53,6 @@ def _process_picture(
         picture.delete()
 
     if sender is None:
-        warnings.warn(
-            "Passing no sender to the picture processor is deprecated.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return
 
     try:

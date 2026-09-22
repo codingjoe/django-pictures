@@ -105,7 +105,7 @@ def test_process_picture__get_processed_object(image_upload_file):
 @pytest.mark.django_db
 @skip_dramatiq
 def test_process_picture__without_sender(image_upload_file):
-    """Process pictures of a task message without a sender, scheduled for deletion."""
+    """Process pictures of a task message without a sender."""
     obj = SimpleModel.objects.create(picture=image_upload_file)
     pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
     path = obj.picture.aspect_ratios["16/9"]["AVIF"][100].path
@@ -115,16 +115,12 @@ def test_process_picture__without_sender(image_upload_file):
     handler = Mock()
     signals.picture_processed.connect(handler)
     try:
-        with pytest.warns(
-            DeprecationWarning,
-            match="Passing no sender to the picture processor is deprecated",
-        ):
-            tasks._process_picture(
-                storage=obj.picture.storage.deconstruct(),
-                file_name=obj.picture.name,
-                sender=None,
-                new=pictures,
-            )
+        tasks._process_picture(
+            storage=obj.picture.storage.deconstruct(),
+            file_name=obj.picture.name,
+            sender=None,
+            new=pictures,
+        )
     finally:
         signals.picture_processed.disconnect(handler)
 
