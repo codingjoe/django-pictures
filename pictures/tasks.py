@@ -52,24 +52,21 @@ def _process_picture(
         picture = utils.reconstruct(*picture)
         picture.delete()
 
-    if sender is None:
-        return
-
-    try:
-        app_label, model_name, field_name = sender
-        field = apps.get_registered_model(app_label, model_name)._meta.get_field(
-            field_name
-        )
-    except (LookupError, FieldDoesNotExist):
-        # The model may only exist in a historical migration state, send no signal.
-        return
-
-    signals.picture_processed.send(
-        sender=field,
-        file_name=file_name,
-        new=new,
-        old=old,
-    )
+    if sender is not None:
+        try:
+            app_label, model_name, field_name = sender
+            field = apps.get_registered_model(app_label, model_name)._meta.get_field(
+                field_name
+            )
+        except (LookupError, FieldDoesNotExist):
+            pass  # The model may only exist in a historical migration state, send no signal.
+        else:
+            signals.picture_processed.send(
+                sender=field,
+                file_name=file_name,
+                new=new,
+                old=old,
+            )
 
 
 process_picture: PictureProcessor = _process_picture
