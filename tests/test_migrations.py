@@ -7,27 +7,8 @@ from django.db.models.fields.files import ImageFieldFile
 
 from pictures import migrations
 from pictures.models import PictureField
+from tests.conftest import skip_dramatiq
 from tests.testapp.models import Profile
-
-try:
-    import dramatiq
-except ImportError:
-    dramatiq = None
-
-try:
-    import celery
-except ImportError:
-    celery = None
-
-try:
-    import django_rq
-except ImportError:
-    django_rq = None
-
-skip_dramatiq = pytest.mark.skipif(
-    not all(x is None for x in [dramatiq, celery, django_rq]),
-    reason="dramatiq, celery and django-rq are installed",
-)
 
 
 @skip_dramatiq

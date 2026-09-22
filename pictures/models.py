@@ -174,10 +174,11 @@ class PictureFieldFile(ImageFieldFile):
     def delete_all(self):
         if self:
             import_string(conf.app_settings.PROCESSOR)(
-                self.storage.deconstruct(),
-                self.name,
-                [],
-                [i.deconstruct() for i in self.get_picture_files_list()],
+                storage=self.storage.deconstruct(),
+                file_name=self.name,
+                sender=self.sender,
+                new=[],
+                old=[i.deconstruct() for i in self.get_picture_files_list()],
             )
 
     def update_all(self, other: PictureFieldFile | None = None):
@@ -188,11 +189,21 @@ class PictureFieldFile(ImageFieldFile):
             else:
                 new, old = self ^ other
             import_string(conf.app_settings.PROCESSOR)(
-                self.storage.deconstruct(),
-                self.name,
-                [i.deconstruct() for i in new],
-                [i.deconstruct() for i in old],
+                storage=self.storage.deconstruct(),
+                file_name=self.name,
+                sender=self.sender,
+                new=[i.deconstruct() for i in new],
+                old=[i.deconstruct() for i in old],
             )
+
+    @property
+    def sender(self) -> tuple[str, str, str]:
+        """Return the JSON-serializable (app label, model name, field name) triple."""
+        return (
+            self.field.model._meta.app_label,
+            self.field.model._meta.model_name,
+            self.field.name,
+        )
 
     def _get_image_dimensions(self):
         if not hasattr(self, "_dimensions_cache"):

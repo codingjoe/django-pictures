@@ -7,6 +7,26 @@ from PIL import Image
 
 from pictures import conf
 
+try:
+    import celery
+except ImportError:
+    celery = None
+
+try:
+    import django_rq
+except ImportError:
+    django_rq = None
+
+try:
+    import dramatiq
+except ImportError:
+    dramatiq = None
+
+skip_dramatiq = pytest.mark.skipif(
+    any(x is not None for x in [dramatiq, celery, django_rq]),
+    reason="dramatiq, celery and django-rq are installed",
+)
+
 
 @pytest.fixture(scope="session")
 def image_upload_file():
