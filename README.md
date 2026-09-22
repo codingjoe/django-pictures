@@ -304,7 +304,6 @@ class Profile(models.Model):
 
 @receiver(picture_processed, sender=Profile._meta.get_field("picture"))
 def mark_picture_processed(sender, file_name, **kwargs):
-    # the signal may fire before the row is inserted, so this may match nothing
     sender.model.objects.filter(**{sender.name: file_name}).update(
         picture_processed=True
     )
