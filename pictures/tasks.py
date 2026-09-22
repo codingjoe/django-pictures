@@ -54,8 +54,7 @@ def _process_picture(
 
     if sender is None:
         warnings.warn(
-            "Passing no sender to the picture processor is deprecated. It is only"
-            " needed for task messages queued before the sender argument existed."
+            "Passing no sender to the picture processor is deprecated."
             " Deletion is scheduled with the next major version.",
             DeprecationWarning,
             stacklevel=2,
