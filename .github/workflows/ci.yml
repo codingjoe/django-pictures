@@ -17,6 +17,9 @@ jobs:
           path: dist/*
   pytest-os:
     name: PyTest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         os:
@@ -30,10 +33,13 @@ jobs:
       - run: uv run pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
         with:
+          use_oidc: true
           flags: ${{ matrix.os }}
-          token: ${{ secrets.CODECOV_TOKEN }}
   pytest-python:
     name: PyTest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         python-version:
@@ -53,10 +59,13 @@ jobs:
       - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
         with:
+          use_oidc: true
           flags: py${{ matrix.python-version }}
-          token: ${{ secrets.CODECOV_TOKEN }}
   pytest-django:
     name: PyTest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         python-version:
@@ -73,10 +82,13 @@ jobs:
       - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
         with:
+          use_oidc: true
           flags: dj${{ matrix.django-version }}
-          token: ${{ secrets.CODECOV_TOKEN }}
   pytest-extras:
     name: PyTest
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         django-version:
@@ -96,5 +108,5 @@ jobs:
       - run: uv run --group=test --extra=${{ matrix.extras }} --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
         with:
+          use_oidc: true
           flags: ${{ matrix.extras }}
-          token: ${{ secrets.CODECOV_TOKEN }}
