@@ -159,7 +159,7 @@ else:
     INSTALLED_APPS += ["django_dramatiq"]
 
 DRAMATIQ_BROKER = {
-    "BROKER": os.getenv("DRAMATIQ_BROKER", "dramatiq.brokers.redis.RedisBroker"),
+    "BROKER": os.getenv("DRAMATIQ_BROKER", "dramatiq.brokers.stub.StubBroker"),
     "MIDDLEWARE": [
         "dramatiq.middleware.AgeLimit",
         "dramatiq.middleware.TimeLimit",
@@ -170,7 +170,7 @@ DRAMATIQ_BROKER = {
 
 # Celery
 
-CELERY_BROKER_URL = "redis:///2"
+CELERY_BROKER_URL = "memory://"
 CELERY_TASK_ALWAYS_EAGER = True
 
 # django-rq

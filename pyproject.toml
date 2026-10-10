@@ -60,7 +60,7 @@ test = [
   "pytest-benchmark",
   "pytest-cov",
   "pytest-django",
-  "redis",
+  "fakeredis",
 ]
 
 [project.urls]

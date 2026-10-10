@@ -107,3 +107,24 @@ def stub_worker():
 
         yield Meta
         worker.stop()
+
+
+def _install_fake_redis() -> None:
+    """Route every Redis client to one in-process fake server."""
+    import fakeredis
+    import redis
+
+    server = fakeredis.FakeServer()
+
+    class FakeRedis(fakeredis.FakeStrictRedis):
+        def __init__(self, *args, **kwargs):
+            kwargs.setdefault("server", server)
+            super().__init__(*args, **kwargs)
+
+    redis.Redis = FakeRedis
+    redis.StrictRedis = FakeRedis
+
+
+# Patch at import time: connections resolved while collecting test modules,
+# such as django-rq's @job decorator, must never reach a real server.
+_install_fake_redis()
