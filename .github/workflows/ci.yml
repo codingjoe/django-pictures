@@ -37,10 +37,6 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
           - "3.14"
         django-version:
           - "5.2" # LTS
@@ -60,7 +56,7 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.12"
+          - "3.14"
         django-version:
           # LTS gets tested on all OS
           - "6.0"

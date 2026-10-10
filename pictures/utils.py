@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import math
 import random
 import sys
@@ -125,11 +123,11 @@ def reconstruct(path: str, args: list, kwargs: dict):
     for arg in args:
         try:
             _args.append(reconstruct(*arg))
-        except (TypeError, ValueError, ImportError):
+        except TypeError, ValueError, ImportError:
             _args.append(arg)
     for key, value in kwargs.items():
         try:
             _kwargs[key] = reconstruct(*value)
-        except (TypeError, ValueError, ImportError):
+        except TypeError, ValueError, ImportError:
             _kwargs[key] = value
     return klass(*_args, **_kwargs)

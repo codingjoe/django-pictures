@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from django.conf import settings as django_settings
 from django.core.signals import setting_changed
 from django.utils.functional import SimpleLazyObject, empty
