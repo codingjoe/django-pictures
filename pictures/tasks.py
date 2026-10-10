@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import warnings
 from typing import Protocol
 
@@ -58,7 +56,7 @@ def _process_picture(
             field = apps.get_registered_model(app_label, model_name)._meta.get_field(
                 field_name
             )
-        except (LookupError, FieldDoesNotExist):
+        except LookupError, FieldDoesNotExist:
             pass  # The model may only exist in a historical migration state, send no signal.
         else:
             signals.picture_processed.send(
