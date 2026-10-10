@@ -90,8 +90,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - run: sudo apt update && sudo apt install -y redis-server
-        if: matrix.extras == 'dramatiq' || matrix.extras == 'django-rq'
       - uses: astral-sh/setup-uv@v7
       - run: uv run --group=test --extra=${{ matrix.extras }} --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
