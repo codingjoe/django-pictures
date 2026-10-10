@@ -58,8 +58,8 @@ jobs:
         python-version:
           - "3.14"
         django-version:
-          # LTS gets tested on all OS
           - "6.0"
+          - "6.1"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
