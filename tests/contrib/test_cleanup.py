@@ -13,10 +13,9 @@ def get_using(instance):
 
 class TestCleanCase:
     @pytest.mark.django_db(transaction=True)
-    def test_delete(self, stub_worker, image_upload_file):
+    def test_delete(self, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
-        stub_worker.join()
 
         name = obj.picture.name
         path = obj.picture.aspect_ratios["16/9"]["AVIF"][100].path

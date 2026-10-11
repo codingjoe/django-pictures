@@ -4,12 +4,10 @@ from unittest.mock import Mock
 import pytest
 
 from pictures import signals, tasks
-from tests.conftest import skip_dramatiq
 from tests.testapp.models import SimpleModel
 
 
 @pytest.mark.django_db
-@skip_dramatiq
 def test_process_picture__send_picture_processed(image_upload_file):
     obj = SimpleModel.objects.create(picture=image_upload_file)
     pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
@@ -36,7 +34,6 @@ def test_process_picture__send_picture_processed(image_upload_file):
 
 
 @pytest.mark.django_db
-@skip_dramatiq
 def test_process_picture__send_picture_processed_on_create(image_upload_file):
     handler = Mock()
     signals.picture_processed.connect(handler)
@@ -58,7 +55,6 @@ def test_process_picture__send_picture_processed_on_create(image_upload_file):
 
 
 @pytest.mark.django_db
-@skip_dramatiq
 def test_process_picture__send_picture_processed_on_delete(image_upload_file):
     obj = SimpleModel.objects.create(picture=image_upload_file)
     name = obj.picture.name
@@ -82,7 +78,6 @@ def test_process_picture__send_picture_processed_on_delete(image_upload_file):
 
 
 @pytest.mark.django_db
-@skip_dramatiq
 def test_process_picture__get_processed_object(image_upload_file):
     obj = SimpleModel.objects.create()
 
@@ -103,7 +98,6 @@ def test_process_picture__get_processed_object(image_upload_file):
 
 
 @pytest.mark.django_db
-@skip_dramatiq
 def test_process_picture__without_sender(image_upload_file):
     """Process pictures of a task message without a sender."""
     obj = SimpleModel.objects.create(picture=image_upload_file)
@@ -129,7 +123,6 @@ def test_process_picture__without_sender(image_upload_file):
 
 
 @pytest.mark.django_db
-@skip_dramatiq
 def test_process_picture__without_registered_model(image_upload_file):
     """Send no signal for models that only exist in a historical migration state."""
     obj = SimpleModel.objects.create(picture=image_upload_file)

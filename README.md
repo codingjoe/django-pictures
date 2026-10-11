@@ -110,9 +110,9 @@ PICTURES = {
 ```
 
 > [!IMPORTANT]
-> Starting with Django version 6.0, this package leverages Django's built-in
-> task framework for async image processing by default. You will need to add
-> the `pictures` queue to your `TASKS` setting:
+> This package leverages Django's built-in task framework for async image
+> processing by default. You will need to add the `pictures` queue to your
+> `TASKS` setting:
 
 ```python
 # settings.py
@@ -239,9 +239,9 @@ densities.
 ### Async image processing
 
 > [!IMPORTANT]
-> Starting with Django version 6.0, this package leverages Django's built-in
-> task framework for async image processing by default. You can explicitly
-> override this behavior via the `PICTURES["PROCESSOR"]` setting.
+> This package leverages Django's built-in task framework for async image
+> processing by default. You can explicitly override this behavior via the
+> `PICTURES["PROCESSOR"]` setting.
 
 Images are processed on a separate queue by default, you will need to add the `pictures`
 queue to your task backend configuration. You can override the queue name,
@@ -250,21 +250,13 @@ via the `PICTURES["QUEUE_NAME"]` setting.
 If you want to run image processing on a separate backend, you can set the
 `PICTURES["BACKEND"]` setting to something other than `default`.
 
-You may also override the processor to explicitly use Celery, Dramatiq or
-Django RQ until they provide proper integration with Django Tasks.
-
-> [!WARNING]
-> The custom Celery, Dramatiq and Django RQ integration is deprecated
-> and will be removed together with Django 5.2 LTS version support.
+You may also override the processor, for instance to process images with a
+custom pipeline of your own:
 
 ```python
 # settings.py
 PICTURES = {
-    "PROCESSOR": "pictures.tasks.celery_process_picture",  # use Celery
-    # or
-    "PROCESSOR": "pictures.tasks.dramatiq_process_picture",  # use Dramatiq
-    # or
-    "PROCESSOR": "pictures.tasks.rq_process_picture",  # use Django RQ
+    "PROCESSOR": "path.to.your.processor",
 }
 ```
 

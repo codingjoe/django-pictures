@@ -30,10 +30,6 @@ uvx prek install
 ## Testing with Extra Dependencies
 
 ```bash
-export REDIS_URL=redis://localhost:6379
-uv run --extra=dramatiq pytest
-uv run --extra=celery pytest
-uv run --extra=django-rq pytest
 uv run --extra=drf pytest
 uv run --extra=cleanup pytest
 ```
