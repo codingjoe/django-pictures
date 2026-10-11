@@ -50,4 +50,3 @@ def instant_commit(monkeypatch):
 def reset_pictures_settings():
     """Reset the pictures' settings to prevent side effects from other tests."""
     conf.app_settings._reset()
-    return

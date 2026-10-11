@@ -17,7 +17,7 @@ from PIL import Image, ImageCms, ImageOps
 
 from pictures import conf, utils
 
-__all__ = ["PictureField", "PictureFieldFile", "Picture"]
+__all__ = ["Picture", "PictureField", "PictureFieldFile"]
 
 
 @dataclasses.dataclass

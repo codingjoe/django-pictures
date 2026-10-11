@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from . import conf
 
-__all__ = ["sizes", "source_set", "placeholder"]
+__all__ = ["placeholder", "sizes", "source_set"]
 
 
 def _grid(*, field, _columns=12, **breakpoint_sizes):
