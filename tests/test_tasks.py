@@ -30,10 +30,7 @@ def test_noop():
     tasks.noop()  # does nothing
 
 
-def test_django_tasks_misconfiguration(settings):
-    pytest.importorskip(
-        "django", minversion="6.0", reason="Django tasks introduced in 6.0"
-    )
+def test_django_tasks_misconfiguration(settings, reset_dramatiq_broker):
     settings.TASKS = {
         "default": {
             "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
@@ -48,11 +45,10 @@ def test_django_tasks_misconfiguration(settings):
     )
 
 
-def test_django_tasks_misconfiguration__different_processor(settings):
+def test_django_tasks_misconfiguration__different_processor(
+    settings, reset_dramatiq_broker
+):
     """Do not raise if the processor is not the default one."""
-    pytest.importorskip(
-        "django", minversion="6.0", reason="Django tasks introduced in 6.0"
-    )
     settings.TASKS = {
         "default": {
             "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
@@ -67,7 +63,6 @@ def test_django_tasks_misconfiguration__different_processor(settings):
 @pytest.mark.benchmark(group="pictures.tasks._process_picture")
 def test_process_picture__performance(benchmark, large_image_upload_file):
     """Benchmark processing all picture sizes through the full pipeline."""
-    pytest.importorskip("django", minversion="6.0")
     obj = SimpleModel.objects.create(picture=large_image_upload_file)
     obj.picture.field.file_types = ["AVIF", "WEBP", "JPEG"]
     pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]

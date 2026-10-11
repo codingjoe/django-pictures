@@ -1,7 +1,6 @@
 import warnings
 from typing import Protocol
 
-import django
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
@@ -97,13 +96,12 @@ else:
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        if django.VERSION >= (6, 0):
-            warnings.warn(
-                "The picture processor 'dramatiq_process_picture' is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
-                PendingDeprecationWarning,
-                stacklevel=2,
-            )
+        warnings.warn(
+            "The picture processor 'dramatiq_process_picture' is deprecated in favor of Django's tasks framework."
+            " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
+            PendingDeprecationWarning,
+            stacklevel=2,
+        )
         transaction.on_commit(
             lambda: process_picture_with_dramatiq.send(
                 storage=storage,
@@ -147,13 +145,12 @@ else:
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        if django.VERSION >= (6, 0):
-            warnings.warn(
-                "The picture processor 'celery_process_picture' is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
-                PendingDeprecationWarning,
-                stacklevel=2,
-            )
+        warnings.warn(
+            "The picture processor 'celery_process_picture' is deprecated in favor of Django's tasks framework."
+            " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
+            PendingDeprecationWarning,
+            stacklevel=2,
+        )
         transaction.on_commit(
             lambda: process_picture_with_celery.apply_async(
                 kwargs=dict(
@@ -197,13 +194,12 @@ else:
         new: list[tuple[str, list, dict]] | None = None,
         old: list[tuple[str, list, dict]] | None = None,
     ) -> None:
-        if django.VERSION >= (6, 0):
-            warnings.warn(
-                "The picture processor 'rq_process_picture' is deprecated in favor of Django's tasks framework."
-                " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
-                PendingDeprecationWarning,
-                stacklevel=2,
-            )
+        warnings.warn(
+            "The picture processor 'rq_process_picture' is deprecated in favor of Django's tasks framework."
+            " Deletion is scheduled with the expiration of Django 5.2 LTS version support.",
+            PendingDeprecationWarning,
+            stacklevel=2,
+        )
         transaction.on_commit(
             lambda: process_picture_with_django_rq.delay(
                 storage=storage,

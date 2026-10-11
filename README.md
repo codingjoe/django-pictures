@@ -109,9 +109,6 @@ PICTURES = {
 }
 ```
 
-If you have either Dramatiq or Celery installed, we will default to async
-image processing. You will need workers to listen to the `pictures` queue.
-
 > [!IMPORTANT]
 > Starting with Django version 6.0, this package leverages Django's built-in
 > task framework for async image processing by default. You will need to add
@@ -270,16 +267,6 @@ PICTURES = {
     "PROCESSOR": "pictures.tasks.rq_process_picture",  # use Django RQ
 }
 ```
-
-#### Pre Django 6.0
-
-If you have either Dramatiq or Celery installed, we will default to async
-image processing. You will need workers to listen to the `pictures` queue.
-You can override the queue name, via the `PICTURES["QUEUE_NAME"]` setting.
-
-You can also override the processor, via the `PICTURES["PROCESSOR"]` setting.
-The default processor is `pictures.tasks.process_picture`. It is called with the
-`storage`, `file_name`, `sender`, `new` and `old` keyword arguments.
 
 ### Signals
 

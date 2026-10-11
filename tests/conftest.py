@@ -109,6 +109,13 @@ def stub_worker():
         worker.stop()
 
 
+@pytest.fixture
+def reset_dramatiq_broker():
+    """Clear declared actors, so modules that declare them can be re-imported."""
+    if dramatiq is not None:
+        dramatiq.get_broker().actors.clear()
+
+
 def _install_fake_redis() -> None:
     """Route every Redis client to one in-process fake server."""
     import fakeredis
