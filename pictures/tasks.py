@@ -87,7 +87,7 @@ try:
             storage=storage, file_name=file_name, sender=sender, new=new, old=old
         )
 
-    def process_picture(  # noqa: F811
+    def process_picture(
         *,
         storage: tuple[str, list, dict],
         file_name: str,
