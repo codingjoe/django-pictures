@@ -277,7 +277,7 @@ class TestPillowPicture:
         image = Image.new("CMYK", (10, 10))
         image.info["icc_profile"] = b"broken profile"
 
-        with pytest.raises(OSError):
+        with pytest.raises(OSError, match="cannot open profile from string"):
             self.picture_with_ratio.pre_process(image)
 
 
@@ -697,7 +697,7 @@ class TestPictureFieldFile:
         assert obj.picture.aspect_ratios["16/9"]["AVIF"][100].path.exists()
 
     @pytest.mark.django_db
-    def test_save_JPEG_RGA(self, image_upload_file):
+    def test_save_jpeg_rga(self, image_upload_file):
         obj = JPEGModel(picture=image_upload_file)
         obj.save()
 

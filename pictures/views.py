@@ -13,7 +13,8 @@ def placeholder(request, width, ratio, file_type, alt):
         raise Http404()
     height = math.floor(width / ratio)
     if file_type.upper() not in conf.app_settings.FILE_TYPES:
-        raise Http404("File type not allowed")
+        msg = "File type not allowed"
+        raise Http404(msg)
     img = utils.placeholder(width, height, alt=alt)
     response = HttpResponse(
         content_type=f"image/{file_type.lower()}",
