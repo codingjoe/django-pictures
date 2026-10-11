@@ -107,8 +107,9 @@ try:
 
 except exceptions.InvalidTask as e:
     if app_settings.PROCESSOR == "pictures.tasks.process_picture":
-        raise exceptions.ImproperlyConfigured(
+        msg = (
             "Pictures are processed on a separate queue by default,"
             " please update the 'TASKS' setting in accordance with Django-Pictures documentation."
             " If you use a custom processor, please set the 'PROCESSOR' setting accordingly."
-        ) from e
+        )
+        raise exceptions.ImproperlyConfigured(msg) from e

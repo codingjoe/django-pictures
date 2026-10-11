@@ -186,7 +186,7 @@ class TestPictureField:
         request.GET["image_m"] = "4"
         serializer = ProfileSerializer(profile, context={"request": request})
 
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(ValueError, match="Invalid ratios: 21/11") as e:
             serializer.data["image"]
 
         assert str(e.value) == "Invalid ratios: 21/11. Choices are: 1/1, 3/2, 16/9"
@@ -246,7 +246,6 @@ class TestPictureField:
         request.GET._mutable = True
         request.GET.setlist("image_ratio", ["3/2", "16/9"])
         serializer = ProfileSerializer(profile, context={"request": request})
-        print(serializer.data["image"])
         assert serializer.data["image"] == {
             "url": "/media/testapp/profile/image.png",
             "width": 800,
@@ -364,7 +363,7 @@ class TestPictureField:
         request.GET["image_ratio"] = "16/9"
         request.GET["image_container"] = "not_a_number"
         serializer = ProfileSerializer(profile, context={"request": request})
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(ValueError, match="Container width is not a number") as e:
             serializer.data["image"]
         assert str(e.value) == "Container width is not a number: not_a_number"
 

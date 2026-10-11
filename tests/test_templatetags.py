@@ -48,7 +48,6 @@ def test_picture__large(client, large_image_upload_file, settings):
     profile = Profile.objects.create(name="Spiderman", picture=large_image_upload_file)
     response = client.get(profile.get_absolute_url())
     assert response.status_code == 200
-    print(response.content.decode())
     assert picture_html_large in response.content
 
 
@@ -74,7 +73,7 @@ def test_picture__placeholder_with_alt(client, image_upload_file, settings):
 @pytest.mark.django_db
 def test_picture__invalid_ratio(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError, match="Invalid ratio: 4/3") as e:
         picture(profile.picture, ratio="4/3")
     assert "Invalid ratio: 4/3. Choices are: 1/1, 3/2, 16/9" in str(e.value)
 
@@ -131,7 +130,7 @@ def test_img_url(image_upload_file):
 @pytest.mark.django_db
 def test_img_url__raise_wrong_ratio(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError, match="Invalid ratio: 2/3") as e:
         img_url(profile.picture, ratio="2/3", file_type="avif", width=800)
     assert "Invalid ratio: 2/3. Choices are: 1/1, 3/2, 16/9" in str(e.value)
 
@@ -139,7 +138,7 @@ def test_img_url__raise_wrong_ratio(image_upload_file):
 @pytest.mark.django_db
 def test_img_url__raise_wrong_file_type(image_upload_file):
     profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError, match="Invalid file type: gif") as e:
         img_url(profile.picture, ratio="3/2", file_type="gif", width=800)
     assert "Invalid file type: gif. Choices are: AVIF" in str(e.value)
 

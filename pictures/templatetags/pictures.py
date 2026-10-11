@@ -25,9 +25,8 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
     try:
         sources = field_file.aspect_ratios[ratio]
     except KeyError as e:
-        raise ValueError(
-            f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, field_file.aspect_ratios.keys()))}"
-        ) from e
+        msg = f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, field_file.aspect_ratios.keys()))}"
+        raise ValueError(msg) from e
     for key, value in kwargs.items():
         if key in field.breakpoints:
             breakpoints[key] = value
@@ -36,7 +35,8 @@ def picture(field_file, img_alt=None, ratio=None, container=None, **kwargs):
         elif key.startswith("img_"):
             img_attrs[key[4:]] = value
         else:
-            raise TypeError(f"Invalid keyword argument: {key}")
+            msg = f"Invalid keyword argument: {key}"
+            raise TypeError(msg)
     return tmpl.render({
         "field_file": field_file,
         "alt": img_alt,
@@ -59,15 +59,13 @@ def img_url(field_file, file_type, width, ratio=None) -> str:
     try:
         file_types = field_file.aspect_ratios[ratio]
     except KeyError as e:
-        raise ValueError(
-            f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, field_file.aspect_ratios.keys()))}"
-        ) from e
+        msg = f"Invalid ratio: {ratio}. Choices are: {', '.join(filter(None, field_file.aspect_ratios.keys()))}"
+        raise ValueError(msg) from e
     try:
         sizes = file_types[file_type.upper()]
     except KeyError as e:
-        raise ValueError(
-            f"Invalid file type: {file_type}. Choices are: {', '.join(file_types.keys())}"
-        ) from e
+        msg = f"Invalid file type: {file_type}. Choices are: {', '.join(file_types.keys())}"
+        raise ValueError(msg) from e
     url = field_file.url
     if not sizes.items():
         warnings.warn(

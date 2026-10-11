@@ -12,7 +12,8 @@ from pictures.models import Picture, PictureFieldFile
 def default(obj):
     if isinstance(obj, Picture):
         return obj.url
-    raise TypeError(f"Type '{type(obj).__name__}' not serializable")
+    msg = f"Type '{type(obj).__name__}' not serializable"
+    raise TypeError(msg)
 
 
 class PictureField(serializers.ReadOnlyField):
@@ -51,16 +52,16 @@ class PictureField(serializers.ReadOnlyField):
             except TypeError:
                 container = field.container_width
             except ValueError as e:
-                raise ValueError(f"Container width is not a number: {container}") from e
+                msg = f"Container width is not a number: {container}"
+                raise ValueError(msg) from e
             breakpoints = {
                 bp: int(query_params.get(f"{self.field_name}_{bp}"))
                 for bp in field.breakpoints
                 if f"{self.field_name}_{bp}" in query_params
             }
             if set(ratios) - set(self.aspect_ratios or obj.aspect_ratios.keys()):
-                raise ValueError(
-                    f"Invalid ratios: {', '.join(ratios)}. Choices are: {', '.join(filter(None, obj.aspect_ratios.keys()))}"
-                )
+                msg = f"Invalid ratios: {', '.join(ratios)}. Choices are: {', '.join(filter(None, obj.aspect_ratios.keys()))}"
+                raise ValueError(msg)
 
         payload = {
             **base_payload,

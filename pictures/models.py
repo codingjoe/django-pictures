@@ -261,11 +261,11 @@ class PictureFieldFile(ImageFieldFile):
         storage: Storage,
         field: PictureField,
     ) -> dict[Fraction | None, dict[str, dict[int, Picture]]]:
-        PictureClass = import_string(conf.app_settings.PICTURE_CLASS)
+        picture_class = import_string(conf.app_settings.PICTURE_CLASS)
         return {
             ratio: {
                 file_type: {
-                    width: PictureClass(file_name, file_type, ratio, storage, width)
+                    width: picture_class(file_name, file_type, ratio, storage, width)
                     for width in utils.source_set(
                         (img_width, img_height),
                         ratio=ratio,

@@ -15,11 +15,10 @@ __all__ = ["placeholder", "sizes", "source_set"]
 
 def _grid(*, field, _columns=12, **breakpoint_sizes):
     for key in breakpoint_sizes.keys() - field.breakpoints:
-        raise KeyError(
-            f"Invalid breakpoint: {key}. Choices are: {', '.join(field.breakpoints.keys())}"
-        )
+        msg = f"Invalid breakpoint: {key}. Choices are: {', '.join(field.breakpoints.keys())}"
+        raise KeyError(msg)
     prev_size = _columns
-    for key, value in field.breakpoints.items():
+    for key in field.breakpoints:
         prev_size = breakpoint_sizes.get(key, prev_size)
         yield key, prev_size / _columns
 
@@ -94,7 +93,8 @@ def placeholder(width: int, height: int, alt):
     elif sys.platform == "darwin":
         font_name = "Helvetica"
     else:  # pragma: no cover
-        raise RuntimeError(f"Unsupported platform: {sys.platform}")
+        msg = f"Unsupported platform: {sys.platform}"
+        raise RuntimeError(msg)
     font = ImageFont.truetype(font_name, fontsize)
     text = unquote(f"{alt}\n<{width}x{height}>")
     while font.getlength(text) < width / 2:
