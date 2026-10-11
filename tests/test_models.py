@@ -689,25 +689,23 @@ class TestPictureFieldFile:
         )
 
     @pytest.mark.django_db
-    def test_save(self, stub_worker, image_upload_file):
+    def test_save(self, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
-        stub_worker.join()
 
         assert default_storage.exists(obj.picture.name)
         assert obj.picture.aspect_ratios["16/9"]["AVIF"][100].path.exists()
 
     @pytest.mark.django_db
-    def test_save_JPEG_RGA(self, stub_worker, image_upload_file):
+    def test_save_JPEG_RGA(self, image_upload_file):
         obj = JPEGModel(picture=image_upload_file)
         obj.save()
-        stub_worker.join()
 
         assert default_storage.exists(obj.picture.name)
         assert obj.picture.aspect_ratios["16/9"]["JPEG"][100].path.exists()
 
     @pytest.mark.django_db
-    def test_exif_transpose(self, stub_worker):
+    def test_exif_transpose(self):
         img = Image.new("RGB", (600, 800), (255, 0, 0))
         draw = ImageDraw.Draw(img)
         draw.rectangle((300, 0, 600, 800), fill=(0, 0, 255))  # blue is on the right
@@ -720,7 +718,6 @@ class TestPictureFieldFile:
 
         obj = SimpleModel(picture=image_file)
         obj.save()
-        stub_worker.join()
 
         assert default_storage.exists(obj.picture.name)
         assert obj.picture.aspect_ratios["16/9"]["AVIF"][100].path.exists()
@@ -740,10 +737,9 @@ class TestPictureFieldFile:
         assert not save_all.called
 
     @pytest.mark.django_db
-    def test_delete(self, stub_worker, image_upload_file):
+    def test_delete(self, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
-        stub_worker.join()
 
         name = obj.picture.name
         path = obj.picture.aspect_ratios["16/9"]["AVIF"][100].path
@@ -751,15 +747,13 @@ class TestPictureFieldFile:
         assert path.exists()
 
         obj.picture.delete()
-        stub_worker.join()
         assert not default_storage.exists(name)
         assert not path.exists()
 
     @pytest.mark.django_db
-    def test_update_all(self, stub_worker, image_upload_file):
+    def test_update_all(self, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
-        stub_worker.join()
 
         name = obj.picture.name
         path = obj.picture.aspect_ratios["16/9"]["AVIF"][100].path
@@ -769,13 +763,12 @@ class TestPictureFieldFile:
         old = copy.deepcopy(obj.picture)
         with override_field_aspect_ratios(obj.picture.field, ["1/1"]):
             obj.picture.update_all(old)
-            stub_worker.join()
             assert default_storage.exists(name)
             assert obj.picture.aspect_ratios["1/1"]["AVIF"][100].path.exists()
             assert not path.exists()
 
     @pytest.mark.django_db
-    def test_width(self, stub_worker, image_upload_file):
+    def test_width(self, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
         obj.picture_width = None
@@ -783,7 +776,7 @@ class TestPictureFieldFile:
         assert obj.picture.width == 800
 
     @pytest.mark.django_db
-    def test_height(self, stub_worker, image_upload_file):
+    def test_height(self, image_upload_file):
         obj = SimpleModel(picture=image_upload_file)
         obj.save()
         obj.picture_height = None
@@ -791,7 +784,7 @@ class TestPictureFieldFile:
         assert obj.picture.height == 800
 
     @pytest.mark.django_db
-    def test_width_height__exif_rotated(self, stub_worker, large_image_upload_file):
+    def test_width_height__exif_rotated(self, large_image_upload_file):
         # fixture invariants: raw bytes are 2000x3000 with EXIF orientation 8.
         large_image_upload_file.seek(0)
         with Image.open(large_image_upload_file) as _img:
@@ -811,7 +804,7 @@ class TestPictureFieldFile:
         assert obj.picture.height == 2000
 
     @pytest.mark.django_db
-    def test_update_all__empty(self, stub_worker, image_upload_file):
+    def test_update_all__empty(self, image_upload_file):
         obj = SimpleModel()
         obj.save()
 

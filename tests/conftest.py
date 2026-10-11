@@ -1,31 +1,10 @@
 import io
-from unittest.mock import Mock
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 
 from pictures import conf
-
-try:
-    import celery
-except ImportError:
-    celery = None
-
-try:
-    import django_rq
-except ImportError:
-    django_rq = None
-
-try:
-    import dramatiq
-except ImportError:
-    dramatiq = None
-
-skip_dramatiq = pytest.mark.skipif(
-    any(x is not None for x in [dramatiq, celery, django_rq]),
-    reason="dramatiq, celery and django-rq are installed",
-)
 
 
 @pytest.fixture(scope="session")
@@ -72,59 +51,3 @@ def reset_pictures_settings():
     """Reset the pictures' settings to prevent side effects from other tests."""
     conf.app_settings._reset()
     return
-
-
-@pytest.fixture
-def stub_worker():
-    try:
-        import dramatiq
-    except ImportError:
-        try:
-            from django_rq import get_worker
-        except ImportError:
-            yield Mock()
-        else:
-
-            class Meta:
-                @staticmethod
-                def join():
-                    get_worker("pictures").work(burst=True)
-
-            yield Meta
-
-    else:
-        broker = dramatiq.get_broker()
-        broker.emit_after("process_boot")
-        broker.flush_all()
-        worker = dramatiq.Worker(broker, worker_timeout=100)
-        worker.start()
-
-        class Meta:
-            @staticmethod
-            def join():
-                broker.join(conf.app_settings.QUEUE_NAME, timeout=60000)
-                worker.join()
-
-        yield Meta
-        worker.stop()
-
-
-def _install_fake_redis() -> None:
-    """Route every Redis client to one in-process fake server."""
-    import fakeredis
-    import redis
-
-    server = fakeredis.FakeServer()
-
-    class FakeRedis(fakeredis.FakeStrictRedis):
-        def __init__(self, *args, **kwargs):
-            kwargs.setdefault("server", server)
-            super().__init__(*args, **kwargs)
-
-    redis.Redis = FakeRedis
-    redis.StrictRedis = FakeRedis
-
-
-# Patch at import time: connections resolved while collecting test modules,
-# such as django-rq's @job decorator, must never reach a real server.
-_install_fake_redis()

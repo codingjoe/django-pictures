@@ -35,37 +35,17 @@ jobs:
         with:
           use_oidc: true
           flags: ${{ matrix.os }}
-  pytest-python:
-    name: PyTest
-    permissions:
-      contents: read
-      id-token: write
-    strategy:
-      matrix:
-        python-version:
-          - "3.14"
-        django-version:
-          - "5.2" # LTS
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v7
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
-      - uses: codecov/codecov-action@v7
-        with:
-          use_oidc: true
-          flags: py${{ matrix.python-version }}
   pytest-django:
     name: PyTest
     permissions:
       contents: read
       id-token: write
     strategy:
+      fail-fast: false
       matrix:
         python-version:
           - "3.14"
+          - "3.15"
         django-version:
           - "6.0"
           - "6.1"
@@ -79,7 +59,7 @@ jobs:
       - uses: codecov/codecov-action@v7
         with:
           use_oidc: true
-          flags: dj${{ matrix.django-version }}
+          flags: py${{ matrix.python-version }}-dj${{ matrix.django-version }}
   pytest-extras:
     name: PyTest
     permissions:
@@ -88,11 +68,8 @@ jobs:
     strategy:
       matrix:
         django-version:
-          - "5.2" # LTS
+          - "6.0"
         extras:
-          - "celery"
-          - "dramatiq"
-          - "django-rq"
           - "drf"
           - "cleanup"
     runs-on: ubuntu-latest

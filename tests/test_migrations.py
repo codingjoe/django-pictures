@@ -7,11 +7,9 @@ from django.db.models.fields.files import ImageFieldFile
 
 from pictures import migrations
 from pictures.models import PictureField
-from tests.conftest import skip_dramatiq
 from tests.testapp.models import Profile
 
 
-@skip_dramatiq
 class TestAlterPictureField:
     def test_alter_picture_field__image_to_image(self, request, monkeypatch):
         class FromModel(models.Model):
@@ -98,7 +96,7 @@ class TestAlterPictureField:
         assert not migration.to_picture_field.called
 
     @pytest.mark.django_db
-    def test_update_pictures(self, request, stub_worker, image_upload_file):
+    def test_update_pictures(self, request, image_upload_file):
         class ToModel(models.Model):
             name = models.CharField(max_length=100)
             picture = PictureField(
@@ -110,7 +108,6 @@ class TestAlterPictureField:
                 db_table = "testapp_profile"
 
         luke = Profile.objects.create(name="Luke", picture=image_upload_file)
-        stub_worker.join()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         from_field = Profile._meta.get_field("picture")
 
@@ -118,7 +115,6 @@ class TestAlterPictureField:
         assert path.exists()
 
         migration.update_pictures(from_field, ToModel)
-        stub_worker.join()
 
         assert not path.exists()
         luke.refresh_from_db()
@@ -131,7 +127,7 @@ class TestAlterPictureField:
         assert path.exists()
 
     @pytest.mark.django_db
-    def test_update_pictures__without_picture(self, request, stub_worker):
+    def test_update_pictures__without_picture(self, request):
         class ToModel(models.Model):
             name = models.CharField(max_length=100)
             picture = PictureField(
@@ -143,20 +139,16 @@ class TestAlterPictureField:
                 db_table = "testapp_profile"
 
         luke = Profile.objects.create(name="Luke")
-        stub_worker.join()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         from_field = Profile._meta.get_field("picture")
 
         migration.update_pictures(from_field, ToModel)
-        stub_worker.join()
         luke.refresh_from_db()
 
         assert not luke.picture
 
     @pytest.mark.django_db
-    def test_update_pictures__with_empty_pictures(
-        self, request, stub_worker, image_upload_file
-    ):
+    def test_update_pictures__with_empty_pictures(self, request, image_upload_file):
         """Test that update_pictures skips objects with empty/null pictures."""
 
         class ToModel(models.Model):
@@ -173,7 +165,6 @@ class TestAlterPictureField:
         luke = Profile.objects.create(name="Luke", picture=image_upload_file)
         leia = Profile.objects.create(name="Leia", picture="")
         han = Profile.objects.create(name="Han", picture=None)
-        stub_worker.join()
 
         path = luke.picture.aspect_ratios["16/9"]["AVIF"][100].path
         assert path.exists()
@@ -183,7 +174,6 @@ class TestAlterPictureField:
 
         # This should not fail despite empty/null pictures
         migration.update_pictures(from_field, ToModel)
-        stub_worker.join()
 
         # Verify old path was deleted and new one was created for luke
         assert not path.exists()
@@ -203,26 +193,21 @@ class TestAlterPictureField:
         assert not han_profile.picture
 
     @pytest.mark.django_db
-    def test_from_picture_field(self, stub_worker, image_upload_file):
+    def test_from_picture_field(self, image_upload_file):
         luke = Profile.objects.create(name="Luke", picture=image_upload_file)
-        stub_worker.join()
         path = luke.picture.aspect_ratios["16/9"]["AVIF"][100].path
         assert path.exists()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         migration.from_picture_field(Profile)
-        stub_worker.join()
         assert not path.exists()
 
     @pytest.mark.django_db
-    def test_from_picture_field__with_empty_pictures(
-        self, stub_worker, image_upload_file
-    ):
+    def test_from_picture_field__with_empty_pictures(self, image_upload_file):
         """Test that from_picture_field skips objects with empty/null pictures."""
         # Create profiles with different picture states
         luke = Profile.objects.create(name="Luke", picture=image_upload_file)
         Profile.objects.create(name="Leia", picture="")
         Profile.objects.create(name="Han", picture=None)
-        stub_worker.join()
 
         path = luke.picture.aspect_ratios["16/9"]["AVIF"][100].path
         assert path.exists()
@@ -230,7 +215,6 @@ class TestAlterPictureField:
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         # This should not fail despite empty/null pictures
         migration.from_picture_field(Profile)
-        stub_worker.join()
 
         assert not path.exists()
         # Verify other profiles still exist and weren't affected
@@ -238,7 +222,7 @@ class TestAlterPictureField:
         assert Profile.objects.filter(name="Han").exists()
 
     @pytest.mark.django_db
-    def test_to_picture_field(self, request, stub_worker, image_upload_file):
+    def test_to_picture_field(self, request, image_upload_file):
         class FromModel(models.Model):
             picture = models.ImageField()
 
@@ -255,10 +239,8 @@ class TestAlterPictureField:
                 db_table = "testapp_profile"
 
         luke = ToModel.objects.create(name="Luke", picture=image_upload_file)
-        stub_worker.join()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         migration.to_picture_field(FromModel, Profile)
-        stub_worker.join()
         luke.refresh_from_db()
         path = (
             Profile.objects
@@ -269,7 +251,7 @@ class TestAlterPictureField:
         assert path.exists()
 
     @pytest.mark.django_db
-    def test_to_picture_field_blank(self, request, stub_worker):
+    def test_to_picture_field_blank(self, request):
         class FromModel(models.Model):
             picture = models.ImageField(blank=True)
 
@@ -286,14 +268,11 @@ class TestAlterPictureField:
                 db_table = "testapp_profile"
 
         ToModel.objects.create(name="Luke")
-        stub_worker.join()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         migration.to_picture_field(FromModel, Profile)
 
     @pytest.mark.django_db
-    def test_to_picture_field__with_empty_pictures(
-        self, request, stub_worker, image_upload_file
-    ):
+    def test_to_picture_field__with_empty_pictures(self, request, image_upload_file):
         """Test that to_picture_field skips objects with empty/null pictures."""
 
         class FromModel(models.Model):
@@ -315,12 +294,10 @@ class TestAlterPictureField:
         luke = ToModel.objects.create(name="Luke", picture=image_upload_file)
         leia = ToModel.objects.create(name="Leia", picture="")
         han = ToModel.objects.create(name="Han", picture=None)
-        stub_worker.join()
 
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         # This should not fail despite empty/null pictures
         migration.to_picture_field(FromModel, Profile)
-        stub_worker.join()
 
         luke.refresh_from_db()
         # Verify only luke's picture was processed
@@ -339,9 +316,7 @@ class TestAlterPictureField:
         assert not han_profile.picture
 
     @pytest.mark.django_db
-    def test_to_picture_field__from_stdimage(
-        self, request, stub_worker, image_upload_file
-    ):
+    def test_to_picture_field__from_stdimage(self, request, image_upload_file):
         class StdImageFieldFile(ImageFieldFile):
             delete_variations = Mock()
 
@@ -364,10 +339,8 @@ class TestAlterPictureField:
                 db_table = "testapp_profile"
 
         luke = ToModel.objects.create(name="Luke", picture=image_upload_file)
-        stub_worker.join()
         migration = migrations.AlterPictureField("profile", "picture", PictureField())
         migration.to_picture_field(FromModel, Profile)
-        stub_worker.join()
         luke.refresh_from_db()
         path = (
             Profile.objects
@@ -387,7 +360,6 @@ class TestAlterPictureField:
     @pytest.mark.benchmark(group="AlterPictureField.forward")
     def test_forward__performance(self, request, benchmark, large_image_upload_file):
         """Benchmark update_pictures migration operation across multiple objects."""
-        pytest.importorskip("django", minversion="6.0")
 
         class ToModel(models.Model):
             name = models.CharField(max_length=100)

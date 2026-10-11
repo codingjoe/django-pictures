@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
-import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -127,11 +126,6 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 
@@ -140,53 +134,11 @@ PICTURES = {
 }
 
 
-# Django tasks (6.0+)
+# Django tasks
 
 TASKS = {
     "default": {
         "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
         "QUEUES": ["default", "pictures"],
     }
-}
-
-
-# Dramatiq
-try:
-    import dramatiq  # NoQA
-except ImportError:  # dramatiq is not installed
-    pass
-else:
-    INSTALLED_APPS += ["django_dramatiq"]
-
-DRAMATIQ_BROKER = {
-    "BROKER": os.getenv("DRAMATIQ_BROKER", "dramatiq.brokers.stub.StubBroker"),
-    "MIDDLEWARE": [
-        "dramatiq.middleware.AgeLimit",
-        "dramatiq.middleware.TimeLimit",
-        "dramatiq.middleware.Callbacks",
-        "dramatiq.middleware.Retries",
-    ],
-}
-
-# Celery
-
-CELERY_BROKER_URL = "memory://"
-CELERY_TASK_ALWAYS_EAGER = True
-
-# django-rq
-try:
-    import django_rq  # NoQA
-except ImportError:  # django_rq is not installed
-    pass
-else:
-    INSTALLED_APPS += ["django_rq"]
-
-RQ_QUEUES = {
-    "pictures": {
-        "URL": os.getenv("REDIS_URL", "redis:///3"),
-    }
-}
-
-RQ = {
-    "WORKER_CLASS": "rq.worker.SimpleWorker",
 }

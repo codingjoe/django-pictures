@@ -31,9 +31,6 @@ def test_noop():
 
 
 def test_django_tasks_misconfiguration(settings):
-    pytest.importorskip(
-        "django", minversion="6.0", reason="Django tasks introduced in 6.0"
-    )
     settings.TASKS = {
         "default": {
             "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
@@ -44,15 +41,13 @@ def test_django_tasks_misconfiguration(settings):
         importlib.reload(tasks)
     assert str(e.value) == (
         "Pictures are processed on a separate queue by default,"
-        " please update the 'TASKS' setting in accordance with Django-Pictures documentation. If you need to continue to use a deprecated processor, please set the 'PROCESSOR' to another processor."
+        " please update the 'TASKS' setting in accordance with Django-Pictures documentation."
+        " If you use a custom processor, please set the 'PROCESSOR' setting accordingly."
     )
 
 
 def test_django_tasks_misconfiguration__different_processor(settings):
     """Do not raise if the processor is not the default one."""
-    pytest.importorskip(
-        "django", minversion="6.0", reason="Django tasks introduced in 6.0"
-    )
     settings.TASKS = {
         "default": {
             "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
@@ -67,7 +62,6 @@ def test_django_tasks_misconfiguration__different_processor(settings):
 @pytest.mark.benchmark(group="pictures.tasks._process_picture")
 def test_process_picture__performance(benchmark, large_image_upload_file):
     """Benchmark processing all picture sizes through the full pipeline."""
-    pytest.importorskip("django", minversion="6.0")
     obj = SimpleModel.objects.create(picture=large_image_upload_file)
     obj.picture.field.file_types = ["AVIF", "WEBP", "JPEG"]
     pictures = [i.deconstruct() for i in obj.picture.get_picture_files_list()]
