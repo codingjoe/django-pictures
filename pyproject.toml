@@ -1,44 +1,47 @@
 [build-system]
-requires = ["flit_core>=3.2", "flit_scm", "wheel"]
 build-backend = "flit_scm:buildapi"
+requires = [ "flit-core>=3.2", "flit-scm", "wheel" ]
 
 [project]
 name = "django-pictures"
-authors = [
-  { name = "Johannes Maron", email = "johannes@maron.family" },
-]
 readme = "README.md"
+keywords = [ "AVIF", "Django", "image", "pictures", "pillow", "WebP" ]
 license = { file = "LICENSE" }
-keywords = ["pillow", "Django", "image", "pictures", "WebP", "AVIF"]
-dynamic = ["version", "description"]
+requires-python = ">=3.14"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
-  "Programming Language :: Python",
   "Environment :: Web Environment",
-  "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+  "Framework :: Django",
+  "Framework :: Django :: 6.0",
+  "Framework :: Django :: 6.1",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: BSD License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
-  "Topic :: Software Development",
-  "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: 3.15",
-  "Framework :: Django",
-  "Framework :: Django :: 6.0",
-  "Framework :: Django :: 6.1",
+  "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+  "Topic :: Software Development",
 ]
-requires-python = ">=3.14"
-dependencies = ["django>=6.0.0", "pillow>=11.3.0"]
-
+dynamic = [ "description", "version" ]
+dependencies = [ "django>=6", "pillow>=11.3" ]
+[[project.authors]]
+name = "Johannes Maron"
+email = "johannes@maron.family"
 [project.optional-dependencies]
-drf = [
-  "djangorestframework",
-]
 cleanup = [
   "django-cleanup",
 ]
+drf = [
+  "djangorestframework",
+]
+[project.urls]
+Changelog = "https://github.com/codingjoe/django-pictures/releases"
+Documentation = "https://github.com/codingjoe/django-pictures#django-pictures"
+Issue-Tracker = "https://github.com/codingjoe/django-pictures/issues"
+Project-URL = "https://github.com/codingjoe/django-pictures"
+Source = "https://github.com/codingjoe/django-pictures"
 
 [dependency-groups]
 dev = [
@@ -51,86 +54,70 @@ test = [
   "pytest-django",
 ]
 
-[project.urls]
-Project-URL = "https://github.com/codingjoe/django-pictures"
-Changelog = "https://github.com/codingjoe/django-pictures/releases"
-Source = "https://github.com/codingjoe/django-pictures"
-Documentation = "https://github.com/codingjoe/django-pictures#django-pictures"
-Issue-Tracker = "https://github.com/codingjoe/django-pictures/issues"
-
-[tool.flit.module]
-name = "pictures"
-
 [tool.setuptools_scm]
 write_to = "pictures/_version.py"
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "--cov --cov-report=xml --cov-report=term --tb=short -rxs  --benchmark-autosave --benchmark-min-rounds=10"
-testpaths = ["tests"]
-DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
+[tool.flit]
+[tool.flit.module]
+name = "pictures"
 
-[tool.coverage.run]
-source = ["pictures"]
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
+[tool.ruff]
+line-length = 88
+indent-width = 4
+src = [ "flit_gettext", "tests" ]
+[tool.ruff.format]
+preview = true
+indent-style = "space"
+quote-style = "double"
+line-ending = "auto"
+skip-magic-trailing-comma = false
+[tool.ruff.lint]
+select = [
+  "D",   # pydocstyle
+  "EXE", # flake8-executable
+  "F",   # pyflakes
+  "I",   # isort
+  "PT",  # flake8-pytest-style
+  "RET", # flake8-return
+  "S",   # flake8-bandit
+  "SIM", # flake8-simplify
+  "UP",  # pyupgrade
+  "W",   # pycodestyle warnings
+]
+ignore = [ "D1" ]
+per-file-ignores."*/migrations/*.py" = [ "E501" ]
+per-file-ignores."*/test*.py" = [ "E501", "PT011", "S101" ]
+flake8-pytest-style.fixture-parentheses = false
+flake8-pytest-style.mark-parentheses = false
+isort.combine-as-imports = true
+isort.force-wrap-aliases = true
+isort.known-first-party = [ "pictures", "tests" ]
+isort.section-order = [ "future", "standard-library", "third-party", "first-party", "local-folder" ]
+isort.split-on-trailing-comma = true
+pydocstyle.convention = "pep257"
 
 [tool.isort]
 atomic = true
 line_length = 88
-known_first_party = "pictures, tests"
 include_trailing_comma = true
-default_section = "THIRDPARTY"
 combine_as_imports = true
-skip = ["pictures/_version.py"]
+default_section = "THIRDPARTY"
+known_first_party = "pictures, tests"
+skip = [ "pictures/_version.py" ]
+
+[tool.pytest]
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [ "tests" ]
+addopts = "--cov --cov-report=xml --cov-report=term --tb=short -rxs  --benchmark-autosave --benchmark-min-rounds=10"
+DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
+
+[tool.coverage]
+[tool.coverage.run]
+source = [ "pictures" ]
+[tool.coverage.report]
+skip_covered = true
+show_missing = true
 
 [tool.pydocstyle]
 add_ignore = "D1"
-
-[tool.ruff]
-src = ["flit_gettext", "tests"]
-line-length = 88
-indent-width = 4
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-preview = true
-
-[tool.ruff.lint]
-select = [
-    "D", # pydocstyle
-    "EXE", # flake8-executable
-    "F", # pyflakes
-    "I", # isort
-    "PT", # flake8-pytest-style
-    "RET", # flake8-return
-    "S", # flake8-bandit
-    "SIM", # flake8-simplify
-    "UP", # pyupgrade
-    "W", # pycodestyle warnings
-]
-
-ignore = ["D1"]
-
-[tool.ruff.lint.per-file-ignores]
-"*/test*.py" = ["S101", "E501", "PT011"]
-"*/migrations/*.py" = ["E501"]
-
-[tool.ruff.lint.flake8-pytest-style]
-fixture-parentheses = false
-mark-parentheses = false
-
-[tool.ruff.lint.isort]
-combine-as-imports = true
-split-on-trailing-comma = true
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
-force-wrap-aliases = true
-known-first-party = ["pictures", "tests"]
-
-[tool.ruff.lint.pydocstyle]
-convention = "pep257"
