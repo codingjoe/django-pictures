@@ -97,7 +97,8 @@ def placeholder(width: int, height: int, alt):
         raise RuntimeError(f"Unsupported platform: {sys.platform}")
     font = ImageFont.truetype(font_name, fontsize)
     text = unquote(f"{alt}\n<{width}x{height}>")
-    while font.getlength(text) < width / 2:
+    # Raqm cannot lay out newlines, so measure the widest line.
+    while max(font.getlength(line) for line in text.split("\n")) < width / 2:
         # iterate until the text size is just larger than the criteria
         fontsize += 1
         font = ImageFont.truetype(font_name, fontsize)

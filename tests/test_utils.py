@@ -145,6 +145,13 @@ def test_placeholder():
     assert img.height == 1200
 
 
+def test_placeholder__multiline_alt():
+    utils.placeholder.cache_clear()
+    img = utils.placeholder(1600, 1200, "multi\nline")
+    assert img.width == 1600
+    assert img.height == 1200
+
+
 class SamplePicture(Picture):
     @property
     def url(self):
