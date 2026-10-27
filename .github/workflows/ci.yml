@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
-      - run: uv run pytest -m "not benchmark"
+      - run: uv run --with=pytest-github-actions-annotate-failures pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
         with:
           use_oidc: true
@@ -55,7 +55,7 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
-      - run: uv run --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
+      - run: uv run --with=pytest-github-actions-annotate-failures --group=test --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
         with:
           use_oidc: true
@@ -76,7 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
-      - run: uv run --group=test --extra=${{ matrix.extras }} --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
+      - run: uv run --with=pytest-github-actions-annotate-failures --group=test --extra=${{ matrix.extras }} --with Django~=${{ matrix.django-version }}.0 pytest -m "not benchmark"
       - uses: codecov/codecov-action@v7
         with:
           use_oidc: true
