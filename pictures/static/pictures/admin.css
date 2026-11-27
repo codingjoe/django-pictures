@@ -4,10 +4,12 @@
   align-items: flex-start;
   gap: 1rem;
   margin-block-start: 0.5rem;
+
   figure {
     margin: 0;
     text-align: center;
   }
+
   img {
     display: block;
     width: 200px;
