@@ -318,25 +318,6 @@ class Profile(models.Model):
 > [!IMPORTANT]
 > These validators check image dimensions, not file size. Consider implementing HTTP request body size restrictions (e.g., in your web server or Django middleware) to prevent large file uploads.
 
-### Admin
-
-The `AdminPictureWidget` shows a preview of every aspect ratio
-next to the file input, so you can see how the original picture is cropped:
-
-```python
-# admin.py
-from django.contrib import admin
-from pictures.models import PictureField
-from pictures.widgets import AdminPictureWidget
-
-from . import models
-
-
-@admin.register(models.Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    formfield_overrides = {PictureField: {"widget": AdminPictureWidget}}
-```
-
 ## Migrations
 
 Django doesn't support file field migrations, but we do.
