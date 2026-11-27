@@ -2,6 +2,6 @@
 <div class="picture-previews">{% for ratio in widget.value.aspect_ratios %}
   <figure>
     {% picture widget.value img_alt=widget.name img_loading="lazy" ratio=ratio container=200 %}
-    <figcaption>{% if ratio %}{{ ratio }}{% else %}{{ widget.value.width }}×{{ widget.value.height }}{% endif %}</figcaption>
+    <figcaption>{{ ratio|default_if_none:_("Original") }}</figcaption>
   </figure>{% endfor %}
 </div>{% endif %}

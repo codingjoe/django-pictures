@@ -12,7 +12,7 @@ class TestAdminPictureWidget:
         with pytest.warns(UserWarning, match="container is smaller"):
             html = AdminPictureWidget().render("picture", profile.picture)
         assert html.count("<figure>") == 4
-        assert "<figcaption>800×800</figcaption>" in html
+        assert "<figcaption>Original</figcaption>" in html
         assert "<figcaption>1/1</figcaption>" in html
         assert "<figcaption>16/9</figcaption>" in html
         assert "/media/testapp/profile/image/16_9/800w.avif 800w" in html
