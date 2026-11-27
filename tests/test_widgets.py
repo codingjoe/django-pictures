@@ -11,12 +11,23 @@ class TestAdminPictureWidget:
         profile = Profile.objects.create(name="Spiderman", picture=image_upload_file)
         with pytest.warns(UserWarning, match="container is smaller"):
             html = AdminPictureWidget().render("picture", profile.picture)
-        assert html.count("<figure>") == 4
-        assert "<figcaption>Original</figcaption>" in html
-        assert "<figcaption>1/1</figcaption>" in html
-        assert "<figcaption>16/9</figcaption>" in html
+        assert (
+            """
+<div class="picture-previews">
+<figure>
+<picture>
+  <source type="image/avif"
+          srcset="/media/testapp/profile/image/800w.avif 800w, /media/testapp/profile/image/100w.avif 100w, /media/testapp/profile/image/200w.avif 200w, /media/testapp/profile/image/300w.avif 300w, /media/testapp/profile/image/400w.avif 400w, /media/testapp/profile/image/500w.avif 500w, /media/testapp/profile/image/600w.avif 600w, /media/testapp/profile/image/700w.avif 700w"
+          sizes="(min-width: 0px) and (max-width: 199px) 100vw, 200px">
+  <img src="/media/testapp/profile/image.png" alt="picture" width="800" height="800" loading="lazy">
+</picture>
+<figcaption>Original</figcaption>
+</figure>
+"""
+            in html
+        )
         assert "/media/testapp/profile/image/16_9/800w.avif 800w" in html
-        assert "/media/testapp/profile/image/800w.avif 800w" in html
+        assert "<figcaption>16/9</figcaption>\n</figure>\n</div>" in html
 
     @pytest.mark.django_db
     def test_render__placeholder(self, image_upload_file, settings):
