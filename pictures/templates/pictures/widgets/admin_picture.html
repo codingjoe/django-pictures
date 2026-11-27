@@ -1,10 +1,7 @@
-{% include "admin/widgets/clearable_file_input.html" %}{% if widget.is_initial %}
-<div class="picture-previews">{% for ratio, sources in widget.value.aspect_ratios.items %}
+{% load pictures %}{% include "admin/widgets/clearable_file_input.html" %}{% if widget.is_initial %}
+<div class="picture-previews">{% for ratio in widget.value.aspect_ratios %}
   <figure>
-    <picture>{% for file_type, srcset in sources.items %}
-      <source type="image/{{ file_type|lower }}" srcset="{% for width, picture in srcset.items %}{{ picture.url }} {{ width|stringformat:'i' }}w{% if not forloop.last %}, {% endif %}{% endfor %}" sizes="200px">{% endfor %}
-      <img src="{{ widget.value.url }}" alt="" loading="lazy">
-    </picture>
+    {% picture widget.value img_alt=widget.name img_loading="lazy" ratio=ratio container=200 %}
     <figcaption>{% if ratio %}{{ ratio }}{% else %}{{ widget.value.width }}×{{ widget.value.height }}{% endif %}</figcaption>
   </figure>{% endfor %}
 </div>{% endif %}
