@@ -43,6 +43,10 @@ repos:
     hooks:
       - id: pyproject-fmt
         args: [--table-format, long]
+  - repo: https://github.com/codingjoe/cssupgrade
+    rev: 2026.2.0
+    hooks:
+      - id: cssupgrade
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
     hooks:

@@ -6,6 +6,7 @@ from fractions import Fraction
 from pathlib import Path
 from types import NotImplementedType
 
+from django.contrib.admin.widgets import AdminFileWidget
 from django.core import checks
 from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
@@ -16,6 +17,7 @@ from django.utils.module_loading import import_string
 from PIL import Image, ImageCms, ImageOps
 
 from pictures import conf, utils
+from pictures.widgets import AdminPictureWidget
 
 __all__ = ["Picture", "PictureField", "PictureFieldFile"]
 
@@ -314,6 +316,11 @@ class PictureField(ImageField):
             name=name,
             **kwargs,
         )
+
+    def formfield(self, **kwargs):
+        if kwargs.get("widget") is AdminFileWidget:
+            kwargs["widget"] = AdminPictureWidget
+        return super().formfield(**kwargs)
 
     def check(self, **kwargs):
         return (

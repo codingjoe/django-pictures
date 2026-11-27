@@ -6,12 +6,15 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+from django import forms
+from django.contrib.admin.widgets import AdminFileWidget
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.fields.files import ImageFieldFile
 from PIL import Image, ImageCms, ImageDraw
 
 from pictures.models import PictureField, PillowPicture
+from pictures.widgets import AdminPictureWidget
 from tests.testapp.models import JPEGModel, Profile, SimpleModel
 
 
@@ -919,6 +922,19 @@ class TestPictureFieldFile:
 
 
 class TestPictureField:
+    def test_formfield(self):
+        assert type(PictureField().formfield().widget) is forms.ClearableFileInput
+
+    def test_formfield__admin(self):
+        assert isinstance(
+            PictureField().formfield(widget=AdminFileWidget).widget, AdminPictureWidget
+        )
+
+    def test_formfield__custom_widget(self):
+        assert type(PictureField().formfield(widget=forms.FileInput).widget) is (
+            forms.FileInput
+        )
+
     @pytest.mark.django_db
     def test_integration(self, image_upload_file):
         obj = SimpleModel.objects.create(picture=image_upload_file)

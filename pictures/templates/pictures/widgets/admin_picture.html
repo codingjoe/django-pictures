@@ -1,0 +1,5 @@
+{% load pictures %}{% include "admin/widgets/clearable_file_input.html" %}{% if widget.is_initial %}<div class="picture-previews">{% for ratio in widget.value.aspect_ratios %}
+<figure>
+{% picture widget.value img_alt=widget.name img_loading="lazy" ratio=ratio container=200 %}<figcaption>{{ ratio|default_if_none:_("original")|capfirst }}</figcaption>
+</figure>{% endfor %}
+</div>{% endif %}
