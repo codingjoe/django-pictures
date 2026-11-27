@@ -1,0 +1,19 @@
+.picture-previews {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-block-start: 0.5rem;
+}
+
+.picture-previews figure {
+  margin: 0;
+  text-align: center;
+}
+
+.picture-previews img {
+  display: block;
+  width: 200px;
+  height: auto;
+  border: 1px solid var(--border-color);
+}
